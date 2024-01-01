@@ -3,6 +3,9 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
+import morgans_picks
+
+
 # week	home	away	line	home_score	away_score	Stanley M	Aunt Sue	Stanley L	Jean	Morgan	game_id
 
 one_game = dict()
@@ -225,6 +228,7 @@ def load_games_csv(filename):
     gamereader = csv.DictReader(csvfile, delimiter=',')
     return [row for row in gamereader]
 
+
 if __name__ == "__main__":
   propositions = get_propositions()
   write_propositions_csv(propositions)
@@ -255,4 +259,9 @@ if __name__ == "__main__":
           else:
             game[k] = game[INCORRECT_OUTCOME_ABBREV_KEY]
 
-write_games_csv(games, 'games.csv')
+  # Incorporate Morgan's picks.
+  for game in games:
+    game[MORGAN_PICK_KEY] = morgans_picks.get_morgan_pick(week=game[WEEK_KEY],
+                    home_team=game[HOME_KEY],
+                    away_team=game[AWAY_KEY])
+  write_games_csv(games, 'games.csv')

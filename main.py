@@ -42,61 +42,61 @@ def parse_score_text(score_text):
 def game_as_str(game_dict):
   return(','.join([str(game_dict[k]) for k in game_col_keys]))
 
-games = []
-for week in range(1, 19):
-  espn_week_url = f'https://www.espn.com/nfl/schedule/_/week/{week}/year/2023/seasontype/2'
-  # url = 'https://www.bbc.com/news'
-  response = requests.get(espn_week_url,headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-  soup = BeautifulSoup(response.content, 'html.parser')
+def get_game_scores():
+  # Get all the games and all the scores.
+  #
+  # Uses ESPN's main schedule pages to scrape basic stats.
+  games = []
+  for week in range(1, 19):
+    # Assume year is 2023
+    espn_week_url = f'https://www.espn.com/nfl/schedule/_/week/{week}/year/2023/seasontype/2'
+    # url = 'https://www.bbc.com/news'
+    response = requests.get(espn_week_url,headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+    soup = BeautifulSoup(response.content, 'html.parser')
 
-  football_days = soup.find_all('div', class_='ScheduleTables mb5 ScheduleTables--nfl ScheduleTables--football')
-  print(f"week {week}")
-  for football_day in football_days:
-    rows = football_day.find_all('tr', class_='Table__TR Table__TR--sm Table__even')
-    for i_r, row in enumerate(rows[:]):
-      game = {k: '' for k in game_col_keys}
-      game[WEEK_KEY] = week
-      # print()
-      # print(f'row = {i_r}')
-      # Get the teams
-      teams = row.find_all('span', class_='Table__Team')
-      for i_t, team in enumerate(teams):
-        team_link = team.find_all('a')[0]
-        team_code = team_link['href'].split('/')[5].upper()
-        # print(i_t, team_link['href'], team_code)
-        if i_t == 0:
-          game[AWAY_KEY] = team_code
-        if i_t == 1:
-          game[HOME_KEY] = team_code
-      # Get the score and ESPN game ID.  This will be none if the game 
-      # has not happened or is in progres.
-      score_col = row.find('td', class_='teams__col Table__TD')
-      if score_col:
-        game_href = score_col.find_all('a')[0]['href']
-        # print('game href ', game_href)
-        game_id = game_href.split("=")[1]
-        score_text = score_col.get_text()
-        (away_score, home_score) = parse_score_text(score_text)
-        game[HOME_SCORE_KEY] = home_score
-        game[AWAY_SCORE_KEY] = away_score
-        game[GAME_ID_KEY] = game_id
-      games.append(game)
-      print(game_as_str(game))
+    # The page organizes weeks by days, separating, e.g., Monday night football from the Sunday games.
+    football_days = soup.find_all('div', class_='ScheduleTables mb5 ScheduleTables--nfl ScheduleTables--football')
+    print(f"week {week}")
+    for football_day in football_days:
+      # Each of these rows corresponds to one game.
+      rows = football_day.find_all('tr', class_='Table__TR Table__TR--sm Table__even')
+      for i_r, row in enumerate(rows[:]):
+        game = {k: '' for k in game_col_keys}
+        game[WEEK_KEY] = week
+        # Get the teams
+        teams = row.find_all('span', class_='Table__Team')
+        for i_t, team in enumerate(teams):
+          team_link = team.find_all('a')[0]
+          team_code = team_link['href'].split('/')[5].upper()
+          # Away team is listed first
+          if i_t == 0:
+            game[AWAY_KEY] = team_code
+          if i_t == 1:
+            game[HOME_KEY] = team_code
+        # Get the score and ESPN game ID.  This will be none if the game 
+        # has not happened or is in progres.
+        score_col = row.find('td', class_='teams__col Table__TD')
+        if score_col:
+          game_href = score_col.find_all('a')[0]['href']
+          # print('game href ', game_href)
+          game_id = game_href.split("=")[1]
+          score_text = score_col.get_text()
+          # Score text should be something like "ATL 25, GB 24".
+          (away_score, home_score) = parse_score_text(score_text)   
+          game[HOME_SCORE_KEY] = home_score
+          game[AWAY_SCORE_KEY] = away_score
+          game[GAME_ID_KEY] = game_id
+        games.append(game)
+  return(games)
 
-with open('games.csv', 'w', newline='') as csvfile:
-  gamewriter = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-  gamewriter.writerow(game_col_keys)
-  for game in games:
-    gamewriter.writerow([game[k] for k in game_col_keys])
+def write_games_csv(games):
+  # Write CSV with one row per game.  Include keys as above.
+  with open('games.csv', 'w', newline='') as csvfile:
+    gamewriter = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+    gamewriter.writerow(game_col_keys)
+    for game in games:
+      gamewriter.writerow([game[k] for k in game_col_keys])
 
-
-  # #print(article.attrs)
-#   print(len(article.contents))
-#   print(article.contents)
-#   print(len(list(article.descendants)))
-#   print(list(article.descendants))
-#   # title = article.find('a').text
-  # print(title)
-
-
-print('hello_world')
+if __name__ == "__main__":
+  games = get_game_scores()
+  write_games_csv(games)

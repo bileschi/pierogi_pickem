@@ -68,12 +68,19 @@ PLAYER_IDS = {
   JEAN_PICK_KEY: '5d03d350-4c3a-11ee-8382-91995701af39',
 }
 
-def parse_score_text(score_text):
+def parse_score_text(score_text, home_team):
   # expect text like "ATL 25, GB 24" or "BUF 38, LV 10"
+  # scores are listed larger number first - not in home/away order.
+  #
+  # return {"home": home_score, "away": away_score}
   (away, home) = score_text.split(",")
-  away_score = away.strip().split(" ")[1].strip()
-  home_score = home.strip().split(" ")[1].strip()
-  return(away_score, home_score)
+  first_team = away.strip().split(" ")[0].strip()
+  first_score = away.strip().split(" ")[1].strip()
+  second_score = home.strip().split(" ")[1].strip()
+  if first_team == home_team:
+    return({"home": first_score, "away": int(second_score)})
+  else:
+    return({"home": second_score, "away": int(first_score)})
 
 def game_as_str(game_dict):
   return(','.join([str(game_dict[k]) for k in GAME_COL_KEYS]))
@@ -127,9 +134,10 @@ def get_game_scores():
           game_id = game_href.split("=")[1]
           score_text = score_col.get_text()
           # Score text should be something like "ATL 25, GB 24".
-          (away_score, home_score) = parse_score_text(score_text)   
-          game[HOME_SCORE_KEY] = home_score
-          game[AWAY_SCORE_KEY] = away_score
+          scores = parse_score_text(
+            score_text, home_team=game[HOME_KEY])   
+          game[HOME_SCORE_KEY] = scores['home']
+          game[AWAY_SCORE_KEY] = scores['away']
           game[GAME_ID_KEY] = game_id
         games.append(game)
   return(games)

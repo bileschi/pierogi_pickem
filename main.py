@@ -45,21 +45,30 @@ def game_as_str(game_dict):
 def get_game_scores():
   # Get all the games and all the scores.
   #
-  # Uses ESPN's main schedule pages to scrape basic stats.
+  # Uses ESPN's main schedule pages to scrape basic stats. These values have
+  # nothing to do with our pickem picks, they are common to the NFL.
   games = []
   for week in range(1, 19):
     # Assume year is 2023
-    espn_week_url = f'https://www.espn.com/nfl/schedule/_/week/{week}/year/2023/seasontype/2'
+    espn_week_url = (
+      f'https://www.espn.com/nfl/schedule/_/week/{week}/year/2023/seasontype/2')
     # url = 'https://www.bbc.com/news'
-    response = requests.get(espn_week_url,headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+    response = requests.get(
+      espn_week_url,
+      headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
     soup = BeautifulSoup(response.content, 'html.parser')
 
-    # The page organizes weeks by days, separating, e.g., Monday night football from the Sunday games.
-    football_days = soup.find_all('div', class_='ScheduleTables mb5 ScheduleTables--nfl ScheduleTables--football')
+    # The page organizes weeks by days, separating, e.g., 
+    # Monday night football from the Sunday games.
+    football_days = soup.find_all(
+      'div',
+      class_='ScheduleTables mb5 ScheduleTables--nfl ScheduleTables--football')
     print(f"week {week}")
     for football_day in football_days:
       # Each of these rows corresponds to one game.
-      rows = football_day.find_all('tr', class_='Table__TR Table__TR--sm Table__even')
+      rows = football_day.find_all(
+        'tr',
+        class_='Table__TR Table__TR--sm Table__even')
       for i_r, row in enumerate(rows[:]):
         game = {k: '' for k in game_col_keys}
         game[WEEK_KEY] = week

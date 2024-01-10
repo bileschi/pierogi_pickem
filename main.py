@@ -272,4 +272,10 @@ if __name__ == "__main__":
     game[MORGAN_PICK_KEY] = morgans_picks.get_morgan_pick(week=game[WEEK_KEY],
                     home_team=game[HOME_KEY],
                     away_team=game[AWAY_KEY])
+  # Add defaults for Sue, Jean, SMB, SLB
+  for game in games:
+    game[SMB_PICK_KEY] = game[SMB_PICK_KEY] or game[HOME_KEY]
+    game[SLB_PICK_KEY] = game[SLB_PICK_KEY] or game[HOME_KEY]
+    game[SUE_PICK_KEY] = game[SUE_PICK_KEY] or game[HOME_KEY]
+    game[JEAN_PICK_KEY] = game[JEAN_PICK_KEY] or game[HOME_KEY]
   write_games_csv(games, 'games.csv')

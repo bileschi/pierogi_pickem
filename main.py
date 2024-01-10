@@ -131,7 +131,7 @@ def get_game_scores():
         if score_col:
           game_href = score_col.find_all('a')[0]['href']
           # print('game href ', game_href)
-          game_id = game_href.split("=")[1]
+          game_id = game_href.split("=")[1].split("&")[0]
           score_text = score_col.get_text()
           # Score text should be something like "ATL 25, GB 24".
           scores = parse_score_text(

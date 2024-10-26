@@ -2,6 +2,7 @@ import csv
 import json
 import os
 import requests
+from typing import List, Optional
 from bs4 import BeautifulSoup
 
 from current_season import FOOTBALL_SEASON
@@ -37,7 +38,7 @@ PROP_COL_KEYS = (
 )
 
 
-def get_propositions(espn_propositions_url: str) -> list:
+def get_propositions(espn_propositions_url: Optional[str]) -> list:
     """
     Fetches and parses proposition data from the given ESPN URL.
 
@@ -56,6 +57,8 @@ def get_propositions(espn_propositions_url: str) -> list:
           - PROP_NAME_KEY: The name of the proposition.
           - GAME_ID_KEY: The ID of the game associated with the proposition.
     """
+    if not espn_propositions_url:
+        espn_propositions_url = ESPN_PROPOSITIONS_URL[FOOTBALL_SEASON]
     # Get the ids and lines for all the propositions in the league.
     # A propisition is semantically like a "bet".  It is different from a game
     # since you can have multiple bets on a single game.
@@ -95,8 +98,36 @@ def get_propositions(espn_propositions_url: str) -> list:
         propositions.append(proposition)
     return propositions
 
+def load_propositions_csv():
+    """
+    Loads a list of proposition dictionaries from a CSV file.
 
-def write_propositions_csv(propositions):
+    Returns:
+      list: A list of dictionaries, each containing details about a proposition.
+        Each dictionary should have keys corresponding to PROP_COL_KEYS.
+
+    The CSV file is expected to be in the directory specified by the FOOTBALL_SEASON
+    variable with the filename "propositions.csv". The file is expected to be written
+    with a header row containing PROP_COL_KEYS, and each subsequent row containing
+    the values of each proposition dictionary in the order specified by PROP_COL_KEYS.
+
+    Note:
+      - The FOOTBALL_SEASON and PROP_COL_KEYS variables must be defined in the
+        module's scope.
+      - The csv and os modules must be imported.
+    """
+    propositions = []
+    with open(
+        os.path.join(FOOTBALL_SEASON, "propositions.csv"), "r", newline=""
+    ) as csvfile:
+        propreader = csv.reader(csvfile, delimiter=",", quoting=csv.QUOTE_MINIMAL)
+        next(propreader)  # Skip the header row
+        for row in propreader:
+            proposition = {k: v for k, v in zip(PROP_COL_KEYS, row)}
+            propositions.append(proposition)
+    return propositions
+
+def write_propositions_csv(propositions: List[dict]):
     """
     Writes a list of proposition dictionaries to a CSV file.
 

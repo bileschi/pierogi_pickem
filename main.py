@@ -1,56 +1,49 @@
 import csv
 import json
+import os
 import requests
+
 from bs4 import BeautifulSoup
 
-import morgans_picks
+import propositions
+# import morgans_picks
 
-FOOTBALL_SEASON = "2024_2025"
-# Get these by navigating to, e.g.,
-# "https://fantasy.espn.com/games/pigskinpickem/?navmethod=web_vanityredirect"
-# and monitoring the network tab.  Note that the challengeId is different for
-# each season.
-ESPN_PROPOSITIONS_URL = {
-  '2023_2024': (
-      f'https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=230&platform=chui&view=chui_default'),
-  '2024_2025': (
-      f'https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=247&platform=chui&view=chui_default')
-}
+from current_season import FOOTBALL_SEASON
 
 
 # week	home	away	line	home_score	away_score	Stanley M	Aunt Sue	Stanley L	Jean	Morgan	game_id
 
 one_game = dict()
 
-WEEK_KEY = 'week'
-HOME_KEY = 'home_team'
 AWAY_KEY = 'away_team'
-GAME_ID_KEY = 'game_id'
-CORRECT_OUTCOME_ABBREV_KEY = 'correct_outcome_key'
-INCORRECT_OUTCOME_ABBREV_KEY = 'incorrect_outcome_key'
-PROP_NAME_KEY = 'prop_name'
-PROPOSITION_ID_KEY = 'proposition_id'
-LINE_KEY = 'home_line'
-HOME_SCORE_KEY = 'home_score'
 AWAY_SCORE_KEY = 'away_score'
-SMB_PICK_KEY = 'smb_pick'
-SLB_PICK_KEY = 'slb_pick'
-SUE_PICK_KEY = 'sue_pick'
+# CORRECT_OUTCOME_ABBREV_KEY = 'correct_outcome_key'
+# GAME_ID_KEY = 'game_id'
+HOME_KEY = 'home_team'
+HOME_SCORE_KEY = 'home_score'
+# INCORRECT_OUTCOME_ABBREV_KEY = 'incorrect_outcome_key'
 JEAN_PICK_KEY = 'jean_pick'
+# LINE_KEY = 'home_line'
 MORGAN_PICK_KEY = 'morgan_pick'
 OUTCOME_ID_KEY = 'outcome_id'
+# PROP_NAME_KEY = 'prop_name'
+# PROPOSITION_ID_KEY = 'proposition_id'
 RESULT_KEY = 'result'
+SLB_PICK_KEY = 'slb_pick'
+SMB_PICK_KEY = 'smb_pick'
+SUE_PICK_KEY = 'sue_pick'
+WEEK_KEY = 'week'
 
 GAME_COL_KEYS = (
   WEEK_KEY,  # get_game_scores
   HOME_KEY,  # get_game_scores
   AWAY_KEY,  # get_game_scores
-  GAME_ID_KEY,  # get_game_scores
-  PROPOSITION_ID_KEY,  # get_propositions
-  CORRECT_OUTCOME_ABBREV_KEY, # get_propositions
+  propositions.GAME_ID_KEY,  # get_game_scores
+  propositions.PROPOSITION_ID_KEY,  # get_propositions
+  propositions.CORRECT_OUTCOME_ABBREV_KEY, # get_propositions
   HOME_SCORE_KEY,  # get_game_scores
   AWAY_SCORE_KEY,  # get_game_scores
-  LINE_KEY,  # get_propositions
+  propositions.LINE_KEY,  # get_propositions
   SMB_PICK_KEY,
   SLB_PICK_KEY,
   SUE_PICK_KEY,
@@ -58,17 +51,8 @@ GAME_COL_KEYS = (
   MORGAN_PICK_KEY,
 )
 
-PROP_COL_KEYS = (
-  PROPOSITION_ID_KEY,
-  LINE_KEY,
-  CORRECT_OUTCOME_ABBREV_KEY,
-  INCORRECT_OUTCOME_ABBREV_KEY, # get_propositions
-  PROP_NAME_KEY, 
-  GAME_ID_KEY
-)
-
 PICKS_COL_KEYS = (
-  PROPOSITION_ID_KEY,
+  propositions.PROPOSITION_ID_KEY,
   OUTCOME_ID_KEY,
   RESULT_KEY,
 )
@@ -150,49 +134,10 @@ def get_game_scores():
             score_text, home_team=game[HOME_KEY])   
           game[HOME_SCORE_KEY] = scores['home']
           game[AWAY_SCORE_KEY] = scores['away']
-          game[GAME_ID_KEY] = game_id
+          game[propositions.GAME_ID_KEY] = game_id
         games.append(game)
   return(games)
 
-def get_propositions():
-    # Get the ids and lines for all the propositions in the league.
-    # A propisition is semantically like a "bet".  It iss different from a game
-    # since you can have multiple bets on a single game.
-    propositions = []
-    espn_propositions_url = ESPN_PROPOSITIONS_URL[FOOTBALL_SEASON]
-    # e.g., 'https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=230&platform=chui&view=chui_default'
-    response = requests.get(
-      espn_propositions_url,
-      headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-    soup = BeautifulSoup(response.content, 'html.parser')
-    propositions_json = json.loads(soup.text)
-    for one_json_prop in propositions_json:
-      proposition = {
-          PROPOSITION_ID_KEY: None,
-          LINE_KEY: None,
-          CORRECT_OUTCOME_ABBREV_KEY: None,
-          INCORRECT_OUTCOME_ABBREV_KEY: None,
-          PROP_NAME_KEY: None, 
-          GAME_ID_KEY: None
-      }
-      if len(one_json_prop['correctOutcomes']) == 1:
-        correct_outcome_id = one_json_prop['correctOutcomes'][0]
-      else:
-        correct_outcome_id = None
-      for possible_outcome in one_json_prop['possibleOutcomes']:
-        if possible_outcome['id'] == correct_outcome_id:
-          proposition[CORRECT_OUTCOME_ABBREV_KEY] = possible_outcome['abbrev']
-        else:
-          proposition[INCORRECT_OUTCOME_ABBREV_KEY] = possible_outcome['abbrev']
-      proposition[PROPOSITION_ID_KEY] = one_json_prop['id']
-      proposition[PROP_NAME_KEY] = one_json_prop['name']
-      if 'spread' in one_json_prop:
-        proposition[LINE_KEY] = one_json_prop['spread']
-      for val in one_json_prop['mappings']:
-        if val['type'] == 'COMPETITION_ID':
-          proposition[GAME_ID_KEY] = val['value']
-      propositions.append(proposition)
-    return(propositions)
 
 def get_picks(pick_id):
   picks = []
@@ -206,7 +151,7 @@ def get_picks(pick_id):
   picks_json = json.loads(soup.text)
   for one_json_pick in picks_json['picks']:
     pick = {
-      PROPOSITION_ID_KEY: None,
+      propositions.PROPOSITION_ID_KEY: None,
       OUTCOME_ID_KEY: None,
       RESULT_KEY: None
     }
@@ -216,7 +161,7 @@ def get_picks(pick_id):
       pick[RESULT_KEY] = one_outcome['result']
     # Otherwise no pick.
     # TODO: handle multiple picks.  - is that even possible?
-    pick[PROPOSITION_ID_KEY] = one_json_pick['propositionId']
+    pick[propositions.PROPOSITION_ID_KEY] = one_json_pick['propositionId']
     picks.append(pick)
   return(picks)
 
@@ -227,13 +172,6 @@ def write_games_csv(games, filename):
     gamewriter.writerow(GAME_COL_KEYS)
     for game in games:
       gamewriter.writerow([game[k] for k in GAME_COL_KEYS])
-
-def write_propositions_csv(propositions):
-  with open('propositions.csv', 'w', newline='') as csvfile:
-    propwriter = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-    propwriter.writerow(PROP_COL_KEYS)
-    for prop in propositions:
-      propwriter.writerow([prop[k] for k in PROP_COL_KEYS])
 
 def write_picks_csv(picks, filename):
   with open(filename, 'w', newline='') as csvfile:
@@ -250,9 +188,8 @@ def load_games_csv(filename):
 
 
 if __name__ == "__main__":
-  propositions = get_propositions()
-  write_propositions_csv(propositions)
-  # picks = {}
+
+  picks = {}
   # for (k, v) in PLAYER_IDS.items():
   #   picks[k] = get_picks(v)
   #   write_picks_csv(picks[k], f'{k}.csv')

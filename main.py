@@ -5,6 +5,18 @@ from bs4 import BeautifulSoup
 
 import morgans_picks
 
+FOOTBALL_SEASON = "2024_2025"
+# Get these by navigating to, e.g.,
+# "https://fantasy.espn.com/games/pigskinpickem/?navmethod=web_vanityredirect"
+# and monitoring the network tab.  Note that the challengeId is different for
+# each season.
+ESPN_PROPOSITIONS_URL = {
+  '2023_2024': (
+      f'https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=230&platform=chui&view=chui_default'),
+  '2024_2025': (
+      f'https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=247&platform=chui&view=chui_default')
+}
+
 
 # week	home	away	line	home_score	away_score	Stanley M	Aunt Sue	Stanley L	Jean	Morgan	game_id
 
@@ -147,8 +159,8 @@ def get_propositions():
     # A propisition is semantically like a "bet".  It iss different from a game
     # since you can have multiple bets on a single game.
     propositions = []
-    espn_propositions_url = (
-      f'https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=230&platform=chui&view=chui_default')
+    espn_propositions_url = ESPN_PROPOSITIONS_URL[FOOTBALL_SEASON]
+    # e.g., 'https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=230&platform=chui&view=chui_default'
     response = requests.get(
       espn_propositions_url,
       headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
@@ -240,42 +252,42 @@ def load_games_csv(filename):
 if __name__ == "__main__":
   propositions = get_propositions()
   write_propositions_csv(propositions)
-  picks = {}
-  for (k, v) in PLAYER_IDS.items():
-    picks[k] = get_picks(v)
-    write_picks_csv(picks[k], f'{k}.csv')
-  games = get_game_scores()
-  write_games_csv(games, 'base_games.csv')
-  # games = load_games_csv('base_games.csv')
+  # picks = {}
+  # for (k, v) in PLAYER_IDS.items():
+  #   picks[k] = get_picks(v)
+  #   write_picks_csv(picks[k], f'{k}.csv')
+  # games = get_game_scores()
+  # write_games_csv(games, 'base_games.csv')
+  # # games = load_games_csv('base_games.csv')
   
-  # Populate lines & picks. A faster, non n^2 way to do this would be to build
-  # an index but this dumb way is so much faster than the
-  # fetches that it doesn't matter.
-  for game in games:
-    for prop in propositions:
-      if game[GAME_ID_KEY] == prop[GAME_ID_KEY]:
-        game[LINE_KEY] = prop[LINE_KEY]
-        game[PROPOSITION_ID_KEY] = prop[PROPOSITION_ID_KEY]
-        game[CORRECT_OUTCOME_ABBREV_KEY] = prop[CORRECT_OUTCOME_ABBREV_KEY]
-        game[INCORRECT_OUTCOME_ABBREV_KEY] = prop[INCORRECT_OUTCOME_ABBREV_KEY]
-  for game in games:
-    for k in PLAYER_IDS.keys():
-      for pick in picks[k]:
-        if game[PROPOSITION_ID_KEY] == pick[PROPOSITION_ID_KEY]:
-          if(pick[RESULT_KEY]) == 'CORRECT':
-            game[k] = game[CORRECT_OUTCOME_ABBREV_KEY]
-          else:
-            game[k] = game[INCORRECT_OUTCOME_ABBREV_KEY]
+  # # Populate lines & picks. A faster, non n^2 way to do this would be to build
+  # # an index but this dumb way is so much faster than the
+  # # fetches that it doesn't matter.
+  # for game in games:
+  #   for prop in propositions:
+  #     if game[GAME_ID_KEY] == prop[GAME_ID_KEY]:
+  #       game[LINE_KEY] = prop[LINE_KEY]
+  #       game[PROPOSITION_ID_KEY] = prop[PROPOSITION_ID_KEY]
+  #       game[CORRECT_OUTCOME_ABBREV_KEY] = prop[CORRECT_OUTCOME_ABBREV_KEY]
+  #       game[INCORRECT_OUTCOME_ABBREV_KEY] = prop[INCORRECT_OUTCOME_ABBREV_KEY]
+  # for game in games:
+  #   for k in PLAYER_IDS.keys():
+  #     for pick in picks[k]:
+  #       if game[PROPOSITION_ID_KEY] == pick[PROPOSITION_ID_KEY]:
+  #         if(pick[RESULT_KEY]) == 'CORRECT':
+  #           game[k] = game[CORRECT_OUTCOME_ABBREV_KEY]
+  #         else:
+  #           game[k] = game[INCORRECT_OUTCOME_ABBREV_KEY]
 
-  # Incorporate Morgan's picks.
-  for game in games:
-    game[MORGAN_PICK_KEY] = morgans_picks.get_morgan_pick(week=game[WEEK_KEY],
-                    home_team=game[HOME_KEY],
-                    away_team=game[AWAY_KEY])
-  # Add defaults for Sue, Jean, SMB, SLB
-  for game in games:
-    game[SMB_PICK_KEY] = game[SMB_PICK_KEY] or game[HOME_KEY]
-    game[SLB_PICK_KEY] = game[SLB_PICK_KEY] or game[HOME_KEY]
-    game[SUE_PICK_KEY] = game[SUE_PICK_KEY] or game[HOME_KEY]
-    game[JEAN_PICK_KEY] = game[JEAN_PICK_KEY] or game[HOME_KEY]
-  write_games_csv(games, 'games.csv')
+  # # Incorporate Morgan's picks.
+  # for game in games:
+  #   game[MORGAN_PICK_KEY] = morgans_picks.get_morgan_pick(week=game[WEEK_KEY],
+  #                   home_team=game[HOME_KEY],
+  #                   away_team=game[AWAY_KEY])
+  # # Add defaults for Sue, Jean, SMB, SLB
+  # for game in games:
+  #   game[SMB_PICK_KEY] = game[SMB_PICK_KEY] or game[HOME_KEY]
+  #   game[SLB_PICK_KEY] = game[SLB_PICK_KEY] or game[HOME_KEY]
+  #   game[SUE_PICK_KEY] = game[SUE_PICK_KEY] or game[HOME_KEY]
+  #   game[JEAN_PICK_KEY] = game[JEAN_PICK_KEY] or game[HOME_KEY]
+  # write_games_csv(games, 'games.csv')

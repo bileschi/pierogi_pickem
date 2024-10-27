@@ -17,6 +17,13 @@ SUE_PICK_KEY = 'sue_pick'
 # }
 
 # 2024_2025
+PLAYER_IDS = [
+  JEAN_PICK_KEY,
+  MORGAN_PICK_KEY,
+  SLB_PICK_KEY,
+  SMB_PICK_KEY,
+  SUE_PICK_KEY,
+]
 # You can get the ID here from hovering over the 'group entry' field
 # for each player within the league view.
 # https://fantasy.espn.com/games/nfl-pigskin-pickem-2024/group?id=93fb8547-d412-4290-b470-9261d2415021

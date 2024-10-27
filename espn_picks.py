@@ -20,7 +20,7 @@ DEBUG_PRINT = True
 def dbprint(*args, **kwargs):
   if DEBUG_PRINT:
     print("§§§", end=" ")
-    print(args, kwargs)
+    print(*args, **kwargs)
 
 # ESPN changes the api URL location. you need to get the new URL by poking
 # around at the network tab at the ESPN site.

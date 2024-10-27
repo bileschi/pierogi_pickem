@@ -7,7 +7,6 @@ import players
 import propositions
 from current_season import FOOTBALL_SEASON, N_WEEKS_IN_SEASON
 
-year = FOOTBALL_SEASON.split("_")[0]
 
 AWAY_KEY = 'away_team'
 AWAY_SCORE_KEY = 'away_score'
@@ -16,15 +15,15 @@ HOME_SCORE_KEY = 'home_score'
 WEEK_KEY = 'week'
 
 GAME_COL_KEYS = (
-  WEEK_KEY,  # get_game_scores
-  HOME_KEY,  # get_game_scores
-  AWAY_KEY,  # get_game_scores
-  propositions.GAME_ID_KEY,  # get_game_scores
-  propositions.PROPOSITION_ID_KEY,  # get_propositions
-  propositions.CORRECT_OUTCOME_ABBREV_KEY, # get_propositions
-  HOME_SCORE_KEY,  # get_game_scores
-  AWAY_SCORE_KEY,  # get_game_scores
-  propositions.LINE_KEY,  # get_propositions
+  WEEK_KEY,
+  HOME_KEY,
+  AWAY_KEY,
+  propositions.GAME_ID_KEY,
+  propositions.PROPOSITION_ID_KEY,
+  propositions.CORRECT_OUTCOME_ABBREV_KEY,
+  HOME_SCORE_KEY,
+  AWAY_SCORE_KEY,
+  propositions.LINE_KEY,
   players.SMB_PICK_KEY,
   players.SLB_PICK_KEY,
   players.SUE_PICK_KEY,
@@ -62,6 +61,7 @@ def get_game_scores():
   for week in range(1, N_WEEKS_IN_SEASON + 1):
     # site should look like this: https://ibb.co/KxP7Jv4
     dbprint(f"  {week=}")
+    year = FOOTBALL_SEASON.split("_")[0]
     espn_week_url = (
       f'https://www.espn.com/nfl/schedule/_/week/{week}/year/{year}/seasontype/2')
     dbprint(f"  loading from {espn_week_url=}")

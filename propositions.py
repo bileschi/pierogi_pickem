@@ -25,18 +25,25 @@ PROPOSITION_ID_KEY = "proposition_id"
 LINE_KEY = "home_line"
 PROP_NAME_KEY = "prop_name"
 GAME_ID_KEY = "game_id"
+OUTCOME_1_ID_KEY = "outcome_1_id"
+OUTCOME_1_ABBREV_KEY = "outcome_1_abbr"
+OUTCOME_2_ID_KEY = "outcome_2_id"
+OUTCOME_2_ABBREV_KEY = "outcome_2_abbr"
+
 
 PROP_COL_KEYS = (
     PROPOSITION_ID_KEY,
     LINE_KEY,
-#     CORRECT_OUTCOME_ABBREV_KEY,
-#     INCORRECT_OUTCOME_ABBREV_KEY,
     PROP_NAME_KEY,
     GAME_ID_KEY,
+    OUTCOME_1_ID_KEY,
+    OUTCOME_1_ABBREV_KEY,
+    OUTCOME_2_ID_KEY,
+    OUTCOME_2_ABBREV_KEY,
 )
 
 
-def get_propositions(espn_propositions_url: Optional[str]) -> list:
+def get_propositions(espn_propositions_url: Optional[str] = None) -> list:
     """
     Fetches and parses proposition data from the given ESPN URL.
 
@@ -72,22 +79,24 @@ def get_propositions(espn_propositions_url: Optional[str]) -> list:
         proposition = {
             PROPOSITION_ID_KEY: None,
             LINE_KEY: None,
-#             CORRECT_OUTCOME_ABBREV_KEY: None,
-#             INCORRECT_OUTCOME_ABBREV_KEY: None,
             PROP_NAME_KEY: None,
             GAME_ID_KEY: None,
+            OUTCOME_1_ID_KEY: None,
+            OUTCOME_1_ABBREV_KEY: None,
+            OUTCOME_2_ID_KEY: None,
+            OUTCOME_2_ABBREV_KEY: None,
         }
-        if len(one_json_prop["correctOutcomes"]) == 1:
-            correct_outcome_id = one_json_prop["correctOutcomes"][0]
-        else:
-            correct_outcome_id = None
-        # for possible_outcome in one_json_prop["possibleOutcomes"]:
-        #     if possible_outcome["id"] == correct_outcome_id:
-        #         proposition[CORRECT_OUTCOME_ABBREV_KEY] = possible_outcome["abbrev"]
-        #     else:
-        #         proposition[INCORRECT_OUTCOME_ABBREV_KEY] = possible_outcome["abbrev"]
         proposition[PROPOSITION_ID_KEY] = one_json_prop["id"]
         proposition[PROP_NAME_KEY] = one_json_prop["name"]
+        for i, possible_outcome in enumerate(one_json_prop["possibleOutcomes"]):
+            id = possible_outcome["id"]
+            abbrev = possible_outcome["abbrev"]
+            if i == 0:
+                proposition[OUTCOME_1_ID_KEY] = id
+                proposition[OUTCOME_1_ABBREV_KEY] = abbrev
+            else:
+                proposition[OUTCOME_2_ID_KEY] = id
+                proposition[OUTCOME_2_ABBREV_KEY] = abbrev
         if "spread" in one_json_prop:
             proposition[LINE_KEY] = one_json_prop["spread"]
         for val in one_json_prop["mappings"]:

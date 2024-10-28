@@ -110,8 +110,15 @@ def get_game_scores():
         #
         # The game id is the number after the "gameId" string.
         score_col = row.find('td', class_='teams__col Table__TD')
+        date_col = row.find('td', class_='date__col Table__TD')
+        game_href = None
+        col = None
         if score_col:
-          game_href = score_col.find_all('a')[0]['href']
+          col = score_col
+        else:
+          col = date_col
+        if col:
+          game_href = col.find_all('a')[0]['href']
           dbprint('    game href ', game_href)
           # Split the url by the '/' and get the element after 'gameId'
           game_href_parts = game_href.split("/")
@@ -122,13 +129,14 @@ def get_game_scores():
           if not game_id:
             print(f"    ERROR: could not find game id in {game_href}")
             continue          
+          game[propositions.GAME_ID_KEY] = game_id
+        if score_col:
           score_text = score_col.get_text()
           # Score text should be something like "ATL 25, GB 24".
           scores = parse_score_text(
             score_text, home_team=game[HOME_KEY])   
           game[HOME_SCORE_KEY] = scores['home']
           game[AWAY_SCORE_KEY] = scores['away']
-          game[propositions.GAME_ID_KEY] = game_id
         games.append(game)
   return(games)
 

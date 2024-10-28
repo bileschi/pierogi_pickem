@@ -4,6 +4,7 @@ MORGAN_PICK_KEY = 'morgan_pick'
 SLB_PICK_KEY = 'slb_pick'
 SMB_PICK_KEY = 'smb_pick'
 SUE_PICK_KEY = 'sue_pick'
+ADAM_PICK_KEY = 'adam_pick'
 
 
 # I got these ids from the espn site by poking around at the network tab.
@@ -23,6 +24,7 @@ PLAYER_IDS = [
   SLB_PICK_KEY,
   SMB_PICK_KEY,
   SUE_PICK_KEY,
+  ADAM_PICK_KEY,
 ]
 # You can get the ID here from hovering over the 'group entry' field
 # for each player within the league view.

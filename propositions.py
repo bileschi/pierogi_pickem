@@ -23,16 +23,14 @@ ESPN_PROPOSITIONS_URL = {
 
 PROPOSITION_ID_KEY = "proposition_id"
 LINE_KEY = "home_line"
-CORRECT_OUTCOME_ABBREV_KEY = "correct_outcome_key"
-INCORRECT_OUTCOME_ABBREV_KEY = "incorrect_outcome_key"
 PROP_NAME_KEY = "prop_name"
 GAME_ID_KEY = "game_id"
 
 PROP_COL_KEYS = (
     PROPOSITION_ID_KEY,
     LINE_KEY,
-    CORRECT_OUTCOME_ABBREV_KEY,
-    INCORRECT_OUTCOME_ABBREV_KEY,  # get_propositions
+#     CORRECT_OUTCOME_ABBREV_KEY,
+#     INCORRECT_OUTCOME_ABBREV_KEY,
     PROP_NAME_KEY,
     GAME_ID_KEY,
 )
@@ -74,8 +72,8 @@ def get_propositions(espn_propositions_url: Optional[str]) -> list:
         proposition = {
             PROPOSITION_ID_KEY: None,
             LINE_KEY: None,
-            CORRECT_OUTCOME_ABBREV_KEY: None,
-            INCORRECT_OUTCOME_ABBREV_KEY: None,
+#             CORRECT_OUTCOME_ABBREV_KEY: None,
+#             INCORRECT_OUTCOME_ABBREV_KEY: None,
             PROP_NAME_KEY: None,
             GAME_ID_KEY: None,
         }
@@ -83,11 +81,11 @@ def get_propositions(espn_propositions_url: Optional[str]) -> list:
             correct_outcome_id = one_json_prop["correctOutcomes"][0]
         else:
             correct_outcome_id = None
-        for possible_outcome in one_json_prop["possibleOutcomes"]:
-            if possible_outcome["id"] == correct_outcome_id:
-                proposition[CORRECT_OUTCOME_ABBREV_KEY] = possible_outcome["abbrev"]
-            else:
-                proposition[INCORRECT_OUTCOME_ABBREV_KEY] = possible_outcome["abbrev"]
+        # for possible_outcome in one_json_prop["possibleOutcomes"]:
+        #     if possible_outcome["id"] == correct_outcome_id:
+        #         proposition[CORRECT_OUTCOME_ABBREV_KEY] = possible_outcome["abbrev"]
+        #     else:
+        #         proposition[INCORRECT_OUTCOME_ABBREV_KEY] = possible_outcome["abbrev"]
         proposition[PROPOSITION_ID_KEY] = one_json_prop["id"]
         proposition[PROP_NAME_KEY] = one_json_prop["name"]
         if "spread" in one_json_prop:

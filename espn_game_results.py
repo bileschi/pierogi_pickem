@@ -13,14 +13,18 @@ AWAY_SCORE_KEY = 'away_score'
 HOME_KEY = 'home_team'
 HOME_SCORE_KEY = 'home_score'
 WEEK_KEY = 'week'
+BET_WIN_KEY = "bet_win_key"
 
+# TODO: The definition of the structure of the games CSV should be in it's own
+# module.
+# TODO: the module should dynamically load the players.
 GAME_COL_KEYS = (
   WEEK_KEY,
   HOME_KEY,
   AWAY_KEY,
   propositions.GAME_ID_KEY,
   propositions.PROPOSITION_ID_KEY,
-  propositions.CORRECT_OUTCOME_ABBREV_KEY,
+  BET_WIN_KEY,
   HOME_SCORE_KEY,
   AWAY_SCORE_KEY,
   propositions.LINE_KEY,
@@ -29,6 +33,7 @@ GAME_COL_KEYS = (
   players.SUE_PICK_KEY,
   players.JEAN_PICK_KEY,
   players.MORGAN_PICK_KEY,
+  players.ADAM_PICK_KEY
 )
 
 DEBUG_PRINT = True

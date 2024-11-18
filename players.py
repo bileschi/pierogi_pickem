@@ -1,3 +1,5 @@
+import espn_game_results
+import propositions
 
 JEAN_PICK_KEY = 'jean_pick'
 MORGAN_PICK_KEY = 'morgan_pick'
@@ -37,4 +39,82 @@ ESPN_PLAYER_IDS = {
   SUE_PICK_KEY: '719947f0-6bdd-11ef-9300-e73470a18359',
   JEAN_PICK_KEY: '373e4850-716c-11ef-b954-bb5441c4e093',
 }
+
+home_strategy = lambda game: game[espn_game_results.HOME_KEY]
+
+def favorite_strategy(game):
+  str_line = game[propositions.LINE_KEY]
+  if not str_line:
+    return game[espn_game_results.HOME_KEY]
+  if float(str_line) < 0:
+    return game[espn_game_results.HOME_KEY]
+  else:
+    return game[espn_game_results.AWAY_KEY]
+
+TEAM_CITY_TO_NAME = {
+    "ARI": "Cardinals",
+    "ATL": "Falcons",
+    "BAL": "Ravens",
+    "BUF": "Bills",
+    "CAR": "Panthers",
+    "CHI": "Bears",
+    "CIN": "Bengals",
+    "CLE": "Browns",
+    "DAL": "Cowboys",
+    "DEN": "Broncos",
+    "DET": "Lions",
+    "GB": "Packers",
+    "HOU": "Texans",
+    "IND": "Colts",
+    "JAX": "Jaguars",
+    "KC": "Chiefs",
+    "LV": "Raiders",
+    "LAR": "Rams",
+    "LAC": "Chargers",
+    "MIA": "Dolphins",
+    "MIN": "Vikings",
+    "NE": "Patriots",
+    "NO": "Saints",
+    "NYG": "Giants",
+    "NYJ": "Jets",
+    "PHI": "Eagles",
+    "PIT": "Steelers",
+    "SF": "49ers",
+    "SEA": "Seahawks",
+    "TB": "Buccaneers",
+    "TEN": "Titans",
+    "WSH": "Commanders",
+}
+
+def morgan_fewest_letters_strategy(game):
+  """ I would like my forgetting weeks to use a system of whichever team name
+  has the least amount of letters, not including the city name. Does that make
+  sense?
+  
+  Oh shoot. I totally forgot. Yes alphabetical works if there are the same
+  number 
+  """
+  home_team = game[espn_game_results.HOME_KEY]
+  away_team = game[espn_game_results.AWAY_KEY]
+  home_team_name = TEAM_CITY_TO_NAME[home_team]
+  away_team_name = TEAM_CITY_TO_NAME[away_team]
+  if len(home_team_name) < len(away_team_name):
+    return home_team
+  elif len(home_team_name) > len(away_team_name):
+    return away_team
+  # Team same length, use alpha by team name
+  if home_team_name < away_team_name:
+    return home_team
+  else:
+    return away_team
+
+DEFAULT_STRATEGY = {
+  JEAN_PICK_KEY: home_strategy,
+  MORGAN_PICK_KEY: morgan_fewest_letters_strategy,
+  SLB_PICK_KEY: home_strategy,
+  SMB_PICK_KEY: favorite_strategy,
+  SUE_PICK_KEY: home_strategy,
+  ADAM_PICK_KEY: home_strategy,
+}
+
 

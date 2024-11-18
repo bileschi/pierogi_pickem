@@ -12,9 +12,9 @@ import propositions
 from current_season import FOOTBALL_SEASON
 from manual_picks_2024_2025 import MANUAL_PICKS
 
-SKIP_LOAD_LINES = True
-SKIP_LOAD_PICKS = True
-SKIP_LOAD_SCORES = True
+SKIP_LOAD_LINES = False
+SKIP_LOAD_PICKS = False
+SKIP_LOAD_SCORES = False
 
 DEBUG_PRINT = True
 def dbprint(*args, **kwargs):
@@ -146,6 +146,22 @@ if __name__ == "__main__":
             game[player] = home_team + delim + manual_suffix
     espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
     dbprint(f"Matched {num_manual_picks_matched} manual picks.")    
+
+    # Fill manual picks.  Manual picks override default or ESPN picks.
+    default_suffix = "DEFAULT"
+    dbprint("Incorporating manual picks.")
+    num_default_picks_made = 0
+    for game in games:
+      for player in players.PLAYER_IDS:
+        # Check if the player already has a pick.
+        if game[player]:
+          continue
+        # If not, make a pick based on the player's strategy
+        def_pick = players.DEFAULT_STRATEGY[player](game)
+        game[player] = def_pick + delim + default_suffix
+        num_default_picks_made += 1
+        espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
+    dbprint(f"Made {num_default_picks_made} default picks.")    
 
     # TODO: Incorporate Default picks.
     # # Incorporate Morgan's picks.

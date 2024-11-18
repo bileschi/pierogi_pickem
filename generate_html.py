@@ -19,7 +19,8 @@ def generate_weekly_results(games):
         week = int(game['week'])
         weekly_results[week]['games'].append(game)
         for player in players:
-            if game[f'{player}_pick'] == game['bet_win_key']:
+            pick = game[f'{player}_pick'].split(' ')[0]
+            if pick == game['bet_win_key']:
                 weekly_results[week]['scores'][player] += 1
     return weekly_results
 
@@ -69,7 +70,9 @@ def generate_html(weekly_results):
             html += '<tr>'
             html += f"<td>{game['away_team']} @ {game['home_team']}</td>"
             for player in players:
-                pick = game[f'{player}_pick']
+                # pick = game[f'{player}_pick']
+                # the pick has two parts "team_code" e.g. "TB", and source_suffix" e.g. "ESPN"
+                pick = game[f'{player}_pick'].split(' ')[0]
                 html += f"<td class='{ 'correct' if pick == game['bet_win_key'] else ''}'>{pick}</td>"
             html += '</tr>'
         html += '<tr>'

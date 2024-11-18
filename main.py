@@ -10,11 +10,11 @@ import propositions
 # import morgans_picks
 
 from current_season import FOOTBALL_SEASON
+from manual_picks_2024_2025 import MANUAL_PICKS
 
-
-SKIP_LOAD_LINES = False
-SKIP_LOAD_PICKS = False
-SKIP_LOAD_SCORES = False
+SKIP_LOAD_LINES = True
+SKIP_LOAD_PICKS = True
+SKIP_LOAD_SCORES = True
 
 DEBUG_PRINT = True
 def dbprint(*args, **kwargs):
@@ -101,6 +101,8 @@ if __name__ == "__main__":
     # the proposition ID between games and picks.  Again, this is an n^2 algo,
     # and maps are faster, but it's so much faster than the network call that
     # the simplicity is worth it.
+    delim = " "
+    espn_suffix = "ESPN"
     for game in games:
       for k in players.ESPN_PLAYER_IDS.keys():
         for pick in picks[k]:
@@ -108,9 +110,9 @@ if __name__ == "__main__":
             # We know the player's outcome key
             outcome_id = pick[espn_picks.OUTCOME_ID_KEY]
             if outcome_id == game[propositions.OUTCOME_1_ID_KEY]:
-              game[k] = game[propositions.OUTCOME_1_ABBREV_KEY]
+              game[k] = game[propositions.OUTCOME_1_ABBREV_KEY] + delim + espn_suffix
             elif outcome_id == game[propositions.OUTCOME_2_ID_KEY]:
-              game[k] = game[propositions.OUTCOME_2_ABBREV_KEY]
+              game[k] = game[propositions.OUTCOME_2_ABBREV_KEY] + delim + espn_suffix
 
             # if(pick[espn_picks.RESULT_KEY]) == 'CORRECT':
             #   game[k] = game[espn_game_results.BET_WIN_KEY]
@@ -122,9 +124,29 @@ if __name__ == "__main__":
             #      game[k] = game[espn_game_results.HOME_KEY]
     espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
 
+    # Fill manual picks.  Manual picks override default or ESPN picks.
+    manual_suffix = "MANUAL"
+    dbprint("Incorporating manual picks.")
+    num_manual_picks_matched = 0
+    for game in games:
+      for player in players.PLAYER_IDS:
+        # Check if this player has a manual pick for this game.
+        week = int(game[espn_game_results.WEEK_KEY])
+        home_team = game[espn_game_results.HOME_KEY]
+        away_team = game[espn_game_results.AWAY_KEY]        
+        manual_home_pick = home_team in MANUAL_PICKS[player][week]
+        manual_away_pick = away_team in MANUAL_PICKS[player][week]
+        if manual_home_pick and manual_away_pick:
+            print(f"Error: Player {player} has both {home_team} and {away_team} in their manual picks for week {week}.")
+        if manual_home_pick:
+            num_manual_picks_matched += 1
+            game[player] = home_team + delim + manual_suffix
+        if manual_away_pick:
+            num_manual_picks_matched += 1
+            game[player] = home_team + delim + manual_suffix
+    espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
+    dbprint(f"Matched {num_manual_picks_matched} manual picks.")    
 
-    # TODO: Incorporate Morgan's picks.
-    # TODO: Incorporate Adams's picks.
     # TODO: Incorporate Default picks.
     # # Incorporate Morgan's picks.
     # for game in games:

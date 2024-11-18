@@ -41,16 +41,24 @@ def generate_html(weekly_results):
       padding: 8px;
       text-align: center;
     }
-    .correct {
+    .correct_pick {
       background-color: lightgreen;
     }
     .winner {
       font-weight: bold;
     }
+    .default_pick {
+      color: gray; 
+    }
     </style>
     </head>
     <body>
     <h1>Bileschi Family Pierogi Pigskin Pick'em</h1>
+    <p>
+    Manual picks are marked with an <sup>(M)</sup>.
+    Default picks are marked in gray an <sup>(D)</sup>.  Please contact me to
+    update your way of making default choices.
+    <p>
     <ul>
     """
 
@@ -71,9 +79,23 @@ def generate_html(weekly_results):
             html += f"<td>{game['away_team']} @ {game['home_team']}</td>"
             for player in players:
                 # pick = game[f'{player}_pick']
-                # the pick has two parts "team_code" e.g. "TB", and source_suffix" e.g. "ESPN"
-                pick = game[f'{player}_pick'].split(' ')[0]
-                html += f"<td class='{ 'correct' if pick == game['bet_win_key'] else ''}'>{pick}</td>"
+                # The pick has two parts "team_code" e.g. "TB", and source_suffix" e.g. "ESPN"
+                # For picks sourced from ESPN, the source suffix is "ESPN".
+                # For picks made manually, the source suffix is "MANUAL".
+                # For picks made by default mechanis, the source suffix is "DEFAULT".
+                pick, source = game[f'{player}_pick'].split(' ')
+                classes = []
+                if pick == game['bet_win_key']:
+                    classes.append('correct_pick')
+                if source == "DEFAULT":
+                    classes.append('default_pick')
+                    pick += "<sup>(D)</sup>"  # Add a superscript D to the pick 
+                if source == "MANUAL":
+                    classes.append('manual_pick')
+                    pick += "<sup>(M)</sup>"  # Add a superscript M to the pick 
+                if source == "ESPN":
+                    classes.append('espn_pick')
+                html += f"<td class='{ ' '.join(classes)}'>{pick}</td>"
             html += '</tr>'
         html += '<tr>'
         html += f'<td>TOTAL</td>'

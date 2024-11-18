@@ -1,5 +1,6 @@
 import csv
 import datetime
+import pytz
 from collections import defaultdict
 
 # TODO: Move this to the players module.
@@ -56,8 +57,9 @@ def generate_html(weekly_results):
     <body>
     <h1>Bileschi Family Pierogi Pigskin Pick'em</h1>"""
     # Add the timestamp
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    html += f"<p>Last updated: {timestamp}</p>"
+    nyc_timezone = pytz.timezone('America/New_York')
+    timestamp = datetime.datetime.now(nyc_timezone).strftime('%Y-%m-%d %H:%M:%S')
+    html += f"<p>Last updated: {timestamp} (East Coast)</p>"
     html += """
     <p>
     Manual picks are marked with an <sup>(M)</sup>.

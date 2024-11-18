@@ -1,4 +1,5 @@
 import csv
+import datetime
 from collections import defaultdict
 
 # TODO: Move this to the players module.
@@ -53,7 +54,11 @@ def generate_html(weekly_results):
     </style>
     </head>
     <body>
-    <h1>Bileschi Family Pierogi Pigskin Pick'em</h1>
+    <h1>Bileschi Family Pierogi Pigskin Pick'em</h1>"""
+    # Add the timestamp
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    html += f"<p>Last updated: {timestamp}</p>"
+    html += """
     <p>
     Manual picks are marked with an <sup>(M)</sup>.
     Default picks are marked in gray an <sup>(D)</sup>.  Please contact me to

@@ -219,3 +219,19 @@ MANUAL_PICKS[players.SLB_PICK_KEY][10] = {
     "DET",
     "MIA",
 }
+# Nov 20 (text)
+MANUAL_PICKS[players.ADAM_PICK_KEY][12] = {
+  "PIT",
+  "MIN",
+  "DET",
+  "MIA",
+  "TB",
+  "DAL",
+  "KC",
+  "TEN",
+  "LV",
+  "GB",
+  "SEA",
+  "PHI",
+  "BAL"
+}

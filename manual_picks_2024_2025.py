@@ -235,3 +235,17 @@ MANUAL_PICKS[players.ADAM_PICK_KEY][12] = {
   "PHI",
   "BAL"
 }
+# Nov 24 (text)
+MANUAL_PICKS[players.MORGAN_PICK_KEY][12] = {
+  "MIN",
+  "DET",
+  "MIA",
+  "TB",
+  "WAS",
+  "KC",
+  "HOU",
+  "DEN",
+  "GB",
+  "SEA",
+  "PHI",
+}

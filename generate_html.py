@@ -123,8 +123,8 @@ def generate_html(weekly_results):
     html += '<h2>Leaderboard</h2>'
     html += '<table>'
     html += '<tr><th>Player</th><th>Total Score</th></tr>'
-    # for player, score in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True):
-    for player in players:
+    for player, score in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True):
+    # for player in players:
         score = leaderboard[player]
         html += f'<tr><td>{player}</td><td>{score}</td></tr>'
     html += '</table>'

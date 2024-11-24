@@ -2,6 +2,9 @@
 
 # go to dir
 cd /home/bileschi_2016/proj/pierogi_pickem
+# Update to most recent version
+git checkout master
+git pull origin master
 # use virtual env
 source venv/bin/activate
 # regenerate csv & html

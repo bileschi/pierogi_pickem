@@ -241,11 +241,12 @@ MANUAL_PICKS[players.MORGAN_PICK_KEY][12] = {
   "DET",
   "MIA",
   "TB",
-  "WAS",
+  "WSH",
   "KC",
   "HOU",
   "DEN",
   "GB",
   "SEA",
   "PHI",
+  "BAL",
 }

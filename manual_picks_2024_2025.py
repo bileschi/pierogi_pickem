@@ -250,3 +250,22 @@ MANUAL_PICKS[players.MORGAN_PICK_KEY][12] = {
   "PHI",
   "BAL",
 }
+
+# Nov 28 (text)
+MANUAL_PICKS[players.MORGAN_PICK_KEY][13] = {
+    "DAL",
+    "GB",
+    "LV",
+    "LAC",
+    "CIN",
+    "MIN",
+    "IND",
+    "SEA",
+    "WAS",
+    "HOU",
+    "NO",
+    "TB",
+    "PHI",
+    "BUF",
+    "DEN"
+}

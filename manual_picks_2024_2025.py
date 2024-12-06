@@ -261,11 +261,16 @@ MANUAL_PICKS[players.MORGAN_PICK_KEY][13] = {
     "MIN",
     "IND",
     "SEA",
-    "WSH",
+    "WAS",
     "HOU",
     "NO",
     "TB",
     "PHI",
     "BUF",
     "DEN"
+}
+
+# Dec 6 (text)
+MANUAL_PICKS[players.MORGAN_PICK_KEY][14] = {
+    "DET",
 }

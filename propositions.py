@@ -29,7 +29,7 @@ OUTCOME_1_ID_KEY = "outcome_1_id"
 OUTCOME_1_ABBREV_KEY = "outcome_1_abbr"
 OUTCOME_2_ID_KEY = "outcome_2_id"
 OUTCOME_2_ABBREV_KEY = "outcome_2_abbr"
-
+PROP_DATE_KEY = "prop_date"
 
 PROP_COL_KEYS = (
     PROPOSITION_ID_KEY,
@@ -40,6 +40,7 @@ PROP_COL_KEYS = (
     OUTCOME_1_ABBREV_KEY,
     OUTCOME_2_ID_KEY,
     OUTCOME_2_ABBREV_KEY,
+    PROP_DATE_KEY
 )
 
 
@@ -75,6 +76,10 @@ def get_propositions(espn_propositions_url: Optional[str] = None) -> list:
     )
     soup = BeautifulSoup(response.content, "html.parser")
     propositions_json = json.loads(soup.text)
+    printed_any = False
+    if not printed_any:
+        printed_any = True
+        print(propositions_json)
     for one_json_prop in propositions_json:
         proposition = {
             PROPOSITION_ID_KEY: None,
@@ -85,6 +90,7 @@ def get_propositions(espn_propositions_url: Optional[str] = None) -> list:
             OUTCOME_1_ABBREV_KEY: None,
             OUTCOME_2_ID_KEY: None,
             OUTCOME_2_ABBREV_KEY: None,
+            PROP_DATE_KEY: None
         }
         proposition[PROPOSITION_ID_KEY] = one_json_prop["id"]
         proposition[PROP_NAME_KEY] = one_json_prop["name"]
@@ -102,6 +108,7 @@ def get_propositions(espn_propositions_url: Optional[str] = None) -> list:
         for val in one_json_prop["mappings"]:
             if val["type"] == "COMPETITION_ID":
                 proposition[GAME_ID_KEY] = val["value"]
+        proposition[PROP_DATE_KEY] = one_json_prop["date"] or "unknown"
         propositions.append(proposition)
     return propositions
 

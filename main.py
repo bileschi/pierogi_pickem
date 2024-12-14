@@ -71,6 +71,7 @@ if __name__ == "__main__":
             if game[propositions.GAME_ID_KEY] == prop[propositions.GAME_ID_KEY]:
                 num_alignments_found += 1
                 game[propositions.LINE_KEY] = prop[propositions.LINE_KEY]
+                game[propositions.PROP_DATE_KEY] = prop[propositions.PROP_DATE_KEY]
                 game[propositions.PROPOSITION_ID_KEY] = prop[
                     propositions.PROPOSITION_ID_KEY
                 ]

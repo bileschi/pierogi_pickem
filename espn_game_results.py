@@ -28,6 +28,7 @@ GAME_COL_KEYS = (
   HOME_SCORE_KEY,
   AWAY_SCORE_KEY,
   propositions.LINE_KEY,
+  propositions.PROP_DATE_KEY,
   players.SMB_PICK_KEY,
   players.SLB_PICK_KEY,
   players.SUE_PICK_KEY,

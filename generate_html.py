@@ -1,10 +1,13 @@
 import csv
-import datetime
 import pytz
+
 from collections import defaultdict
+from datetime import datetime
 
 # TODO: Move this to the players module.
 players = ['smb', 'slb', 'sue', 'jean', 'morgan', 'adam']
+
+# TODO: Make the csv files a command line argument.
 
 def read_csv(filename):
     """Reads the CSV file and returns a list of games."""
@@ -32,6 +35,7 @@ def generate_html(weekly_results):
     <!DOCTYPE html>
     <html>
     <head>
+    <meta charset="UTF-8">
     <title>Bileschi Family Pierogi Pigskin Pick'em</title>
     <style>
     table {
@@ -58,7 +62,7 @@ def generate_html(weekly_results):
     <h1>Bileschi Family Pierogi Pigskin Pick'em</h1>"""
     # Add the timestamp
     nyc_timezone = pytz.timezone('America/New_York')
-    timestamp = datetime.datetime.now(nyc_timezone).strftime('%Y-%m-%d %H:%M:%S')
+    timestamp = datetime.now(nyc_timezone).strftime('%Y-%m-%d %H:%M:%S')
     html += f"<p>Last updated: {timestamp} (East Coast)</p>"
     html += """
     <p>
@@ -97,10 +101,20 @@ def generate_html(weekly_results):
             winner = None
         html += f'<h2 id="week{week}">Week {week}</h2>'
         html += '<table>'
-        html += '<tr><th>Game</th><th>smb</th><th>slb</th><th>sue</th><th>jean</th><th>morgan</th><th>adam</th></tr>'
+        # Table Header
+        html += '<tr><th>Game</th><th>Result</th><th>smb</th><th>slb</th><th>sue</th><th>jean</th><th>morgan</th><th>adam</th></tr>\n'
         for game in results['games']:
             html += '<tr>'
-            html += f"<td>{game['away_team']} @ {game['home_team']}</td>"
+            line_str = game['home_line']
+            if line_str and line_str[0] != '-':
+                line_str = '+' + line_str
+            html += f"<td>{game['away_team']} @ {game['home_team']} {line_str}</td>"
+            if game['away_score'] and game['home_score']:
+                html += f"<td><div>{game['away_score']} — {game['home_score']}</div></td>"
+            else:
+                game_day_datetime = datetime.fromtimestamp(int(game['prop_date'])//1000)
+                game_day_string = game_day_datetime.strftime('%a %b %d @ %-I%p')
+                html += f"<td>{game_day_string} </td>"
             for player in players:
                 # pick = game[f'{player}_pick']
                 # The pick has two parts "team_code" e.g. "TB", and source_suffix" e.g. "ESPN"
@@ -120,9 +134,9 @@ def generate_html(weekly_results):
                 if source == "ESPN":
                     classes.append('espn_pick')
                 html += f"<td class='{ ' '.join(classes)}'>{pick}</td>"
-            html += '</tr>'
+            html += '</tr>\n'
         html += '<tr>'
-        html += f'<td>TOTAL</td>'
+        html += f'<td>TOTAL</td><td></td>'
         # for player, score in results['scores'].items():
         for player in players:
             score = results['scores'][player]

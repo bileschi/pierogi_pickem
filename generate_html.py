@@ -112,7 +112,7 @@ def generate_html(weekly_results):
             if game['away_score'] and game['home_score']:
                 html += f"<td><div>{game['away_score']} — {game['home_score']}</div></td>"
             else:
-                game_day_datetime = datetime.fromtimestamp(int(game['prop_date'])//1000)
+                game_day_datetime = datetime.fromtimestamp(int(game['prop_date'])//1000, tz=nyc_timezone)
                 game_day_string = game_day_datetime.strftime('%a %b %d @ %-I%p')
                 html += f"<td>{game_day_string} </td>"
             for player in players:

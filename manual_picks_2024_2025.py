@@ -270,7 +270,30 @@ MANUAL_PICKS[players.MORGAN_PICK_KEY][13] = {
     "DEN"
 }
 
-# Dec 6 (text)
+# Dec 6 (text) & Dec 8
 MANUAL_PICKS[players.MORGAN_PICK_KEY][14] = {
     "DET",
+    "TEN", 
+    "MIA", 
+    "MIN",
+    "NYG",
+    "CAR",
+    "PIT",
+    "TB",
+    "SEA",
+    "BUF",
+    "CHI",
+    "KC",
+    "CIN"
 }
+
+# Dec 22 (text)
+MANUAL_PICKS[players.MORGAN_PICK_KEY][16] = {
+    "MIN",
+    "BUF",
+    "LV",
+    "MIA",
+    "TB",
+    "NO"
+}
+

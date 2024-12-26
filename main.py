@@ -144,7 +144,7 @@ if __name__ == "__main__":
             game[player] = home_team + delim + manual_suffix
         if manual_away_pick:
             num_manual_picks_matched += 1
-            game[player] = home_team + delim + manual_suffix
+            game[player] = away_team + delim + manual_suffix
     espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
     dbprint(f"Matched {num_manual_picks_matched} manual picks.")    
 

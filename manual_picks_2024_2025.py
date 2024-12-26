@@ -297,3 +297,9 @@ MANUAL_PICKS[players.MORGAN_PICK_KEY][16] = {
     "NO"
 }
 
+# Dec 25 (text)
+MANUAL_PICKS[players.SLB_PICK_KEY][17] = {
+    "KC",
+    "BAL"
+}
+

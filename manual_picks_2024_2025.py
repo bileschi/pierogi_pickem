@@ -303,3 +303,22 @@ MANUAL_PICKS[players.SLB_PICK_KEY][17] = {
     "BAL"
 }
 
+# Jan 3 (text)
+MANUAL_PICKS[players.MORGAN_PICK_KEY][18] = {
+    "CLE",
+    "CIN ",
+    "ATL",
+    "WAS",
+    "CLE",
+    "HOU",
+    "IND",
+    "BUF",
+    "PHI",
+    "NO",
+    "DEN",
+    "LAC",
+    "LAR",
+    "MIA",
+    "ARI",
+    "DET"
+}

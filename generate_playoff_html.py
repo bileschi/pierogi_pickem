@@ -25,6 +25,8 @@ def read_csv(filename):
         return [row for row in reader]
     return games
 
+score_per_week = [2, 3, 5, 8]
+
 def generate_weekly_results(games):
     """Generates weekly results with winners and scores."""
     weekly_results = defaultdict(lambda: {'games': [], 'scores': defaultdict(int)})
@@ -34,7 +36,7 @@ def generate_weekly_results(games):
         for player in players:
             pick = game[f'{player}_pick'].split(' ')[0]
             if pick == game['bet_win_key']:
-                weekly_results[week]['scores'][player] += 1
+                weekly_results[week]['scores'][player] += score_per_week[week]
     return weekly_results
 
 def generate_html(weekly_results):
@@ -149,6 +151,8 @@ def generate_html(weekly_results):
             html += f"<td class='{ 'winner' if player == winner else ''}'>{score}</td>"
         html += '</tr>'
         html += '</table>'
+
+    html += f'<h2 id="superbowl_props">SuperBowl Prop Bets (TBD)</h2>'
 
 
     html += '</body></html>'

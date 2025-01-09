@@ -5,16 +5,10 @@ week,away_team,home_team,game_id,proposition_id,bet_win_key,home_score,away_scor
 1,GB,PHI,,,NONE,,,-5.5,"Sunday, 4:30 p.m., FOX",PHI,,,,,
 1,WSH,TB,,,NONE,,,-3.5,"Sunday, 8 p.m., NBC, Peacock",WSH,,,,,
 1,MIN,LAR,,,NONE,,,-8.5,"Monday, 8 p.m., ABC, ESPN, ESPN+",MIN,,,,,
-
-2,?,?,,,NONE,,,0,"TBD",,,,,,
-2,?,?,,,NONE,,,0,"TBD",,,,,,
-2,?,?,,,NONE,,,0,"TBD",,,,,,
-2,?,?,,,NONE,,,0,"TBD",,,,,,
-
-
-3,?,?,,,NONE,,,0,"TBD",,,,,,
-3,?,?,,,NONE,,,0,"TBD",,,,,,
-
-
-4,?,?,,,NONE,,,0,"TBD",,,,,,
-
+2,?,?,,,NONE,,,0,TBD,,,,,,
+2,?,?,,,NONE,,,0,TBD,,,,,,
+2,?,?,,,NONE,,,0,TBD,,,,,,
+2,?,?,,,NONE,,,0,TBD,,,,,,
+3,?,?,,,NONE,,,0,TBD,,,,,,
+3,?,?,,,NONE,,,0,TBD,,,,,,
+4,?,?,,,NONE,,,0,TBD,,,,,,

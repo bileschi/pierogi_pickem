@@ -5,7 +5,7 @@ from collections import defaultdict
 from datetime import datetime
 
 # TODO: Move this to the players module.
-players = ['smb', 'slb', 'sue', 'jean', 'morgan', 'adam']
+players = ['smb', 'max', 'slb', 'sue', 'jean', 'morgan', 'adam']
 
 
 def get_image_path(team_code):
@@ -69,7 +69,7 @@ def generate_html(weekly_results):
     </style>
     </head>
     <body>
-    <h1>Bileschi Family Pierogi Pigskin Pick'em</h1>"""
+    <h1>Bileschi Family PLAYOFF!! Pierogi Pigskin Pick'em</h1>"""
     # Add the timestamp
     nyc_timezone = pytz.timezone('America/New_York')
     timestamp = datetime.now(nyc_timezone).strftime('%Y-%m-%d %H:%M:%S')
@@ -105,7 +105,10 @@ def generate_html(weekly_results):
             html += f'<h2 id="week{week}">Super Bowl (8 points)</h2>'
         html += '<table>'
         # Table Header
-        html += '<tr><th>Game</th><th>Result</th><th>smb</th><th>slb</th><th>sue</th><th>jean</th><th>morgan</th><th>adam</th></tr>\n'
+        html += '<tr><th>Game</th><th>Result</th>'
+        for player in players:
+            html += f'<th>{player}</th>'
+        html += '</tr>\n'
         for game in results['games']:
             html += '<tr>'
             line_str = game['home_line']

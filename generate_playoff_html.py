@@ -22,10 +22,6 @@ def generate_weekly_results(games):
     weekly_results = defaultdict(lambda: {'games': [], 'scores': defaultdict(int)})
     for game in games:
         week = int(game['week'])
-        # TODO: this is a hack remove when you update the CSV.
-        if week != 1:
-            continue
-
         weekly_results[week]['games'].append(game)
         for player in players:
             pick = game[f'{player}_pick'].split(' ')[0]
@@ -90,9 +86,13 @@ def generate_html(weekly_results):
         else:
             winner = None
         if week == 1:
-            html += f'<h2 id="week{week}">Wildcard Round</h2>'
-        else:
-            html += f'<h2 id="week{week}">Week {week}</h2>'
+            html += f'<h2 id="week{week}">Wildcard Round (2 points per game)</h2>'
+        if week == 2:
+            html += f'<h2 id="week{week}">Divisional Round (3 points per game)</h2>'
+        if week == 3:
+            html += f'<h2 id="week{week}">Conference Championships (5 points per game)</h2>'
+        if week == 4:
+            html += f'<h2 id="week{week}">Super Bowl (8 points)</h2>'
         html += '<table>'
         # Table Header
         html += '<tr><th>Game</th><th>Result</th><th>smb</th><th>slb</th><th>sue</th><th>jean</th><th>morgan</th><th>adam</th></tr>\n'
@@ -105,27 +105,22 @@ def generate_html(weekly_results):
             if game['away_score'] and game['home_score']:
                 html += f"<td><div>{game['away_score']} — {game['home_score']}</div></td>"
             else:
-                game_day_datetime = datetime.fromtimestamp(int(game['prop_date'])//1000, tz=nyc_timezone)
-                game_day_string = game_day_datetime.strftime('%a %b %d @ %-I%p')
+                game_day_string = game['prop_date']
                 html += f"<td>{game_day_string} </td>"
             for player in players:
-                # pick = game[f'{player}_pick']
+                pick = game[f'{player}_pick']
                 # The pick has two parts "team_code" e.g. "TB", and source_suffix" e.g. "ESPN"
                 # For picks sourced from ESPN, the source suffix is "ESPN".
                 # For picks made manually, the source suffix is "MANUAL".
                 # For picks made by default mechanis, the source suffix is "DEFAULT".
-                pick, source = game[f'{player}_pick'].split(' ')
+                
+                pick = game[f'{player}_pick']
+                if pick == "":
+                    pick = "?"
+
                 classes = []
                 if pick == game['bet_win_key']:
                     classes.append('correct_pick')
-                if source == "DEFAULT":
-                    classes.append('default_pick')
-                    pick += "<sup>(D)</sup>"  # Add a superscript D to the pick 
-                if source == "MANUAL":
-                    classes.append('manual_pick')
-                    pick += "<sup>(M)</sup>"  # Add a superscript M to the pick 
-                if source == "ESPN":
-                    classes.append('espn_pick')
                 html += f"<td class='{ ' '.join(classes)}'>{pick}</td>"
             html += '</tr>\n'
         html += '<tr>'
@@ -143,7 +138,7 @@ def generate_html(weekly_results):
 
 if __name__ == '__main__':
     # TODO: Read the right year from current_season.py
-    games = read_csv('2024_2025/games.csv')
+    games = read_csv('2024_2025/playoffs.csv')
     weekly_results = generate_weekly_results(games)
     html = generate_html(weekly_results)
     with open('html/2024_2025/playoffs.html', 'w') as f:

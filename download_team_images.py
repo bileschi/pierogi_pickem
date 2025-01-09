@@ -6,7 +6,7 @@ def download_image(team_code, image_url):
     response = requests.get(image_url)
     response.raise_for_status()  # Raise an exception for error HTTP statuses
 
-    image_path = Path(f"images/nfl/{team_code}.png")
+    image_path = Path(f"images2/nfl/{team_code}.png")
     with open(image_path, 'wb') as f:
         f.write(response.content)
 
@@ -18,10 +18,13 @@ def main():
         "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT", "SEA", "SF", "TB", "TEN", "WSH"
     ]
 
-    image_base_url = "https://a.espncdn.com/i/teamlogos/nfl/500-dark/"
+    # These are dark version backgrounds that don't work on white.
+    # image_base_url = "https://a.espncdn.com/i/teamlogos/nfl/500-dark/"
+    image_base_url = "https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/"
+    image_url_suffix="&w=110&h=110"
 
     for team in teams:
-        image_url = image_base_url + f"{team}.png"
+        image_url = image_base_url + f"{team}.png" + image_url_suffix
         try:
             download_image(team, image_url)
             print(f"Downloaded image for {team}")

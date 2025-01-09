@@ -7,6 +7,14 @@ from datetime import datetime
 # TODO: Move this to the players module.
 players = ['smb', 'slb', 'sue', 'jean', 'morgan', 'adam']
 
+
+def get_image_path(team_code):
+    """Constructs the image path for a team code."""
+    if team_code and team_code != "?":
+        return f"images2/nfl/{team_code}.png"
+    else:
+        return None
+
 # TODO: Make the csv files a command line argument.
 
 def read_csv(filename):
@@ -101,7 +109,18 @@ def generate_html(weekly_results):
             line_str = game['home_line']
             if line_str and line_str[0] != '-':
                 line_str = '+' + line_str
-            html += f"<td>{game['away_team']} @ {game['home_team']} {line_str}</td>"
+            # Game illustration
+            away_team_img_path = get_image_path(game['away_team'])
+            home_team_img_path = get_image_path(game['home_team'])
+            html += "<td>"
+            height=50
+            width=50
+            if away_team_img_path and home_team_img_path:
+                html += f"<img src='{away_team_img_path}' height={height} width={width} alt='{game['away_team']}' title='{game['away_team']}'> @ "
+                html += f"<img src='{home_team_img_path}' height={height} width={width} alt='{game['home_team']}' title='{game['home_team']}'><br>"
+            html += f"{game['away_team']} @ {game['home_team']} {line_str}"
+            html += "</td>"
+ 
             if game['away_score'] and game['home_score']:
                 html += f"<td><div>{game['away_score']} — {game['home_score']}</div></td>"
             else:
@@ -109,19 +128,18 @@ def generate_html(weekly_results):
                 html += f"<td>{game_day_string} </td>"
             for player in players:
                 pick = game[f'{player}_pick']
-                # The pick has two parts "team_code" e.g. "TB", and source_suffix" e.g. "ESPN"
-                # For picks sourced from ESPN, the source suffix is "ESPN".
-                # For picks made manually, the source suffix is "MANUAL".
-                # For picks made by default mechanis, the source suffix is "DEFAULT".
-                
-                pick = game[f'{player}_pick']
+                pick_team_img_path = get_image_path(pick)
                 if pick == "":
                     pick = "?"
-
                 classes = []
                 if pick == game['bet_win_key']:
                     classes.append('correct_pick')
-                html += f"<td class='{ ' '.join(classes)}'>{pick}</td>"
+                html += f"<td class='{ ' '.join(classes)}'>"
+                if pick_team_img_path:
+                    html += f"<img src='{pick_team_img_path}' height={height} width={width} alt='{pick}' title='{pick}'><br>"
+                else:
+                    html += f"{pick}"
+                html+="</td>"
             html += '</tr>\n'
         html += '<tr>'
         html += f'<td>TOTAL</td><td></td>'

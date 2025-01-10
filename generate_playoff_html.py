@@ -66,6 +66,10 @@ def generate_html(weekly_results):
     .default_pick {
       color: gray; 
     }
+    .incorrect_pick {  /* New class for loss styling */
+      background-color: lightgrey;
+      filter: grayscale(100%) saturate(0%);  /* Desaturate and turn to grayscale */
+    }
     </style>
     </head>
     <body>
@@ -93,6 +97,8 @@ def generate_html(weekly_results):
     for week, results in sorted(weekly_results.items()):
         if results['scores']:
             winner = max(results['scores'], key=results['scores'].get)
+            winner_score = results['scores'][winner]
+            print(f"{week=}, {winner=}")
         else:
             winner = None
         if week == 1:
@@ -137,8 +143,14 @@ def generate_html(weekly_results):
                 if pick == "":
                     pick = "?"
                 classes = []
+                if game['game_id'] == 'LACHOU':
+                    print(f"{player} {game['bet_win_key']=}, {pick=}")
                 if pick == game['bet_win_key']:
+                    print('  WIN')
                     classes.append('correct_pick')
+                if pick != game['bet_win_key'] and game['away_score'] and game['home_score']:
+                    print('  lose')
+                    classes.append('incorrect_pick')
                 html += f"<td class='{ ' '.join(classes)}'>"
                 if pick_team_img_path:
                     html += f"<img src='{pick_team_img_path}' height={height} width={width} alt='{pick}' title='{pick}'><br>"
@@ -151,7 +163,7 @@ def generate_html(weekly_results):
         # for player, score in results['scores'].items():
         for player in players:
             score = results['scores'][player]
-            html += f"<td class='{ 'winner' if player == winner else ''}'>{score}</td>"
+            html += f"<td class='{ 'winner' if score == winner_score else ''}'>{score}</td>"
         html += '</tr>'
         html += '</table>'
 

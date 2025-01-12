@@ -25,7 +25,12 @@ def read_csv(filename):
         return [row for row in reader]
     return games
 
-score_per_week = [2, 3, 5, 8]
+score_per_week = {
+    1: 2,
+    2: 3,
+    3: 5,
+    4: 8
+}
 
 def generate_weekly_results(games):
     """Generates weekly results with winners and scores."""

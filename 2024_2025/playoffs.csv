@@ -8,7 +8,7 @@ week,away_team,home_team,game_id,proposition_id,bet_win_key,home_score,away_scor
 2,HOU,KC,,,NONE,,,-7.5,"Saturday, 4:30 p.m. ABC, ESPN",KC,KC,KC,KC,,KC,
 2,WSH,DET,,,NONE,,,-9.5,"Saturday, 8:00 p.m. FOX",DET,DET,DET,DET,,DET,
 2,LAR,PHI,,,NONE,,,-6,"Sunday, 3:00 p.m. NBC, Peacock",PHI,PHI,LAR,PHI,,LAR,
-2,BAL,BUF,,,NONE,,,+1,"Sunday, 6:30 p.m. CBS, Paramount+",BAL,BUF,BUF,BUF,,BUF,
+2,BAL,BUF,,,NONE,,,1,"Sunday, 6:30 p.m. CBS, Paramount+",BAL,BUF,BUF,BUF,,BUF,
 3,?,?,,,NONE,,,0,TBD,,,,,,,
 3,?,?,,,NONE,,,0,TBD,,,,,,,
 4,?,?,,,NONE,,,0,TBD,,,,,,,

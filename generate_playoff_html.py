@@ -1,4 +1,5 @@
 import csv
+import enum
 import pytz
 
 from collections import defaultdict
@@ -6,6 +7,12 @@ from datetime import datetime
 
 # TODO: Move this to the players module.
 players = ['smb', 'max', 'slb', 'sue', 'jean', 'morgan', 'adam']
+
+class BetResult(enum.Enum):
+    UNDECIDED = enum.auto()
+    WIN = enum.auto()
+    LOSE = enum.auto()
+    TIE = enum.auto()
 
 
 def get_image_path(team_code):
@@ -74,6 +81,15 @@ def generate_html(weekly_results):
     .incorrect_pick {  /* New class for loss styling */
       background-color: lightgrey;
       filter: grayscale(100%) saturate(0%);  /* Desaturate and turn to grayscale */
+    }
+    .tie {
+      background: repeating-linear-gradient(
+      45deg,
+      lightgreen,
+      lightgreen 10px,
+      lightgrey 10px,
+      lightgrey 20px
+    );
     }
     </style>
     </head>
@@ -148,14 +164,30 @@ def generate_html(weekly_results):
                 if pick == "":
                     pick = "?"
                 classes = []
-                if game['game_id'] == 'LACHOU':
-                    print(f"{player} {game['bet_win_key']=}, {pick=}")
-                if pick == game['bet_win_key']:
-                    print('  WIN')
+                bet_status = BetResult.UNDECIDED
+                if game['away_score'] and game['home_score']:
+                    diff_w_line = float(game['home_score']) + float(game['home_line']) - float(game['away_score'])
+                    if diff_w_line > 0:
+                        winner = game['home_team']
+                    elif diff_w_line == 0:
+                        winner = 'TIE'
+                    else:
+                        winner = game['away_team']
+                    if pick == winner:
+                        bet_status = BetResult.WIN
+                    elif winner == 'TIE':
+                        bet_status = BetResult.TIE
+                    else:
+                        bet_status = BetResult.LOSE
+                if bet_status == BetResult.WIN:
                     classes.append('correct_pick')
-                if pick != game['bet_win_key'] and game['away_score'] and game['home_score']:
-                    print('  lose')
+                if bet_status == BetResult.LOSE:
                     classes.append('incorrect_pick')
+                if bet_status == BetResult.TIE:
+                    classes.append('tie')
+                if bet_status == BetResult.UNDECIDED:
+                    classes.append('undecided')
+
                 html += f"<td class='{ ' '.join(classes)}'>"
                 if pick_team_img_path:
                     html += f"<img src='{pick_team_img_path}' height={height} width={width} alt='{pick}' title='{pick}'><br>"

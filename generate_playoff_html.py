@@ -47,6 +47,9 @@ def generate_weekly_results(games):
         weekly_results[week]['games'].append(game)
         for player in players:
             pick = game[f'{player}_pick'].split(' ')[0]
+            # TODO: The winner is determined by the bet_win_key, but the 
+            # cell color is determined by the score differential.  I should
+            # get rid of the bet-win-key, since it's overdetermined.
             if pick == game['bet_win_key']:
                 weekly_results[week]['scores'][player] += score_per_week[week]
     return weekly_results
@@ -113,6 +116,18 @@ def generate_html(weekly_results):
         # for player, score in results['scores'].items():
             score = results['scores'][player]
             leaderboard[player] += score
+
+    html += f'<h2 id="leaderboard">Leaderboard</h2>'
+    html += '<div width=400>' # add div to format the leaderboard table
+    html += '<table style="table-layout: fixed; width: 500px;">'
+    html += '<tr><th>Player</th><th>Total Score</th></tr>'
+    for player, score in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True):
+    # for player in players:
+        score = leaderboard[player]
+        html += f'<tr><td>{player}</td><td>{score}</td></tr>'
+    html += '</table>'
+    html += '</div>'
+
 
     # Generate weekly results
     for week, results in sorted(weekly_results.items()):

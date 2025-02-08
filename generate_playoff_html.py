@@ -231,10 +231,13 @@ def generate_html(weekly_results):
                     classes.append('undecided')
 
                 html += f"<td class='{ ' '.join(classes)}'>"
-                if pick_team_img_path:
-                    html += f"<img src='{pick_team_img_path}' height={height} width={width} alt='{pick}' title='{pick}'><br>"
+                if week == 5 and pick == 'x':
+                    pass
                 else:
-                    html += f"{pick}"
+                    if pick_team_img_path:
+                        html += f"<img src='{pick_team_img_path}' height={height} width={width} alt='{pick}' title='{pick}'><br>"
+                    else:
+                        html += f"{pick}"
                 html+="</td>"
             html += '</tr>\n'
         html += '<tr>'

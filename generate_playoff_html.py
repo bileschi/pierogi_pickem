@@ -50,8 +50,14 @@ def generate_weekly_results(games):
             # TODO: The winner is determined by the bet_win_key, but the 
             # cell color is determined by the score differential.  I should
             # get rid of the bet-win-key, since it's overdetermined.
-            if pick == game['bet_win_key']:
-                weekly_results[week]['scores'][player] += score_per_week[week]
+            if week == 5:  # superbowl prop bets have conditional scores
+                if pick == game['bet_win_key']:
+                    weekly_results[week]['scores'][player] += int(game['home_line'])
+                if pick == 'YES':
+                    weekly_results[week]['scores'][player] -= 1                    
+            else: # normal week
+                if pick == game['bet_win_key']:
+                    weekly_results[week]['scores'][player] += score_per_week[week]
     return weekly_results
 
 def generate_html(weekly_results):
@@ -145,34 +151,50 @@ def generate_html(weekly_results):
             html += f'<h2 id="week{week}">Conference Championships (5 points per game)</h2>'
         if week == 4:
             html += f'<h2 id="week{week}">Super Bowl (8 points)</h2>'
+        if week == 5:
+            html += f'<h2 id="week{week}">Super Bowl Prop Bets</h2>'
+            html += f'<p>Prop bets <b>cost one point</b> if you take the bet<br>'
+            html += f'<p>They pay out X points as listed in the description.<br>'
         html += '<table>'
         # Table Header
-        html += '<tr><th>Game</th><th>Result</th>'
+        if week == 5:
+            html += '<tr><th>Bet Description</th><th>Points if Correct</th><th>Result</th>'
+        else:
+            html += '<tr><th>Game</th><th>Result</th>'
         for player in players:
             html += f'<th>{player}</th>'
         html += '</tr>\n'
         for game in results['games']:
-            html += '<tr>'
-            line_str = game['home_line']
-            if line_str and line_str[0] != '-':
-                line_str = '+' + line_str
-            # Game illustration
-            away_team_img_path = get_image_path(game['away_team'])
-            home_team_img_path = get_image_path(game['home_team'])
-            html += "<td>"
-            height=50
-            width=50
-            if away_team_img_path and home_team_img_path:
-                html += f"<img src='{away_team_img_path}' height={height} width={width} alt='{game['away_team']}' title='{game['away_team']}'> @ "
-                html += f"<img src='{home_team_img_path}' height={height} width={width} alt='{game['home_team']}' title='{game['home_team']}'><br>"
-            html += f"{game['away_team']} @ {game['home_team']} {line_str}"
-            html += "</td>"
- 
-            if game['away_score'] and game['home_score']:
-                html += f"<td><div>{game['away_score']} — {game['home_score']}</div></td>"
+            if week == 5: # superbowl prop bets
+                # Bet Description is in away_team slot.
+                html += '<tr>'
+                html += f"<td>{game['away_team']}</td>"
+                # Points if correct is in the home_line slot.
+                html += f"<td>{game['home_line']}</td>"
+                # Result is in the prop_date slot.
+                html += f"<td>{game['prop_date']}</td>"
             else:
-                game_day_string = game['prop_date']
-                html += f"<td>{game_day_string} </td>"
+                html += '<tr>'
+                line_str = game['home_line']
+                if line_str and line_str[0] != '-':
+                    line_str = '+' + line_str
+                # Game illustration
+                away_team_img_path = get_image_path(game['away_team'])
+                home_team_img_path = get_image_path(game['home_team'])
+                html += "<td>"
+                height=50
+                width=50
+                if away_team_img_path and home_team_img_path:
+                    html += f"<img src='{away_team_img_path}' height={height} width={width} alt='{game['away_team']}' title='{game['away_team']}'> @ "
+                    html += f"<img src='{home_team_img_path}' height={height} width={width} alt='{game['home_team']}' title='{game['home_team']}'><br>"
+                html += f"{game['away_team']} @ {game['home_team']} {line_str}"
+                html += "</td>"
+    
+                if game['away_score'] and game['home_score']:
+                    html += f"<td><div>{game['away_score']} — {game['home_score']}</div></td>"
+                else:
+                    game_day_string = game['prop_date']
+                    html += f"<td>{game_day_string} </td>"
             for player in players:
                 pick = game[f'{player}_pick']
                 pick_team_img_path = get_image_path(pick)
@@ -194,6 +216,11 @@ def generate_html(weekly_results):
                         bet_status = BetResult.TIE
                     else:
                         bet_status = BetResult.LOSE
+                if week == 5 and game['bet_win_key']:
+                    if game['bet_win_key'] == 'YES' and pick == 'YES':
+                        bet_status = BetResult.WIN
+                    if game['bet_win_key'] == 'NO' and pick == 'YES':
+                        bet_status = BetResult.LOSE
                 if bet_status == BetResult.WIN:
                     classes.append('correct_pick')
                 if bet_status == BetResult.LOSE:
@@ -212,6 +239,8 @@ def generate_html(weekly_results):
             html += '</tr>\n'
         html += '<tr>'
         html += f'<td>TOTAL</td><td></td>'
+        if week == 5:  #extra column in prop bets
+            html += f'<td></td>'
         # for player, score in results['scores'].items():
         for player in players:
             score = results['scores'][player]

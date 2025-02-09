@@ -15,7 +15,7 @@ week,away_team,home_team,game_id,proposition_id,bet_win_key,home_score,away_scor
 5,Over 48.5 points scored,,,,NONE,,,2,"?",YES,x,YES,x,YES,x,x
 5,Under 48.5 points scored,,,,NONE,,,2,"?",x,x,x,YES,x,YES,YES
 5,Travis Kelce wins superbowl MVP,,,,NONE,,,15,"?",x,x,x,x,x,x,x
-5,Saquon Barkley 2+ TDs,,,,NONE,,,4,"?",YES,x,x,x,YES,x,x
+5,Saquon Barkley 2+ TDs,,,,NONE,,,4,"?",YES,x,x,x,YES,YES,x
 5,Travis Kelce 2+ TDs,,,,NONE,,,10,"?",x,x,x,x,x,x,x
 5,Jalen Hurts 2+ Passing Touchdowns,,,,NONE,,,3,"?",x,YES,x,x,YES,YES,YES
 5,Largest lead of game is over 14.5 points,,,,NONE,,,3,?,YES,x,x,YES,x,x,x

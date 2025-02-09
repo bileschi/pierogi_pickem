@@ -251,9 +251,6 @@ def generate_html(weekly_results):
         html += '</tr>'
         html += '</table>'
 
-    html += f'<h2 id="superbowl_props">SuperBowl Prop Bets (TBD)</h2>'
-
-
     html += '</body></html>'
     return html
 

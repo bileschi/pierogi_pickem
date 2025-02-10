@@ -11,16 +11,16 @@ week,away_team,home_team,game_id,proposition_id,bet_win_key,home_score,away_scor
 1,WSH,TB,WSHTB,,WSH,20,23,-3.5,"Sunday, 8 p.m., NBC, Peacock",WSH,WSH,WSH,TB,TB,WSH,TB
 3,WSH,PHI,WSHPHI,,PHI,55,23,-6.5,"Sunday, 3:00 p.m. FOX",PHI,PHI,WSH,PHI,WSH,PHI,
 3,BUF,KC,BUFKC,,KC,32,29,-2,"Sunday, 6:30 p.m. CBS, Paramount+",BUF,KC,BUF,BUF,BUF,BUF,
-4,KC,PHI,PHIKC,,NONE,,,1.5,"Sunday, February 9, 6:30 p.m, FOX",KC,PHI,PHI,KC,PHI,PHI,KC
-5,Over 48.5 points scored,,,,NONE,,,2,"?",YES,x,YES,x,YES,x,x
+4,KC,PHI,PHIKC,,PHI,14,40,1.5,"Sunday, February 9, 6:30 p.m, FOX",KC,PHI,PHI,KC,PHI,PHI,KC
+5,Over 48.5 points scored,,,,YEs,,,2,"?",YES,x,YES,x,YES,x,x
 5,Under 48.5 points scored,,,,NONE,,,2,"?",x,x,x,YES,x,YES,YES
 5,Travis Kelce wins superbowl MVP,,,,NONE,,,15,"?",x,x,x,x,x,x,x
 5,Saquon Barkley 2+ TDs,,,,NONE,,,4,"?",YES,x,x,x,YES,YES,x
 5,Travis Kelce 2+ TDs,,,,NONE,,,10,"?",x,x,x,x,x,x,x
-5,Jalen Hurts 2+ Passing Touchdowns,,,,NONE,,,3,"?",x,YES,x,x,YES,YES,YES
-5,Largest lead of game is over 14.5 points,,,,NONE,,,3,?,YES,x,x,YES,x,x,x
+5,Jalen Hurts 2+ Passing Touchdowns,,,,YES,,,3,"?",x,YES,x,x,YES,YES,YES
+5,Largest lead of game is over 14.5 points,,,,YES,,,3,?,YES,x,x,YES,x,x,x
 5,Longest touchdown is scored by the Eagles,,,,NONE,,,2,"?",x,x,x,x,YES,YES,YES
-5,Any defensive / special teams TD,,,,NONE,,,4,"?",x,x,YES,YES,x,x,x
-5,Total interceptions over 1.5,,,,NONE,,,2,"?",x,YES,x,x,YES,YES,YES
-5,Longest field goal over 47.5y,,,,NONE,,,2,"?",x,x,x,x,x,x,x
+5,Any defensive / special teams TD,,,,YES,,,4,"?",x,x,YES,YES,x,x,x
+5,Total interceptions over 1.5,,,,YES,,,2,"?",x,YES,x,x,YES,YES,YES
+5,Longest field goal over 47.5y,,,,YES,,,2,"?",x,x,x,x,x,x,x
 5,Last Score of the Game to be a Chiefs Field Goal,,,,NONE,,,5,"?",YES,x,x,x,x,x,YES

@@ -10,7 +10,8 @@ import propositions
 # import morgans_picks
 
 from current_season import FOOTBALL_SEASON
-from manual_picks_2024_2025 import MANUAL_PICKS
+#from manual_picks_2024_2025 import MANUAL_PICKS
+from manual_picks_2025_2026 import MANUAL_PICKS
 
 SKIP_LOAD_LINES = False
 SKIP_LOAD_PICKS = False
@@ -38,9 +39,11 @@ if __name__ == "__main__":
     # TODO: fix up the filename logic here.
     # Writes {player}_pick.csv
     picks = {}
+    dbprint("Loading player picks.")
     player_picks_fns = {player: os.path.join(FOOTBALL_SEASON,f'{player}.csv') for player in players.ESPN_PLAYER_IDS.keys()}
     if not SKIP_LOAD_PICKS:
         for (player, espn_pick_id) in players.ESPN_PLAYER_IDS.items():
+            dbprint(f"Fetching picks for player {player} from ESPN.")
             picks[player] = espn_picks.get_picks(espn_pick_id)
             espn_picks.write_picks_csv(
         picks[player],

@@ -24,11 +24,15 @@ def dbprint(*args, **kwargs):
 
 # ESPN changes the api URL location. you need to get the new URL by poking
 # around at the network tab at the ESPN site.
+# I found it in 2025 by searching network responses for the string 'challengeId'
+# in https://gambit-api.fantasy.espn.com/apis/v1/challenges/nfl-pigskin-pickem-2025/?platform=chui&view=chui_default
 year_key = None
 if FOOTBALL_SEASON == "2023_2024":
   year_key = 230
 elif FOOTBALL_SEASON == "2024_2025":
   year_key = 247
+elif FOOTBALL_SEASON == "2025_2026":
+  year_key = 265
 else:
   raise ValueError(f"Unknown FOOTBALL_SEASON: {FOOTBALL_SEASON}")
 

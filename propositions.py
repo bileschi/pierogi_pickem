@@ -18,6 +18,9 @@ ESPN_PROPOSITIONS_URL = {
     "2024_2025": (
         f"https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=247&platform=chui&view=chui_default"
     ),
+    "2025_2026": (
+        f"https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=265&platform=chui&view=chui_default"
+    ),
 }
 
 
@@ -108,7 +111,7 @@ def get_propositions(espn_propositions_url: Optional[str] = None) -> list:
         for val in one_json_prop["mappings"]:
             if val["type"] == "COMPETITION_ID":
                 proposition[GAME_ID_KEY] = val["value"]
-        proposition[PROP_DATE_KEY] = one_json_prop["date"] or "unknown"
+        proposition[PROP_DATE_KEY] = str(one_json_prop.get("date") or "unknown")
         propositions.append(proposition)
     return propositions
 

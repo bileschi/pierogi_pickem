@@ -3,9 +3,11 @@ import pytz
 
 from collections import defaultdict
 from datetime import datetime
+from current_season import FOOTBALL_SEASON
 
 # TODO: Move this to the players module.
-players = ['smb', 'slb', 'sue', 'jean', 'morgan', 'adam']
+# players = ['smb', 'slb', 'sue', 'jean', 'morgan', 'adam']
+players = ['smb', 'slb', 'sue']
 
 # TODO: Make the csv files a command line argument.
 
@@ -59,7 +61,7 @@ def generate_html(weekly_results):
     </style>
     </head>
     <body>
-    <h1>Bileschi Family Pierogi Pigskin Pick'em</h1>"""
+    <h1>Bileschi Family Pierogi Pigskin Pick'em """+FOOTBALL_SEASON+"</h1>"
     # Add the timestamp
     nyc_timezone = pytz.timezone('America/New_York')
     timestamp = datetime.now(nyc_timezone).strftime('%Y-%m-%d %H:%M:%S')
@@ -148,9 +150,8 @@ def generate_html(weekly_results):
     return html
 
 if __name__ == '__main__':
-    # TODO: Read the right year from current_season.py
-    games = read_csv('2024_2025/games.csv')
+    games = read_csv(FOOTBALL_SEASON + '/games.csv')
     weekly_results = generate_weekly_results(games)
     html = generate_html(weekly_results)
-    with open('html/2024_2025/nfl_pickem.html', 'w') as f:
+    with open(f'html/{FOOTBALL_SEASON}/nfl_pickem.html', 'w') as f:
         f.write(html)

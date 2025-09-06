@@ -21,7 +21,7 @@ MANUAL_PICKS[players.SLB_PICK_KEY][1] = {
     "CIN",
     "NE",
     "MIA",
-    "WAS",
+    "WSH",
     "PIT",
     "TB",
     "SF",
@@ -30,4 +30,8 @@ MANUAL_PICKS[players.SLB_PICK_KEY][1] = {
     "HOU",
     "BUF",
     "CHI",
+}
+# Sept 4 (sms)
+MANUAL_PICKS[players.JEAN_PICK_KEY][1] = {
+    "DAL",
 }

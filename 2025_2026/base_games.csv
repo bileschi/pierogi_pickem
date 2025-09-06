@@ -1,6 +1,6 @@
 week,home_team,away_team,game_id,proposition_id,bet_win_key,home_score,away_score,home_line,prop_date,smb_pick,slb_pick,sue_pick,jean_pick,morgan_pick,adam_pick
-1,PHI,DAL,401772510,,,,,,,,,,,,
-1,LAC,KC,401772714,,,,,,,,,,,,
+1,PHI,DAL,401772510,,,24,20,,,,,,,,
+1,LAC,KC,401772714,,,27,21,,,,,,,,
 1,ATL,TB,401772830,,,,,,,,,,,,
 1,IND,MIA,401772719,,,,,,,,,,,,
 1,NO,ARI,401772718,,,,,,,,,,,,

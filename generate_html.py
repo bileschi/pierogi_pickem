@@ -6,8 +6,8 @@ from datetime import datetime
 from current_season import FOOTBALL_SEASON
 
 # TODO: Move this to the players module.
-# players = ['smb', 'slb', 'sue', 'jean', 'morgan', 'adam']
-players = ['smb', 'slb', 'sue']
+players = ['smb', 'slb', 'sue', 'jean', 'morgan', 'adam']
+# players = ['smb', 'slb', 'sue']
 
 # TODO: Make the csv files a command line argument.
 

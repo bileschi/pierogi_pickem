@@ -30,12 +30,12 @@ ADAM_PICK_KEY = 'adam_pick'
 # ]
 # 2025_2026
 PLAYER_IDS = [
-#  JEAN_PICK_KEY,
-#  MORGAN_PICK_KEY,
+  JEAN_PICK_KEY,
+  MORGAN_PICK_KEY,
   SLB_PICK_KEY,
   SMB_PICK_KEY,
   SUE_PICK_KEY,
-#  ADAM_PICK_KEY,
+  ADAM_PICK_KEY,
 ]
 # You can get the ID here from hovering over the 'group entry' field
 # for each player within the league view.

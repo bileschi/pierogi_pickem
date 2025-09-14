@@ -56,6 +56,7 @@ def get_game_scores():
   # nothing to do with our pickem picks, they are common to the NFL.
   games = []
   for week in range(1, N_WEEKS_IN_SEASON + 1):
+#  for week in [2]:  # DEBUG
     # site should look like this: https://ibb.co/KxP7Jv4
     dbprint(f"  {week=}")
     year = FOOTBALL_SEASON.split("_")[0]
@@ -78,12 +79,14 @@ def get_game_scores():
       # Each of these rows corresponds to one game.
       rows = football_day.find_all(
         'tr',
-        class_='Table__TR Table__TR--sm Table__even')
+        class_=['Table__TR','Table__TR--sm','Table__even'])
       for i_r, row in enumerate(rows[:]):
         game = {k: '' for k in GAME_COL_KEYS}
         game[games_col_keys.WEEK_KEY] = week
         # Get the teams
         teams = row.find_all('span', class_='Table__Team')
+        if not teams:
+          continue
         for i_t, team in enumerate(teams):
           team_link = team.find_all('a')[0]
           team_code = team_link['href'].split('/')[5].upper()

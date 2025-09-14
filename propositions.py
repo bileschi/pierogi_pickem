@@ -79,10 +79,10 @@ def get_propositions(espn_propositions_url: Optional[str] = None) -> list:
     )
     soup = BeautifulSoup(response.content, "html.parser")
     propositions_json = json.loads(soup.text)
-    printed_any = False
-    if not printed_any:
-        printed_any = True
-        print(propositions_json)
+    # printed_any = False
+    # if not printed_any:
+    #     printed_any = True
+    #     print(propositions_json)
     for one_json_prop in propositions_json:
         proposition = {
             PROPOSITION_ID_KEY: None,

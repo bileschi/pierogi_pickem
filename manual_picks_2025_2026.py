@@ -5,6 +5,7 @@
 # will be managaged later by perhaps assuming no pick was made.
 
 import players
+import games_col_keys
 
 from collections import defaultdict
 
@@ -13,7 +14,7 @@ for player in players.PLAYER_IDS:
     MANUAL_PICKS[player] = defaultdict(set)
 
 # Sept 3 (email)
-MANUAL_PICKS[players.SLB_PICK_KEY][1] = {
+MANUAL_PICKS[games_col_keys.SLB_PICK_KEY][1] = {
     "PHI",
     "KC",
     "ARI",
@@ -32,6 +33,6 @@ MANUAL_PICKS[players.SLB_PICK_KEY][1] = {
     "CHI",
 }
 # Sept 4 (sms)
-MANUAL_PICKS[players.JEAN_PICK_KEY][1] = {
+MANUAL_PICKS[games_col_keys.JEAN_PICK_KEY][1] = {
     "DAL",
 }

@@ -6,35 +6,26 @@ from bs4 import BeautifulSoup
 import players
 import propositions
 from current_season import FOOTBALL_SEASON, N_WEEKS_IN_SEASON
+import games_col_keys
 
-
-AWAY_KEY = 'away_team'
-AWAY_SCORE_KEY = 'away_score'
-HOME_KEY = 'home_team'
-HOME_SCORE_KEY = 'home_score'
-WEEK_KEY = 'week'
-BET_WIN_KEY = "bet_win_key"
-
-# TODO: The definition of the structure of the games CSV should be in it's own
-# module.
-# TODO: the module should dynamically load the players.
+# Game metadata.
 GAME_COL_KEYS = (
-  WEEK_KEY,
-  HOME_KEY,
-  AWAY_KEY,
+  games_col_keys.WEEK_KEY,
+  games_col_keys.HOME_KEY,
+  games_col_keys.AWAY_KEY,
   propositions.GAME_ID_KEY,
   propositions.PROPOSITION_ID_KEY,
-  BET_WIN_KEY,
-  HOME_SCORE_KEY,
-  AWAY_SCORE_KEY,
+  games_col_keys.BET_WIN_KEY,
+  games_col_keys.HOME_SCORE_KEY,
+  games_col_keys.AWAY_SCORE_KEY,
   propositions.LINE_KEY,
   propositions.PROP_DATE_KEY,
-  players.SMB_PICK_KEY,
-  players.SLB_PICK_KEY,
-  players.SUE_PICK_KEY,
-  players.JEAN_PICK_KEY,
-  players.MORGAN_PICK_KEY,
-  players.ADAM_PICK_KEY
+  games_col_keys.SMB_PICK_KEY,
+  games_col_keys.SLB_PICK_KEY,
+  games_col_keys.SUE_PICK_KEY,
+  games_col_keys.JEAN_PICK_KEY,
+  games_col_keys.MORGAN_PICK_KEY,
+  games_col_keys.ADAM_PICK_KEY
 )
 
 DEBUG_PRINT = True
@@ -76,7 +67,7 @@ def get_game_scores():
       headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
     soup = BeautifulSoup(response.content, 'html.parser')
 
-    # The page organizes weeks by days, separating, e.g., 
+    # The page organizes weeks by days, separating, e.g.,
     # Monday night football from the Sunday games.
     football_days = soup.find_all(
       'div',
@@ -90,7 +81,7 @@ def get_game_scores():
         class_='Table__TR Table__TR--sm Table__even')
       for i_r, row in enumerate(rows[:]):
         game = {k: '' for k in GAME_COL_KEYS}
-        game[WEEK_KEY] = week
+        game[games_col_keys.WEEK_KEY] = week
         # Get the teams
         teams = row.find_all('span', class_='Table__Team')
         for i_t, team in enumerate(teams):
@@ -98,14 +89,14 @@ def get_game_scores():
           team_code = team_link['href'].split('/')[5].upper()
           # Away team is listed first
           if i_t == 0:
-            game[AWAY_KEY] = team_code
+            game[games_col_keys.AWAY_KEY] = team_code
             dbprint(f'    Away team: {team_code}')
           if i_t == 1:
-            game[HOME_KEY] = team_code
+            game[games_col_keys.HOME_KEY] = team_code
             dbprint(f'    Home team: {team_code}')
-        # Get the score and ESPN game ID.  This will be none if the game 
+        # Get the score and ESPN game ID.  This will be none if the game
         # has not happened or is in progres.
-        # 
+        #
         # The 'game_href' link has a format that looks like:
         #  https://www.espn.com/nfl/game/_/gameId/401671861/texans-colts
         #
@@ -129,15 +120,15 @@ def get_game_scores():
               game_id = game_href_parts[i + 1]
           if not game_id:
             print(f"    ERROR: could not find game id in {game_href}")
-            continue          
+            continue
           game[propositions.GAME_ID_KEY] = game_id
         if score_col:
           score_text = score_col.get_text()
           # Score text should be something like "ATL 25, GB 24".
           scores = parse_score_text(
-            score_text, home_team=game[HOME_KEY])   
-          game[HOME_SCORE_KEY] = scores['home']
-          game[AWAY_SCORE_KEY] = scores['away']
+            score_text, home_team=game[games_col_keys.HOME_KEY])
+          game[games_col_keys.HOME_SCORE_KEY] = scores['home']
+          game[games_col_keys.AWAY_SCORE_KEY] = scores['away']
         games.append(game)
   return(games)
 

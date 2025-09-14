@@ -4,6 +4,7 @@ import os
 
 import espn_picks
 import espn_game_results
+import games_col_keys
 import players
 import propositions
 # TODO: Get morgan & adams picks in.
@@ -89,16 +90,16 @@ if __name__ == "__main__":
 
     # Fill the `bet_win_key` with the code of the team that won the bet.
     for game in games:
-        if not game[espn_game_results.HOME_SCORE_KEY] or not game[espn_game_results.AWAY_SCORE_KEY]:
-            game[espn_game_results.BET_WIN_KEY] = "not_decided"
+        if not game[games_col_keys.HOME_SCORE_KEY] or not game[games_col_keys.AWAY_SCORE_KEY]:
+            game[games_col_keys.BET_WIN_KEY] = "not_decided"
             continue
-        home_score = float(game[espn_game_results.HOME_SCORE_KEY])
-        away_score = float(game[espn_game_results.AWAY_SCORE_KEY])
+        home_score = float(game[games_col_keys.HOME_SCORE_KEY])
+        away_score = float(game[games_col_keys.AWAY_SCORE_KEY])
         home_line = float(game[propositions.LINE_KEY])
         if (home_score + home_line) > away_score:
-            game[espn_game_results.BET_WIN_KEY] = game[espn_game_results.HOME_KEY]
+            game[games_col_keys.BET_WIN_KEY] = game[games_col_keys.HOME_KEY]
         else:
-            game[espn_game_results.BET_WIN_KEY] = game[espn_game_results.AWAY_KEY]
+            game[games_col_keys.BET_WIN_KEY] = game[games_col_keys.AWAY_KEY]
     espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
 
     # Fill the games object for players who use ESPN.  For these picks we align
@@ -135,9 +136,9 @@ if __name__ == "__main__":
     for game in games:
       for player in players.PLAYER_IDS:
         # Check if this player has a manual pick for this game.
-        week = int(game[espn_game_results.WEEK_KEY])
-        home_team = game[espn_game_results.HOME_KEY]
-        away_team = game[espn_game_results.AWAY_KEY]        
+        week = int(game[games_col_keys.WEEK_KEY])
+        home_team = game[games_col_keys.HOME_KEY]
+        away_team = game[games_col_keys.AWAY_KEY]        
         manual_home_pick = home_team in MANUAL_PICKS[player][week]
         manual_away_pick = away_team in MANUAL_PICKS[player][week]
         if manual_home_pick and manual_away_pick:

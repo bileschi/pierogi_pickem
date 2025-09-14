@@ -1,12 +1,5 @@
-import espn_game_results
+import games_col_keys
 import propositions
-
-JEAN_PICK_KEY = 'jean_pick'
-MORGAN_PICK_KEY = 'morgan_pick'
-SLB_PICK_KEY = 'slb_pick'
-SMB_PICK_KEY = 'smb_pick'
-SUE_PICK_KEY = 'sue_pick'
-ADAM_PICK_KEY = 'adam_pick'
 
 
 # I got these ids from the espn site by poking around at the network tab.
@@ -30,12 +23,12 @@ ADAM_PICK_KEY = 'adam_pick'
 # ]
 # 2025_2026
 PLAYER_IDS = [
-  JEAN_PICK_KEY,
-  MORGAN_PICK_KEY,
-  SLB_PICK_KEY,
-  SMB_PICK_KEY,
-  SUE_PICK_KEY,
-  ADAM_PICK_KEY,
+  games_col_keys.JEAN_PICK_KEY,
+  games_col_keys.MORGAN_PICK_KEY,
+  games_col_keys.SLB_PICK_KEY,
+  games_col_keys.SMB_PICK_KEY,
+  games_col_keys.SUE_PICK_KEY,
+  games_col_keys.ADAM_PICK_KEY,
 ]
 # You can get the ID here from hovering over the 'group entry' field
 # for each player within the league view.
@@ -52,20 +45,20 @@ PLAYER_IDS = [
 # }
 # 2025_2026
 ESPN_PLAYER_IDS = {
-  SMB_PICK_KEY: '65b79490-7c3b-11f0-8e6b-379d7a2b7cd8',
-  SUE_PICK_KEY: '5197fc50-891c-11f0-b1ab-011cec36886d',
+  games_col_keys.SMB_PICK_KEY: '65b79490-7c3b-11f0-8e6b-379d7a2b7cd8',
+  games_col_keys.SUE_PICK_KEY: '5197fc50-891c-11f0-b1ab-011cec36886d',
 }
 
-home_strategy = lambda game: game[espn_game_results.HOME_KEY]
+home_strategy = lambda game: game[games_col_keys.HOME_KEY]
 
 def favorite_strategy(game):
   str_line = game[propositions.LINE_KEY]
   if not str_line:
-    return game[espn_game_results.HOME_KEY]
+    return game[games_col_keys.HOME_KEY]
   if float(str_line) < 0:
-    return game[espn_game_results.HOME_KEY]
+    return game[games_col_keys.HOME_KEY]
   else:
-    return game[espn_game_results.AWAY_KEY]
+    return game[games_col_keys.AWAY_KEY]
 
 TEAM_CITY_TO_NAME = {
     "ARI": "Cardinals",
@@ -110,8 +103,8 @@ def morgan_fewest_letters_strategy(game):
   Oh shoot. I totally forgot. Yes alphabetical works if there are the same
   number 
   """
-  home_team = game[espn_game_results.HOME_KEY]
-  away_team = game[espn_game_results.AWAY_KEY]
+  home_team = game[games_col_keys.HOME_KEY]
+  away_team = game[games_col_keys.AWAY_KEY]
   home_team_name = TEAM_CITY_TO_NAME[home_team]
   away_team_name = TEAM_CITY_TO_NAME[away_team]
   if len(home_team_name) < len(away_team_name):
@@ -125,12 +118,12 @@ def morgan_fewest_letters_strategy(game):
     return away_team
 
 DEFAULT_STRATEGY = {
-  JEAN_PICK_KEY: home_strategy,
-  MORGAN_PICK_KEY: morgan_fewest_letters_strategy,
-  SLB_PICK_KEY: home_strategy,
-  SMB_PICK_KEY: favorite_strategy,
-  SUE_PICK_KEY: home_strategy,
-  ADAM_PICK_KEY: home_strategy,
+  games_col_keys.JEAN_PICK_KEY: home_strategy,
+  games_col_keys.MORGAN_PICK_KEY: morgan_fewest_letters_strategy,
+  games_col_keys.SLB_PICK_KEY: home_strategy,
+  games_col_keys.SMB_PICK_KEY: favorite_strategy,
+  games_col_keys.SUE_PICK_KEY: home_strategy,
+  games_col_keys.ADAM_PICK_KEY: home_strategy,
 }
 
 

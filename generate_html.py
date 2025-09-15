@@ -66,20 +66,44 @@ def generate_html(weekly_results):
     <title>Bileschi Family Pierogi Pigskin Pick'em</title>
     <style>
     body {
-      font-size: 18px; /* Larger base font for headers and non-table elements */
+      font-size: 18px;
     }
     h1, h2 {
       font-size: 2em;
     }
     .leaderboard-table {
-      font-size: 18px; /* Larger font for leaderboard table */
+      font-size: 18px;
+      width: 100%;
+      border-collapse: collapse;
     }
+    .leaderboard-table th, .leaderboard-table td {
+      border: 1px solid #bbb;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .leader-row {
+      background: #ffd700 !important;
+      font-size: 1.3em;
+      font-weight: bold;
+      border: 2px solid #bfa100;
+      box-shadow: 0 0 8px 2px #ffd700;
+      animation: pop 0.7s;
+    }
+    .leaderboard-table tr:nth-child(even):not(.leader-row) {
+      background: #f9f9f9;
+    }
+    .rank-cell {
+      font-weight: bold;
+      font-size: 1.1em;
+      width: 2em;
+    }
+    /* --- Weekly Table Styling --- */
     table.week-table {
       border-collapse: collapse;
       width: 100%;
-      font-size: 14px; /* Smaller font for weekly tables */
+      font-size: 14px;
     }
-    th, td {
+    table.week-table th, table.week-table td {
       border: 1px solid #ddd;
       padding: 1px;
       text-align: center;
@@ -105,6 +129,29 @@ def generate_html(weekly_results):
     }
     .default_pick {
       color: gray; 
+    }
+    .totals-row {
+      font-size: 1.3em;
+      font-weight: bold;
+      background: #ffe066;
+      border-top: 3px solid #888;
+    }
+    .totals-row td {
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+    .totals-max {
+      background: #ffd700 !important;
+      color: #222;
+      box-shadow: 0 0 8px 2px #ffd700;
+      border: 2px solid #bfa100;
+      font-size: 1.4em;
+      animation: pop 0.7s;
+    }
+    @keyframes pop {
+      0% { transform: scale(1.1);}
+      70% { transform: scale(1.18);}
+      100% { transform: scale(1);}
     }
     summary {
       font-size: 1.2em;
@@ -153,13 +200,39 @@ def generate_html(weekly_results):
         for player in players:
             score = results['scores'][player]
             leaderboard[player] += score
+
+    # Prepare leaderboard sorted list with ranks
+    sorted_leaderboard = sorted(
+        leaderboard.items(), key=lambda item: item[1], reverse=True
+    )
+    max_score = sorted_leaderboard[0][1] if sorted_leaderboard else None
+
     html += '<h2>Leaderboard</h2>'
     html += '<div width=400>'
     html += '<table class="leaderboard-table" style="table-layout: fixed; width: 500px;">'
-    html += '<tr><th>Player</th><th>Total Score</th></tr>'
-    for player, score in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True):
-        score = leaderboard[player]
-        html += f'<tr><td>{player}</td><td>{score}</td></tr>'
+    html += '<tr><th>Rank</th><th>Player</th><th>Total Score</th></tr>'
+    rank = 1
+    prev_score = None
+    for idx, (player, score) in enumerate(sorted_leaderboard):
+        # 2. Rank numbers and tie handling
+        if prev_score is not None and score < prev_score:
+            rank = idx + 1
+        prev_score = score
+        # 1 & 3. Gold background and larger font for leader(s)
+        row_class = "leader-row" if score == max_score and rank == 1 else ""
+        # 2. Add emoji for top 3
+        rank_display = f"{rank}"
+        if rank == 1:
+            rank_display = "1 👑"
+        elif rank == 2:
+            rank_display = "2 🥈"
+        elif rank == 3:
+            rank_display = "3 🥉"
+        html += f'<tr class="{row_class}">'
+        html += f'<td class="rank-cell">{rank_display}</td>'
+        html += f'<td>{player}</td>'
+        html += f'<td>{score}</td>'
+        html += '</tr>'
     html += '</table>'
 
     # Find the current week for expansion
@@ -171,6 +244,9 @@ def generate_html(weekly_results):
             winner = max(results['scores'], key=results['scores'].get)
         else:
             winner = None
+
+        # Find the max score(s) for the totals row for this week
+        max_score = max(results['scores'].values()) if results['scores'] else None
 
         open_attr = " open" if week == current_week else ""
         html += f'<details id="week{week}"{open_attr}>'
@@ -245,11 +321,17 @@ def generate_html(weekly_results):
                     html += f"{pick}"
                 html+="</td>"
             html += '</tr>\n'
-        html += '<tr>'
+        # Totals row with engaging style
+        html += '<tr class="totals-row">'
         html += f'<td>TOTAL</td><td></td>'
         for player in players:
             score = results['scores'][player]
-            html += f"<td class='{ 'winner' if player == winner else ''}'>{score}</td>"
+            cell_classes = []
+            if score == max_score:
+                cell_classes.append('totals-max')
+            if player == winner:
+                cell_classes.append('winner')
+            html += f"<td class=\"{' '.join(cell_classes)}\">{score}</td>"
         html += '</tr>'
         html += '</table>'
         html += '</details>'

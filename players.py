@@ -47,7 +47,10 @@ PLAYER_IDS = [
 ESPN_PLAYER_IDS = {
   games_col_keys.SMB_PICK_KEY: '65b79490-7c3b-11f0-8e6b-379d7a2b7cd8',
   games_col_keys.SUE_PICK_KEY: '5197fc50-891c-11f0-b1ab-011cec36886d',
-}
+  games_col_keys.SLB_PICK_KEY: '5831c2c0-89fe-11f0-8797-c790a2901aa2',
+  games_col_keys.JEAN_PICK_KEY: '15c866c0-8ac9-11f0-add8-416dcf432d0a',
+  games_col_keys.MORGAN_PICK_KEY: 'c2892ca0-8989-11f0-8ebe-c134be42498f',
+  }
 
 def home_strategy(game):
     return game.home_team

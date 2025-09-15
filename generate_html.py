@@ -65,13 +65,23 @@ def generate_html(weekly_results):
     <meta charset="UTF-8">
     <title>Bileschi Family Pierogi Pigskin Pick'em</title>
     <style>
-    table {
+    body {
+      font-size: 18px; /* Larger base font for headers and non-table elements */
+    }
+    h1, h2 {
+      font-size: 2em;
+    }
+    .leaderboard-table {
+      font-size: 18px; /* Larger font for leaderboard table */
+    }
+    table.week-table {
       border-collapse: collapse;
       width: 100%;
+      font-size: 14px; /* Smaller font for weekly tables */
     }
     th, td {
-      border: 1px solid black;
-      padding: 8px;
+      border: 1px solid #ddd;
+      padding: 1px;
       text-align: center;
     }
     .correct_pick {
@@ -112,6 +122,10 @@ def generate_html(weekly_results):
       padding: 2px 8px 8px 8px;
       background: #fafafa;
     }
+    img {
+      height: 36px;
+      width: 36px;
+    }
     </style>
     </head>
     <body>
@@ -141,7 +155,7 @@ def generate_html(weekly_results):
             leaderboard[player] += score
     html += '<h2>Leaderboard</h2>'
     html += '<div width=400>'
-    html += '<table style="table-layout: fixed; width: 500px;">'
+    html += '<table class="leaderboard-table" style="table-layout: fixed; width: 500px;">'
     html += '<tr><th>Player</th><th>Total Score</th></tr>'
     for player, score in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True):
         score = leaderboard[player]
@@ -161,7 +175,7 @@ def generate_html(weekly_results):
         open_attr = " open" if week == current_week else ""
         html += f'<details id="week{week}"{open_attr}>'
         html += f'<summary>Week {week}</summary>'
-        html += '<table>'
+        html += '<table class="week-table">'
         # Table Header
         html += '<tr><th>Game</th><th>Result</th><th>smb</th><th>slb</th><th>sue</th><th>jean</th><th>morgan</th><th>adam</th></tr>\n'
         for game in results['games']:
@@ -173,11 +187,9 @@ def generate_html(weekly_results):
             away_team_img_path = get_image_path(game['away_team'])
             home_team_img_path = get_image_path(game['home_team'])
             html += "<td>"
-            height=50
-            width=50
             if away_team_img_path and home_team_img_path:
-                html += f"<img src='{away_team_img_path}' height={height} width={width} alt='{game['away_team']}' title='{game['away_team']}'> @ "
-                html += f"<img src='{home_team_img_path}' height={height} width={width} alt='{game['home_team']}' title='{game['home_team']}'><br>"
+                html += f"<img src='{away_team_img_path}' alt='{game['away_team']}' title='{game['away_team']}'>"
+                html += f"<img src='{home_team_img_path}' alt='{game['home_team']}' title='{game['home_team']}'><br>"
             html += f"{game['away_team']} @ {game['home_team']} {line_str}"
             html += "</td>"
 
@@ -227,7 +239,7 @@ def generate_html(weekly_results):
 
                 html += f"<td class='{ ' '.join(classes)}'>"
                 if pick_team_img_path:
-                    html += f"<img src='{pick_team_img_path}' height={height} width={width} alt='{pick}' title='{pick}'><br>"
+                    html += f"<img src='{pick_team_img_path}' alt='{pick}' title='{pick}'><br>"
                     html += f"{pick}"
                 else:
                     html += f"{pick}"

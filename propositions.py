@@ -47,7 +47,9 @@ PROP_COL_KEYS = (
 )
 
 
-def get_propositions(espn_propositions_url: Optional[str] = None) -> list:
+from typing import Dict, Any
+
+def get_propositions(espn_propositions_url: Optional[str] = None) -> List[Dict[str, str]]:
     """
     Fetches and parses proposition data from the given ESPN URL.
 
@@ -163,6 +165,8 @@ def write_propositions_csv(propositions: List[dict]):
         module's scope.
       - The csv and os modules must be imported.
     """
+    # Create the directory if it doesn't exist
+    os.makedirs(FOOTBALL_SEASON, exist_ok=True)
     with open(
         os.path.join(FOOTBALL_SEASON, "propositions.csv"), "w", newline=""
     ) as csvfile:

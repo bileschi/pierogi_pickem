@@ -49,16 +49,17 @@ ESPN_PLAYER_IDS = {
   games_col_keys.SUE_PICK_KEY: '5197fc50-891c-11f0-b1ab-011cec36886d',
 }
 
-home_strategy = lambda game: game[games_col_keys.HOME_KEY]
+def home_strategy(game):
+    return game.home_team
 
 def favorite_strategy(game):
-  str_line = game[propositions.LINE_KEY]
-  if not str_line:
-    return game[games_col_keys.HOME_KEY]
-  if float(str_line) < 0:
-    return game[games_col_keys.HOME_KEY]
-  else:
-    return game[games_col_keys.AWAY_KEY]
+    str_line = game.home_line
+    if not str_line:
+        return game.home_team
+    if float(str_line) < 0:
+        return game.home_team
+    else:
+        return game.away_team
 
 TEAM_CITY_TO_NAME = {
     "ARI": "Cardinals",
@@ -96,34 +97,34 @@ TEAM_CITY_TO_NAME = {
 }
 
 def morgan_fewest_letters_strategy(game):
-  """ I would like my forgetting weeks to use a system of whichever team name
-  has the least amount of letters, not including the city name. Does that make
-  sense?
-  
-  Oh shoot. I totally forgot. Yes alphabetical works if there are the same
-  number 
-  """
-  home_team = game[games_col_keys.HOME_KEY]
-  away_team = game[games_col_keys.AWAY_KEY]
-  home_team_name = TEAM_CITY_TO_NAME[home_team]
-  away_team_name = TEAM_CITY_TO_NAME[away_team]
-  if len(home_team_name) < len(away_team_name):
-    return home_team
-  elif len(home_team_name) > len(away_team_name):
-    return away_team
-  # Team same length, use alpha by team name
-  if home_team_name < away_team_name:
-    return home_team
-  else:
-    return away_team
+    """ I would like my forgetting weeks to use a system of whichever team name
+    has the least amount of letters, not including the city name. Does that make
+    sense?
+    
+    Oh shoot. I totally forgot. Yes alphabetical works if there are the same
+    number 
+    """
+    home_team = game.home_team
+    away_team = game.away_team
+    home_team_name = TEAM_CITY_TO_NAME[home_team]
+    away_team_name = TEAM_CITY_TO_NAME[away_team]
+    if len(home_team_name) < len(away_team_name):
+        return home_team
+    elif len(home_team_name) > len(away_team_name):
+        return away_team
+    # Team same length, use alpha by team name
+    if home_team_name < away_team_name:
+        return home_team
+    else:
+        return away_team
 
 DEFAULT_STRATEGY = {
-  games_col_keys.JEAN_PICK_KEY: home_strategy,
-  games_col_keys.MORGAN_PICK_KEY: morgan_fewest_letters_strategy,
-  games_col_keys.SLB_PICK_KEY: home_strategy,
-  games_col_keys.SMB_PICK_KEY: favorite_strategy,
-  games_col_keys.SUE_PICK_KEY: home_strategy,
-  games_col_keys.ADAM_PICK_KEY: home_strategy,
+    games_col_keys.JEAN_PICK_KEY: home_strategy,
+    games_col_keys.MORGAN_PICK_KEY: morgan_fewest_letters_strategy,
+    games_col_keys.SLB_PICK_KEY: home_strategy,
+    games_col_keys.SMB_PICK_KEY: favorite_strategy,
+    games_col_keys.SUE_PICK_KEY: home_strategy,
+    games_col_keys.ADAM_PICK_KEY: home_strategy,
 }
 
 

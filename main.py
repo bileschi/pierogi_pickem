@@ -1,6 +1,8 @@
+from dataclasses import dataclass, asdict, field
+from typing import Optional, Dict
+
 import csv
 import os
-
 
 import espn_picks
 import espn_game_results
@@ -24,6 +26,73 @@ def dbprint(*args, **kwargs):
     print("§§§", end=" ")
     print(*args, **kwargs)
 
+@dataclass
+class Game:
+    week: Optional[str] = None
+    home_team: Optional[str] = None
+    away_team: Optional[str] = None
+    game_id: Optional[str] = None
+    home_score: Optional[str] = None
+    away_score: Optional[str] = None
+    home_line: Optional[str] = None
+    prop_date: Optional[str] = None
+    proposition_id: Optional[str] = None
+    outcome_1_id: Optional[str] = None
+    outcome_1_abbr: Optional[str] = None
+    outcome_2_id: Optional[str] = None
+    outcome_2_abbr: Optional[str] = None
+    bet_win_key: Optional[str] = None
+    # Player picks will be stored here
+    picks: Dict[str, Optional[str]] = field(default_factory=dict)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Game":
+        known_fields = {
+            'week', 'home_team', 'away_team', 'game_id', 'home_score', 'away_score',
+            'home_line', 'prop_date', 'proposition_id', 'outcome_1_id', 'outcome_1_abbr',
+            'outcome_2_id', 'outcome_2_abbr', 'bet_win_key'
+        }
+        picks = {k: v for k, v in d.items() if k not in known_fields}
+        return cls(
+            week=d.get('week'),
+            home_team=d.get('home_team'),
+            away_team=d.get('away_team'),
+            game_id=d.get('game_id'),
+            home_score=d.get('home_score'),
+            away_score=d.get('away_score'),
+            home_line=d.get('home_line'),
+            prop_date=d.get('prop_date'),
+            proposition_id=d.get('proposition_id'),
+            outcome_1_id=d.get('outcome_1_id'),
+            outcome_1_abbr=d.get('outcome_1_abbr'),
+            outcome_2_id=d.get('outcome_2_id'),
+            outcome_2_abbr=d.get('outcome_2_abbr'),
+            bet_win_key=d.get('bet_win_key'),
+            picks=picks
+        )
+
+    def to_dict(self) -> dict:
+        d = asdict(self)
+        picks = d.pop('picks', {})
+        d.update(picks)
+        return d
+
+def load_games_csv(filename) -> list:
+    games = []
+    with open(filename, "r", newline="") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            games.append(Game.from_dict(row))
+    return games
+
+def write_games_csv(games, filename):
+    if not games:
+        return
+    with open(filename, "w", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=list(games[0].to_dict().keys()))
+        writer.writeheader()
+        for game in games:
+            writer.writerow(game.to_dict())
 
 if __name__ == "__main__":
     # Load the list of "propositions" - the bets that are available for each game.
@@ -47,8 +116,8 @@ if __name__ == "__main__":
             dbprint(f"Fetching picks for player {player} from ESPN.")
             picks[player] = espn_picks.get_picks(espn_pick_id)
             espn_picks.write_picks_csv(
-        picks[player],
-        player_picks_fns[player])
+                picks[player],
+                player_picks_fns[player])
     # Load the picks from disk (even though we just wrote them to disk).
     # This pattern is useful for testing.
     for (player, espn_pick_id) in players.ESPN_PLAYER_IDS.items():
@@ -59,125 +128,92 @@ if __name__ == "__main__":
     base_games_fn = os.path.join(FOOTBALL_SEASON, 'base_games.csv')
     if not SKIP_LOAD_SCORES:
         games = espn_game_results.get_game_scores()
-        espn_game_results.write_games_csv(games, base_games_fn)
+        write_games_csv([Game.from_dict(g) for g in games], base_games_fn)
     # Read the results from disk (even though we just wrote them to disk).
     # Again, this is useful for testing.
-    games = espn_game_results.load_games_csv(base_games_fn)
+    games = load_games_csv(base_games_fn)
 
     # At this point we are done with network calls.  All can be done locally.
 
-    # Fill `games` with the aligned data from `propositions`. A faster, non n^2
-    # way to do this would be to build an index but this dumb way is so much
-    # faster than the fetches that it doesn't matter.
+    # Fill `games` with the aligned data from `propositions`.
     num_alignments_found = 0
     for game in games:
         for prop in props:
-            # Use prop attributes instead of dict keys
-            if game[propositions.GAME_ID_KEY] == prop.game_id:
+            if game.game_id == prop.game_id:
                 num_alignments_found += 1
-                game[propositions.LINE_KEY] = prop.home_line
-                game[propositions.PROP_DATE_KEY] = prop.prop_date
-                game[propositions.PROPOSITION_ID_KEY] = prop.proposition_id
-                # TODO: Do I really want to store the outcome IDs in game?
-                # isn't that an ESPN detail?
-                game[propositions.OUTCOME_1_ID_KEY] = prop.outcome_1_id
-                game[propositions.OUTCOME_1_ABBREV_KEY] = prop.outcome_1_abbr
-                game[propositions.OUTCOME_2_ID_KEY] = prop.outcome_2_id
-                game[propositions.OUTCOME_2_ABBREV_KEY] = prop.outcome_2_abbr
+                game.home_line = prop.home_line
+                game.prop_date = prop.prop_date
+                game.proposition_id = prop.proposition_id
+                game.outcome_1_id = prop.outcome_1_id
+                game.outcome_1_abbr = prop.outcome_1_abbr
+                game.outcome_2_id = prop.outcome_2_id
+                game.outcome_2_abbr = prop.outcome_2_abbr
     dbprint(f"Found {num_alignments_found} alignments between games and propositions.")
-    espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
+    write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
 
     # Fill the `bet_win_key` with the code of the team that won the bet.
     for game in games:
-        if not game[games_col_keys.HOME_SCORE_KEY] or not game[games_col_keys.AWAY_SCORE_KEY]:
-            game[games_col_keys.BET_WIN_KEY] = "not_decided"
+        if not game.home_score or not game.away_score:
+            game.bet_win_key = "not_decided"
             continue
-        home_score = float(game[games_col_keys.HOME_SCORE_KEY])
-        away_score = float(game[games_col_keys.AWAY_SCORE_KEY])
-        home_line = float(game[propositions.LINE_KEY])
+        home_score = float(game.home_score)
+        away_score = float(game.away_score)
+        home_line = float(game.home_line) if game.home_line else 0.0
         if (home_score + home_line) > away_score:
-            game[games_col_keys.BET_WIN_KEY] = game[games_col_keys.HOME_KEY]
+            game.bet_win_key = game.home_team
         else:
-            game[games_col_keys.BET_WIN_KEY] = game[games_col_keys.AWAY_KEY]
-    espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
+            game.bet_win_key = game.away_team
+    write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
 
-    # Fill the games object for players who use ESPN.  For these picks we align
-    # the proposition ID between games and picks.  Again, this is an n^2 algo,
-    # and maps are faster, but it's so much faster than the network call that
-    # the simplicity is worth it.
+    # Fill the games object for players who use ESPN.
     delim = " "
     espn_suffix = "ESPN"
     for game in games:
-      for k in players.ESPN_PLAYER_IDS.keys():
-        for pick in picks[k]:
-          if game[propositions.PROPOSITION_ID_KEY] == pick[propositions.PROPOSITION_ID_KEY]:
-            # We know the player's outcome key
-            outcome_id = pick[espn_picks.OUTCOME_ID_KEY]
-            if outcome_id == game[propositions.OUTCOME_1_ID_KEY]:
-              game[k] = game[propositions.OUTCOME_1_ABBREV_KEY] + delim + espn_suffix
-            elif outcome_id == game[propositions.OUTCOME_2_ID_KEY]:
-              game[k] = game[propositions.OUTCOME_2_ABBREV_KEY] + delim + espn_suffix
-
-            # if(pick[espn_picks.RESULT_KEY]) == 'CORRECT':
-            #   game[k] = game[espn_game_results.BET_WIN_KEY]
-            # else:
-            #   # If the pick was wrong, we need to get the other team.
-            #   if game[espn_game_results.BET_WIN_KEY] == game[espn_game_results.HOME_KEY]:
-            #     game[k] = game[espn_game_results.AWAY_KEY]
-            #   else:
-            #      game[k] = game[espn_game_results.HOME_KEY]
-    espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
+        for k in players.ESPN_PLAYER_IDS.keys():
+            for pick in picks[k]:
+                if game.proposition_id == pick[propositions.PROPOSITION_ID_KEY]:
+                    outcome_id = pick[espn_picks.OUTCOME_ID_KEY]
+                    if outcome_id == game.outcome_1_id:
+                        game.picks[k] = (game.outcome_1_abbr or "") + delim + espn_suffix
+                    elif outcome_id == game.outcome_2_id:
+                        game.picks[k] = (game.outcome_2_abbr or "") + delim + espn_suffix
+    write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
 
     # Fill manual picks.  Manual picks override default or ESPN picks.
     manual_suffix = "MANUAL"
     dbprint("Incorporating manual picks.")
     num_manual_picks_matched = 0
     for game in games:
-      for player in players.PLAYER_IDS:
-        # Check if this player has a manual pick for this game.
-        week = int(game[games_col_keys.WEEK_KEY])
-        home_team = game[games_col_keys.HOME_KEY]
-        away_team = game[games_col_keys.AWAY_KEY]        
-        manual_home_pick = home_team in MANUAL_PICKS[player][week]
-        manual_away_pick = away_team in MANUAL_PICKS[player][week]
-        if manual_home_pick and manual_away_pick:
-            print(f"Error: Player {player} has both {home_team} and {away_team} in their manual picks for week {week}.")
-        if manual_home_pick:
-            num_manual_picks_matched += 1
-            game[player] = home_team + delim + manual_suffix
-        if manual_away_pick:
-            num_manual_picks_matched += 1
-            game[player] = away_team + delim + manual_suffix
-    espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
-    dbprint(f"Matched {num_manual_picks_matched} manual picks.")    
+        for player in players.PLAYER_IDS:
+            week = int(game.week) if game.week else 0
+            home_team = game.home_team
+            away_team = game.away_team
+            manual_home_pick = home_team in MANUAL_PICKS[player][week]
+            manual_away_pick = away_team in MANUAL_PICKS[player][week]
+            if manual_home_pick and manual_away_pick:
+                print(f"Error: Player {player} has both {home_team} and {away_team} in their manual picks for week {week}.")
+            if manual_home_pick:
+                num_manual_picks_matched += 1
+                game.picks[player] = (home_team or "") + delim + manual_suffix
+            if manual_away_pick:
+                num_manual_picks_matched += 1
+                game.picks[player] = (away_team or "") + delim + manual_suffix
+    write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
+    dbprint(f"Matched {num_manual_picks_matched} manual picks.")
 
-    # Fill manual picks.  Manual picks override default or ESPN picks.
+    # Fill default picks for players who don't have a pick yet.
     default_suffix = "DEFAULT"
-    dbprint("Incorporating manual picks.")
+    dbprint("Incorporating default picks.")
     num_default_picks_made = 0
     for game in games:
-      for player in players.PLAYER_IDS:
-        # Check if the player already has a pick.
-        if game[player]:
-          continue
-        # If not, make a pick based on the player's strategy
-        def_pick = players.DEFAULT_STRATEGY[player](game)
-        game[player] = def_pick + delim + default_suffix
-        num_default_picks_made += 1
-        espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
-    dbprint(f"Made {num_default_picks_made} default picks.")    
+        for player in players.PLAYER_IDS:
+            if game.picks.get(player):
+                continue
+            def_pick = players.DEFAULT_STRATEGY[player](game)
+            game.picks[player] = def_pick + delim + default_suffix
+            num_default_picks_made += 1
+        write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
+    dbprint(f"Made {num_default_picks_made} default picks.")
 
-    # TODO: Incorporate Default picks.
-    # # Incorporate Morgan's picks.
-    # for game in games:
-    #   game[MORGAN_PICK_KEY] = morgans_picks.get_morgan_pick(week=game[WEEK_KEY],
-    #                   home_team=game[HOME_KEY],
-    #                   away_team=game[AWAY_KEY])
-    # Add defaults for Sue, Jean, SMB, SLB
-    # for game in games:
-    #   game[players.SMB_PICK_KEY] = game[players.SMB_PICK_KEY] or game[espn_game_results.HOME_KEY]
-    #   game[players.SLB_PICK_KEY] = game[players.SLB_PICK_KEY] or game[espn_game_results.HOME_KEY]
-    #   game[players.SUE_PICK_KEY] = game[players.SUE_PICK_KEY] or game[espn_game_results.HOME_KEY]
-    #   game[players.JEAN_PICK_KEY] = game[players.JEAN_PICK_KEY] or game[espn_game_results.HOME_KEY]
-    # espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON,'games.csv'))
+    # TODO: Incorporate Morgan's picks and other logic
 

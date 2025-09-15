@@ -72,19 +72,18 @@ if __name__ == "__main__":
     num_alignments_found = 0
     for game in games:
         for prop in props:
-            if game[propositions.GAME_ID_KEY] == prop[propositions.GAME_ID_KEY]:
+            # Use prop attributes instead of dict keys
+            if game[propositions.GAME_ID_KEY] == prop.game_id:
                 num_alignments_found += 1
-                game[propositions.LINE_KEY] = prop[propositions.LINE_KEY]
-                game[propositions.PROP_DATE_KEY] = prop[propositions.PROP_DATE_KEY]
-                game[propositions.PROPOSITION_ID_KEY] = prop[
-                    propositions.PROPOSITION_ID_KEY
-                ]
+                game[propositions.LINE_KEY] = prop.home_line
+                game[propositions.PROP_DATE_KEY] = prop.prop_date
+                game[propositions.PROPOSITION_ID_KEY] = prop.proposition_id
                 # TODO: Do I really want to store the outcome IDs in game?
                 # isn't that an ESPN detail?
-                game[propositions.OUTCOME_1_ID_KEY] = prop[propositions.OUTCOME_1_ID_KEY]
-                game[propositions.OUTCOME_1_ABBREV_KEY] = prop[propositions.OUTCOME_1_ABBREV_KEY]
-                game[propositions.OUTCOME_2_ID_KEY] = prop[propositions.OUTCOME_2_ID_KEY]
-                game[propositions.OUTCOME_2_ABBREV_KEY] = prop[propositions.OUTCOME_2_ABBREV_KEY] 
+                game[propositions.OUTCOME_1_ID_KEY] = prop.outcome_1_id
+                game[propositions.OUTCOME_1_ABBREV_KEY] = prop.outcome_1_abbr
+                game[propositions.OUTCOME_2_ID_KEY] = prop.outcome_2_id
+                game[propositions.OUTCOME_2_ABBREV_KEY] = prop.outcome_2_abbr
     dbprint(f"Found {num_alignments_found} alignments between games and propositions.")
     espn_game_results.write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
 

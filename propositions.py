@@ -4,6 +4,7 @@ import os
 import requests
 from typing import List, Optional
 from bs4 import BeautifulSoup
+from dataclasses import dataclass
 
 from current_season import FOOTBALL_SEASON
 
@@ -22,7 +23,6 @@ ESPN_PROPOSITIONS_URL = {
         f"https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=265&platform=chui&view=chui_default"
     ),
 }
-
 
 PROPOSITION_ID_KEY = "proposition_id"
 LINE_KEY = "home_line"
@@ -46,10 +46,46 @@ PROP_COL_KEYS = (
     PROP_DATE_KEY
 )
 
+@dataclass
+class Proposition:
+    proposition_id: Optional[str] = None
+    home_line: Optional[str] = None
+    prop_name: Optional[str] = None
+    game_id: Optional[str] = None
+    outcome_1_id: Optional[str] = None
+    outcome_1_abbr: Optional[str] = None
+    outcome_2_id: Optional[str] = None
+    outcome_2_abbr: Optional[str] = None
+    prop_date: Optional[str] = None
 
-from typing import Dict, Any
+    @classmethod
+    def from_dict(cls, d: dict) -> "Proposition":
+        return cls(
+            proposition_id=d.get(PROPOSITION_ID_KEY),
+            home_line=d.get(LINE_KEY),
+            prop_name=d.get(PROP_NAME_KEY),
+            game_id=d.get(GAME_ID_KEY),
+            outcome_1_id=d.get(OUTCOME_1_ID_KEY),
+            outcome_1_abbr=d.get(OUTCOME_1_ABBREV_KEY),
+            outcome_2_id=d.get(OUTCOME_2_ID_KEY),
+            outcome_2_abbr=d.get(OUTCOME_2_ABBREV_KEY),
+            prop_date=d.get(PROP_DATE_KEY),
+        )
 
-def get_propositions(espn_propositions_url: Optional[str] = None) -> List[Dict[str, str]]:
+    def to_dict(self) -> dict:
+        return {
+            PROPOSITION_ID_KEY: self.proposition_id,
+            LINE_KEY: self.home_line,
+            PROP_NAME_KEY: self.prop_name,
+            GAME_ID_KEY: self.game_id,
+            OUTCOME_1_ID_KEY: self.outcome_1_id,
+            OUTCOME_1_ABBREV_KEY: self.outcome_1_abbr,
+            OUTCOME_2_ID_KEY: self.outcome_2_id,
+            OUTCOME_2_ABBREV_KEY: self.outcome_2_abbr,
+            PROP_DATE_KEY: self.prop_date,
+        }
+
+def get_propositions(espn_propositions_url: Optional[str] = None) -> List[Proposition]:
     """
     Fetches and parses proposition data from the given ESPN URL.
 
@@ -59,21 +95,24 @@ def get_propositions(espn_propositions_url: Optional[str] = None) -> List[Dict[s
       espn_propositions_url (str): The URL to fetch propositions from.
 
     Returns:
-      list: A list of dictionaries, each containing details about a proposition.
-        Each dictionary contains the following keys:
-          - PROPOSITION_ID_KEY: The ID of the proposition.
-          - LINE_KEY: The line or spread of the proposition.
-          - CORRECT_OUTCOME_ABBREV_KEY: The abbreviation of the correct outcome.
-          - INCORRECT_OUTCOME_ABBREV_KEY: The abbreviation of the incorrect outcome.
-          - PROP_NAME_KEY: The name of the proposition.
-          - GAME_ID_KEY: The ID of the game associated with the proposition.
+      list: A list of Proposition dataclass instances, each containing details
+        about a proposition. Each instance contains the following fields:
+          - proposition_id: The ID of the proposition.
+          - home_line: The line or spread of the proposition.
+          - prop_name: The name of the proposition.
+          - game_id: The ID of the game associated with the proposition.
+          - outcome_1_id: The ID of the first possible outcome.
+          - outcome_1_abbr: The abbreviation of the first possible outcome.
+          - outcome_2_id: The ID of the second possible outcome.
+          - outcome_2_abbr: The abbreviation of the second possible outcome.
+          - prop_date: The date of the proposition.
     """
     if not espn_propositions_url:
         espn_propositions_url = ESPN_PROPOSITIONS_URL[FOOTBALL_SEASON]
     # Get the ids and lines for all the propositions in the league.
-    # A propisition is semantically like a "bet".  It is different from a game
+    # A proposition is semantically like a "bet".  It is different from a game
     # since you can have multiple bets on a single game.
-    propositions = []
+    propositions: List[Proposition] = []
     # e.g., 'https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=230&platform=chui&view=chui_default'
     response = requests.get(
         espn_propositions_url,
@@ -81,84 +120,71 @@ def get_propositions(espn_propositions_url: Optional[str] = None) -> List[Dict[s
     )
     soup = BeautifulSoup(response.content, "html.parser")
     propositions_json = json.loads(soup.text)
-    # printed_any = False
-    # if not printed_any:
-    #     printed_any = True
-    #     print(propositions_json)
     for one_json_prop in propositions_json:
-        proposition : Dict[str, Optional[str]] = {
-            PROPOSITION_ID_KEY: None,
-            LINE_KEY: None,
-            PROP_NAME_KEY: None,
-            GAME_ID_KEY: None,
-            OUTCOME_1_ID_KEY: None,
-            OUTCOME_1_ABBREV_KEY: None,
-            OUTCOME_2_ID_KEY: None,
-            OUTCOME_2_ABBREV_KEY: None,
-            PROP_DATE_KEY: None
-        }
-        proposition[PROPOSITION_ID_KEY] = one_json_prop["id"]
-        proposition[PROP_NAME_KEY] = one_json_prop["name"]
+        prop = Proposition()
+        prop.proposition_id = one_json_prop["id"]
+        prop.prop_name = one_json_prop["name"]
         for i, possible_outcome in enumerate(one_json_prop["possibleOutcomes"]):
             id = possible_outcome["id"]
             abbrev = possible_outcome["abbrev"]
             if i == 0:
-                proposition[OUTCOME_1_ID_KEY] = id
-                proposition[OUTCOME_1_ABBREV_KEY] = abbrev
+                prop.outcome_1_id = id
+                prop.outcome_1_abbr = abbrev
             else:
-                proposition[OUTCOME_2_ID_KEY] = id
-                proposition[OUTCOME_2_ABBREV_KEY] = abbrev
+                prop.outcome_2_id = id
+                prop.outcome_2_abbr = abbrev
         if "spread" in one_json_prop:
-            proposition[LINE_KEY] = one_json_prop["spread"]
+            prop.home_line = one_json_prop["spread"]
         for val in one_json_prop["mappings"]:
             if val["type"] == "COMPETITION_ID":
-                proposition[GAME_ID_KEY] = val["value"]
-        proposition[PROP_DATE_KEY] = str(one_json_prop.get("date") or "unknown")
-        propositions.append(proposition)
+                prop.game_id = val["value"]
+        prop.prop_date = str(one_json_prop.get("date") or "unknown")
+        propositions.append(prop)
     return propositions
 
-def load_propositions_csv():
+def load_propositions_csv() -> List[Proposition]:
     """
-    Loads a list of proposition dictionaries from a CSV file.
+    Loads a list of Proposition dataclass instances from a CSV file.
 
     Returns:
-      list: A list of dictionaries, each containing details about a proposition.
-        Each dictionary should have keys corresponding to PROP_COL_KEYS.
+      list: A list of Proposition dataclass instances, each containing details
+        about a proposition. Each instance should have fields corresponding to
+        PROP_COL_KEYS.
 
     The CSV file is expected to be in the directory specified by the FOOTBALL_SEASON
     variable with the filename "propositions.csv". The file is expected to be written
     with a header row containing PROP_COL_KEYS, and each subsequent row containing
-    the values of each proposition dictionary in the order specified by PROP_COL_KEYS.
+    the values of each proposition in the order specified by PROP_COL_KEYS.
 
     Note:
       - The FOOTBALL_SEASON and PROP_COL_KEYS variables must be defined in the
         module's scope.
       - The csv and os modules must be imported.
     """
-    propositions = []
+    propositions: List[Proposition] = []
     with open(
         os.path.join(FOOTBALL_SEASON, "propositions.csv"), "r", newline=""
     ) as csvfile:
         propreader = csv.reader(csvfile, delimiter=",", quoting=csv.QUOTE_MINIMAL)
         next(propreader)  # Skip the header row
         for row in propreader:
-            proposition = {k: v for k, v in zip(PROP_COL_KEYS, row)}
-            propositions.append(proposition)
+            d = {k: v for k, v in zip(PROP_COL_KEYS, row)}
+            propositions.append(Proposition.from_dict(d))
     return propositions
 
-def write_propositions_csv(propositions: List[dict]):
+def write_propositions_csv(propositions: List[Proposition]):
     """
-    Writes a list of proposition dictionaries to a CSV file.
+    Writes a list of Proposition dataclass instances to a CSV file.
 
     Args:
-      propositions (list of dict): A list where each element is a dictionary
-                     representing a proposition. Each dictionary
-                     should have keys corresponding to PROP_COL_KEYS.
+      propositions (list of Proposition): A list where each element is a
+        Proposition dataclass instance representing a proposition. Each instance
+        should have fields corresponding to PROP_COL_KEYS.
 
     The CSV file is saved in the directory specified by the FOOTBALL_SEASON variable
     with the filename "propositions.csv". The file is written with a header row
     containing PROP_COL_KEYS, and each subsequent row contains the values of each
-    proposition dictionary in the order specified by PROP_COL_KEYS.
+    proposition in the order specified by PROP_COL_KEYS.
 
     Note:
       - The FOOTBALL_SEASON and PROP_COL_KEYS variables must be defined in the
@@ -173,7 +199,8 @@ def write_propositions_csv(propositions: List[dict]):
         propwriter = csv.writer(csvfile, delimiter=",", quoting=csv.QUOTE_MINIMAL)
         propwriter.writerow(PROP_COL_KEYS)
         for prop in propositions:
-            propwriter.writerow([prop[k] for k in PROP_COL_KEYS])
+            d = prop.to_dict()
+            propwriter.writerow([d[k] for k in PROP_COL_KEYS])
 
 
 if __name__ == "__main__":

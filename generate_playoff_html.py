@@ -1,5 +1,6 @@
 import csv
 import enum
+from typing import Any, Dict
 import pytz
 
 from collections import defaultdict
@@ -7,6 +8,8 @@ from datetime import datetime
 
 # TODO: Move this to the players module.
 players = ['smb', 'max', 'slb', 'sue', 'jean', 'morgan', 'adam']
+IMG_HEIGHT=50
+IMG_WIDTH=50
 
 class BetResult(enum.Enum):
     UNDECIDED = enum.auto()
@@ -41,7 +44,7 @@ score_per_week = {
 
 def generate_weekly_results(games):
     """Generates weekly results with winners and scores."""
-    weekly_results = defaultdict(lambda: {'games': [], 'scores': defaultdict(int)})
+    weekly_results : Dict[int, Dict[str, Any]] = defaultdict(lambda: {'games': [], 'scores': defaultdict(int)})
     for game in games:
         week = int(game['week'])
         weekly_results[week]['games'].append(game)
@@ -143,6 +146,7 @@ def generate_html(weekly_results):
             print(f"{week=}, {winner=}")
         else:
             winner = None
+            winner_score = None
         if week == 1:
             html += f'<h2 id="week{week}">Wildcard Round (2 points per game)</h2>'
         if week == 2:
@@ -182,11 +186,9 @@ def generate_html(weekly_results):
                 away_team_img_path = get_image_path(game['away_team'])
                 home_team_img_path = get_image_path(game['home_team'])
                 html += "<td>"
-                height=50
-                width=50
                 if away_team_img_path and home_team_img_path:
-                    html += f"<img src='{away_team_img_path}' height={height} width={width} alt='{game['away_team']}' title='{game['away_team']}'> @ "
-                    html += f"<img src='{home_team_img_path}' height={height} width={width} alt='{game['home_team']}' title='{game['home_team']}'><br>"
+                    html += f"<img src='{away_team_img_path}' height={IMG_HEIGHT} width={IMG_WIDTH} alt='{game['away_team']}' title='{game['away_team']}'> @ "
+                    html += f"<img src='{home_team_img_path}' height={IMG_HEIGHT} width={IMG_WIDTH} alt='{game['home_team']}' title='{game['home_team']}'><br>"
                 html += f"{game['away_team']} @ {game['home_team']} {line_str}"
                 html += "</td>"
     
@@ -235,7 +237,7 @@ def generate_html(weekly_results):
                     pass
                 else:
                     if pick_team_img_path:
-                        html += f"<img src='{pick_team_img_path}' height={height} width={width} alt='{pick}' title='{pick}'><br>"
+                        html += f"<img src='{pick_team_img_path}' height={IMG_HEIGHT} width={IMG_WIDTH} alt='{pick}' title='{pick}'><br>"
                     else:
                         html += f"{pick}"
                 html+="</td>"

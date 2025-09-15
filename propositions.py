@@ -86,7 +86,7 @@ def get_propositions(espn_propositions_url: Optional[str] = None) -> List[Dict[s
     #     printed_any = True
     #     print(propositions_json)
     for one_json_prop in propositions_json:
-        proposition = {
+        proposition : Dict[str, Optional[str]] = {
             PROPOSITION_ID_KEY: None,
             LINE_KEY: None,
             PROP_NAME_KEY: None,

@@ -1,5 +1,6 @@
 import csv
 import enum
+from typing import Any, Dict
 import pytz
 
 from collections import defaultdict
@@ -35,7 +36,7 @@ def read_csv(filename):
 
 def generate_weekly_results(games):
     """Generates weekly results with winners and scores."""
-    weekly_results = defaultdict(lambda: {'games': [], 'scores': defaultdict(int)})
+    weekly_results : Dict[int, Dict[str, Any]] = defaultdict(lambda: {'games': [], 'scores': defaultdict(int)})
     for game in games:
         week = int(game['week'])
         weekly_results[week]['games'].append(game)

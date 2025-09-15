@@ -1,5 +1,6 @@
 import csv
 import os
+from typing import Any, Dict
 import requests
 from bs4 import BeautifulSoup
 
@@ -81,7 +82,7 @@ def get_game_scores():
         'tr',
         class_=['Table__TR','Table__TR--sm','Table__even'])
       for i_r, row in enumerate(rows[:]):
-        game = {k: '' for k in GAME_COL_KEYS}
+        game : Dict[str, Any] = {k: '' for k in GAME_COL_KEYS}
         game[games_col_keys.WEEK_KEY] = week
         # Get the teams
         teams = row.find_all('span', class_='Table__Team')

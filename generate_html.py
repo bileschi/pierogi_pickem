@@ -190,10 +190,6 @@ def generate_html(weekly_results):
     <ul>
     """
 
-    for week in sorted(weekly_results.keys()):
-        html += f'<li><a href="#week{week}">Week {week}</a></li>'
-    html += '</ul>'
-
     # Generate overall leaderboard
     leaderboard = defaultdict(int)
     for week, results in weekly_results.items():

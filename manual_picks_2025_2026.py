@@ -55,3 +55,21 @@ MANUAL_PICKS[games_col_keys.SUE_PICK_KEY][3] = {
     "LAC",
     "SEA",
 }
+MANUAL_PICKS[games_col_keys.SMB_PICK_KEY][3] = {
+    "BUF",
+    "CLE",
+    "IND",
+    "MIN",
+    "PIT",
+    "PHI",
+    "TB",
+    "WSH",
+    "ATL",
+    "JAX",
+    "LAC",
+    "NO",
+    "DAL",
+    "SF",
+    "KC",
+    "BAL",
+}

@@ -174,7 +174,7 @@ def generate_html(weekly_results):
       width: 36px;
     }
     .greyscale-img {
-      filter: grayscale(100%) saturate(0%);
+      filter: grayscale(100%) brightness(200%) saturate(0%);
     }
     </style>
     </head>

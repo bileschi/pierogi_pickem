@@ -173,6 +173,9 @@ def generate_html(weekly_results):
       height: 36px;
       width: 36px;
     }
+    .greyscale-img {
+      filter: grayscale(100%) saturate(0%);
+    }
     </style>
     </head>
     <body>
@@ -277,6 +280,7 @@ def generate_html(weekly_results):
                 if pick == "":
                     pick = "?"
                 classes = []
+                img_classes = []
                 bet_status = BetResult.UNDECIDED
                 if game['away_score'] and game['home_score']:
                     diff_w_line = float(game['home_score']) + float(game['home_line']) - float(game['away_score'])
@@ -303,6 +307,8 @@ def generate_html(weekly_results):
                 if source == "DEFAULT":
                     classes.append('default_pick')
                     pick += "<sup>(D)</sup>"
+                    if bet_status == BetResult.UNDECIDED:
+                        img_classes.append("greyscale-img")
                 if source == "MANUAL":
                     classes.append('manual_pick')
                     pick += "<sup>(M)</sup>"
@@ -311,7 +317,7 @@ def generate_html(weekly_results):
 
                 html += f"<td class='{ ' '.join(classes)}'>"
                 if pick_team_img_path:
-                    html += f"<img src='{pick_team_img_path}' alt='{pick}' title='{pick}'><br>"
+                    html += f"<img src='{pick_team_img_path}' alt='{pick}' title='{pick}' class='{ ' '.join(img_classes) }'><br>"
                     html += f"{pick}"
                 else:
                     html += f"{pick}"

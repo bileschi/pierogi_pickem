@@ -36,3 +36,22 @@ MANUAL_PICKS[games_col_keys.SLB_PICK_KEY][1] = {
 MANUAL_PICKS[games_col_keys.JEAN_PICK_KEY][1] = {
     "DAL",
 }
+# Sept 16 (sms)
+MANUAL_PICKS[games_col_keys.SUE_PICK_KEY][3] = {
+    "MIA",
+    "CLE",
+    "TEN",
+    "MIN",
+    "PIT",
+    "DAL",
+    "SF",
+    "KC",
+    "BAL",
+    "PHI",
+    "TB",
+    "WSH",
+    "ATL",
+    "JAX",
+    "LAC",
+    "SEA",
+}

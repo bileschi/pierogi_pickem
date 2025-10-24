@@ -73,3 +73,49 @@ MANUAL_PICKS[games_col_keys.SMB_PICK_KEY][3] = {
     "KC",
     "BAL",
 }
+# Week 8
+MANUAL_PICKS[games_col_keys.SMB_PICK_KEY][8] = {
+    "LAC",
+    "ATL",
+    "CIN",
+    "NE",
+    "PHI",
+    "BUF",
+    "CHI",
+    "SF",
+    "NO",
+    "DEN",
+    "TEN",
+    "PIT",
+    "WSH",
+}
+MANUAL_PICKS[games_col_keys.ADAM_PICK_KEY][8] = {
+    "MIN",
+    "ATL",
+    "CIN",
+    "NE",
+    "NYG",
+    "BUF",
+    "BAL",
+    "SF",
+    "TB",
+    "DAL",
+    "IND",
+    "PIT",
+    "WSH"
+}
+MANUAL_PICKS[games_col_keys.SUE_PICK_KEY][8] = {
+    "LAC",
+    "ATL",
+    "CIN",
+    "NE",
+    "NYG",
+    "BUF",
+    "CHI",
+    "SF",
+    "TB",
+    "DAL",
+    "IND",
+    "PIT",
+    "KC"
+}

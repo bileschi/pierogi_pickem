@@ -1,10 +1,10 @@
 week,away_team,home_team,game_id,proposition_id,bet_win_key,home_score,away_score,home_line,prop_date,smb_pick,max_pick,slb_pick,sue_pick,jean_pick,morgan_pick,adam_pick
-1,LAR,CAR,LARCAR,,None,10,30,10.5,"Saturday, 4:30 p.m., FOX",LAR,CAR,,,,,
+1,LAR,CAR,LARCAR,,None,,,10.5,"Saturday, 4:30 p.m., FOX",LAR,,,,,,
 1,GB,CHI,GBCHI,,None,,,1.5,"Saturday, 8 p.m., Prime Video",CHI,,,,,,
 1,BUF,JAX,BUFJAX,,None,,,1.5,"Sunday, 1 p.m., CBS",JAX,,,,,,
 1,SF,PHI,SFPHI,,None,,,-5.5,"Sunday, 4:30 p.m., FOX",SF,,,,,,
 1,LAC,NE,LACNE,,None,,,-3.5,"Sunday, 8 p.m., NBC Peacock",NE,,,,,,
-1,HOU,PIT,HOUPIT,,None,100,103,3,"Monday, 8:15 p.m., Espn",HOU,PIT,,,,,
+1,HOU,PIT,HOUPIT,,None,,,3,"Monday, 8:15 p.m., Espn",HOU,,,,,,
 2,?,?,,,None,,,,,,,,,,,
 2,?,?,,,None,,,,,,,,,,,
 2,?,?,,,None,,,,,,,,,,,

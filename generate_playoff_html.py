@@ -9,8 +9,6 @@ from current_season import FOOTBALL_SEASON
 
 # TODO: Move this to the players module.
 players = ['smb', 'max', 'slb', 'sue', 'jean', 'morgan', 'adam']
-IMG_HEIGHT=48
-IMG_WIDTH=48
 
 class BetResult(enum.Enum):
     UNDECIDED = enum.auto()
@@ -43,6 +41,28 @@ score_per_week = {
     4: 8
 }
 
+
+def _parse_float(value, default=None):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def determine_game_outcome(game):
+    """Return the winner against the spread: home/away/TIE or None if incomplete."""
+    away_score = _parse_float(game.get('away_score'))
+    home_score = _parse_float(game.get('home_score'))
+    if away_score is None or home_score is None:
+        return None
+    home_line = _parse_float(game.get('home_line'), 0.0)
+    diff_w_line = home_score + home_line - away_score
+    if diff_w_line > 0:
+        return game['home_team']
+    if diff_w_line < 0:
+        return game['away_team']
+    return 'TIE'
+
 def generate_weekly_results(games):
     """Generates weekly results with winners and scores."""
     weekly_results : Dict[int, Dict[str, Any]] = defaultdict(lambda: {'games': [], 'scores': defaultdict(int)})
@@ -56,17 +76,10 @@ def generate_weekly_results(games):
                     weekly_results[week]['scores'][player] += int(game['home_line'])
                 if pick == 'YES':
                     weekly_results[week]['scores'][player] -= 1                    
-            else: # normal week - calculate winner based on score and line
-                if game['away_score'] and game['home_score']:
-                    diff_w_line = float(game['home_score']) + float(game['home_line']) - float(game['away_score'])
-                    if diff_w_line > 0:
-                        winner = game['home_team']
-                    elif diff_w_line == 0:
-                        winner = 'TIE'
-                    else:
-                        winner = game['away_team']
-                    if pick == winner:
-                        weekly_results[week]['scores'][player] += score_per_week[week]
+            else:  # normal week - calculate winner based on score and line
+                outcome = determine_game_outcome(game)
+                if outcome and outcome != 'TIE' and pick == outcome:
+                    weekly_results[week]['scores'][player] += score_per_week[week]
     return weekly_results
 
 def generate_html(weekly_results):
@@ -94,6 +107,12 @@ def generate_html(weekly_results):
       padding: 6px 8px;
       text-align: center;
     }
+        .leaderboard-table th {
+            background: linear-gradient(135deg, #0f355e, #1b4b7a);
+            color: #fff;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
     .leader-row {
       background: #ffd700 !important;
       font-size: 1.3em;
@@ -121,6 +140,16 @@ def generate_html(weekly_results):
       padding: 1px;
       text-align: center;
     }
+        table.week-table tr:nth-child(even) {
+            background: #f7f9fc;
+        }
+        table.week-table th {
+            background: #eef5ff;
+            color: #0f355e;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
     .correct_pick {
       background-color: lightgreen;
     }
@@ -181,6 +210,7 @@ def generate_html(weekly_results):
     html += """
     <p>
     All picks are manual.
+    Ties are a push; no points are awarded.
     <p>
     <ul>
     """
@@ -211,7 +241,7 @@ def generate_html(weekly_results):
             rank = idx + 1
         prev_score = score
         # Gold background and larger font for leader(s)
-        row_class = "leader-row" if score == max_score and rank == 1 else ""
+        row_class = "leader-row" if score == max_score and score and rank == 1 else ""
         # Add emoji for top 3
         rank_display = f"{rank}"
         if rank == 1:
@@ -239,12 +269,9 @@ def generate_html(weekly_results):
                 continue
         
         if results['scores']:
-            winner = max(results['scores'], key=results['scores'].get)
-            winner_score = results['scores'][winner]
-            print(f"{week=}, {winner=}")
+            week_leader = max(results['scores'], key=results['scores'].get)
         else:
-            winner = None
-            winner_score = None
+            week_leader = None
         if week == 1:
             html += f'<h2 id="week{week}">Wildcard Round (2 points per game)</h2>'
         if week == 2:
@@ -277,23 +304,28 @@ def generate_html(weekly_results):
                 html += f"<td>{game['prop_date']}</td>"
             else:
                 html += '<tr>'
-                line_str = game['home_line']
-                if line_str and line_str[0] != '-':
-                    line_str = '+' + line_str
+                raw_line = game.get('home_line')
+                if raw_line:
+                    line_str = str(raw_line)
+                    if line_str[0] != '-':
+                        line_str = '+' + line_str
+                else:
+                    line_str = 'PK'
                 # Game illustration
                 away_team_img_path = get_image_path(game['away_team'])
                 home_team_img_path = get_image_path(game['home_team'])
                 html += "<td>"
                 if away_team_img_path and home_team_img_path:
-                    html += f"<img src='{away_team_img_path}' height={IMG_HEIGHT} width={IMG_WIDTH} alt='{game['away_team']}' title='{game['away_team']}'> @ "
-                    html += f"<img src='{home_team_img_path}' height={IMG_HEIGHT} width={IMG_WIDTH} alt='{game['home_team']}' title='{game['home_team']}'><br>"
+                    html += f"<img src='{away_team_img_path}' alt='{game['away_team']}' title='{game['away_team']}'> @ "
+                    html += f"<img src='{home_team_img_path}' alt='{game['home_team']}' title='{game['home_team']}'>" 
+                    html += "<br>"
                 html += f"{game['away_team']} @ {game['home_team']} {line_str}"
                 html += "</td>"
     
                 if game['away_score'] and game['home_score']:
                     html += f"<td><div>{game['away_score']} — {game['home_score']}</div></td>"
                 else:
-                    game_day_string = game['prop_date']
+                    game_day_string = game.get('prop_date', '')
                     html += f"<td>{game_day_string} </td>"
             for player in players:
                 pick = game[f'{player}_pick']
@@ -302,20 +334,15 @@ def generate_html(weekly_results):
                     pick = "?"
                 classes = []
                 bet_status = BetResult.UNDECIDED
-                if game['away_score'] and game['home_score']:
-                    diff_w_line = float(game['home_score']) + float(game['home_line']) - float(game['away_score'])
-                    if diff_w_line > 0:
-                        winner = game['home_team']
-                    elif diff_w_line == 0:
-                        winner = 'TIE'
-                    else:
-                        winner = game['away_team']
-                    if pick == winner:
-                        bet_status = BetResult.WIN
-                    elif winner == 'TIE':
-                        bet_status = BetResult.TIE
-                    else:
-                        bet_status = BetResult.LOSE
+                if week != 5:
+                    outcome = determine_game_outcome(game)
+                    if outcome:
+                        if pick == outcome:
+                            bet_status = BetResult.WIN
+                        elif outcome == 'TIE':
+                            bet_status = BetResult.TIE
+                        else:
+                            bet_status = BetResult.LOSE
                 if week == 5 and game['bet_win_key']:
                     if game['bet_win_key'] == 'YES' and pick == 'YES':
                         bet_status = BetResult.WIN
@@ -335,7 +362,7 @@ def generate_html(weekly_results):
                     pass
                 else:
                     if pick_team_img_path:
-                        html += f"<img src='{pick_team_img_path}' height={IMG_HEIGHT} width={IMG_WIDTH} alt='{pick}' title='{pick}'><br>"
+                        html += f"<img src='{pick_team_img_path}' alt='{pick}' title='{pick}'><br>"
                     else:
                         html += f"{pick}"
                 html+="</td>"
@@ -351,7 +378,7 @@ def generate_html(weekly_results):
             cell_classes = []
             if score == max_score:
                 cell_classes.append('totals-max')
-            if player == winner:
+            if player == week_leader:
                 cell_classes.append('winner')
             html += f"<td class=\"{' '.join(cell_classes)}\">{score}</td>"
         html += '</tr>'

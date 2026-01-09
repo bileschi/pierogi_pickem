@@ -9,8 +9,8 @@ from current_season import FOOTBALL_SEASON
 
 # TODO: Move this to the players module.
 players = ['smb', 'max', 'slb', 'sue', 'jean', 'morgan', 'adam']
-IMG_HEIGHT=50
-IMG_WIDTH=50
+IMG_HEIGHT=48
+IMG_WIDTH=48
 
 class BetResult(enum.Enum):
     UNDECIDED = enum.auto()
@@ -51,17 +51,22 @@ def generate_weekly_results(games):
         weekly_results[week]['games'].append(game)
         for player in players:
             pick = game[f'{player}_pick'].split(' ')[0]
-            # TODO: The winner is determined by the bet_win_key, but the 
-            # cell color is determined by the score differential.  I should
-            # get rid of the bet-win-key, since it's overdetermined.
             if week == 5:  # superbowl prop bets have conditional scores
                 if pick == game['bet_win_key']:
                     weekly_results[week]['scores'][player] += int(game['home_line'])
                 if pick == 'YES':
                     weekly_results[week]['scores'][player] -= 1                    
-            else: # normal week
-                if pick == game['bet_win_key']:
-                    weekly_results[week]['scores'][player] += score_per_week[week]
+            else: # normal week - calculate winner based on score and line
+                if game['away_score'] and game['home_score']:
+                    diff_w_line = float(game['home_score']) + float(game['home_line']) - float(game['away_score'])
+                    if diff_w_line > 0:
+                        winner = game['home_team']
+                    elif diff_w_line == 0:
+                        winner = 'TIE'
+                    else:
+                        winner = game['away_team']
+                    if pick == winner:
+                        weekly_results[week]['scores'][player] += score_per_week[week]
     return weekly_results
 
 def generate_html(weekly_results):
@@ -73,27 +78,55 @@ def generate_html(weekly_results):
     <meta charset="UTF-8">
     <title>Bileschi Family PLAYOFF!! Pierogi Pigskin Pick'em</title>
     <style>
-    table {
+    body {
+      font-size: 18px;
+    }
+    h1, h2 {
+      font-size: 2em;
+    }
+    .leaderboard-table {
+      font-size: 18px;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .leaderboard-table th, .leaderboard-table td {
+      border: 1px solid #bbb;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .leader-row {
+      background: #ffd700 !important;
+      font-size: 1.3em;
+      font-weight: bold;
+      border: 2px solid #bfa100;
+      box-shadow: 0 0 8px 2px #ffd700;
+      animation: pop 0.7s;
+    }
+    .leaderboard-table tr:nth-child(even):not(.leader-row) {
+      background: #f9f9f9;
+    }
+    .rank-cell {
+      font-weight: bold;
+      font-size: 1.1em;
+      width: 2em;
+    }
+    /* --- Weekly Table Styling --- */
+    table.week-table {
       border-collapse: collapse;
       width: 100%;
+      font-size: 14px;
     }
-    th, td {
-      border: 1px solid black;
-      padding: 8px;
+    table.week-table th, table.week-table td {
+      border: 1px solid #ddd;
+      padding: 1px;
       text-align: center;
     }
     .correct_pick {
       background-color: lightgreen;
     }
-    .winner {
-      font-weight: bold;
-    }
-    .default_pick {
-      color: gray; 
-    }
-    .incorrect_pick {  /* New class for loss styling */
+    .incorrect_pick {
       background-color: lightgrey;
-      filter: grayscale(100%) saturate(0%);  /* Desaturate and turn to grayscale */
+      filter: grayscale(100%) saturate(0%);
     }
     .tie {
       background: repeating-linear-gradient(
@@ -103,6 +136,39 @@ def generate_html(weekly_results):
       lightgrey 10px,
       lightgrey 20px
     );
+    }
+    .winner {
+      font-weight: bold;
+    }
+    .default_pick {
+      color: gray; 
+    }
+    .totals-row {
+      font-size: 1.3em;
+      font-weight: bold;
+      background: #ffe066;
+      border-top: 3px solid #888;
+    }
+    .totals-row td {
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+    .totals-max {
+      background: #ffd700 !important;
+      color: #222;
+      box-shadow: 0 0 8px 2px #ffd700;
+      border: 2px solid #bfa100;
+      font-size: 1.4em;
+      animation: pop 0.7s;
+    }
+    @keyframes pop {
+      0% { transform: scale(1.1);}
+      70% { transform: scale(1.18);}
+      100% { transform: scale(1);}
+    }
+    img {
+      height: 48px;
+      width: 48px;
     }
     </style>
     </head>
@@ -127,20 +193,51 @@ def generate_html(weekly_results):
             score = results['scores'][player]
             leaderboard[player] += score
 
+    # Prepare leaderboard sorted list with ranks
+    sorted_leaderboard = sorted(
+        leaderboard.items(), key=lambda item: item[1], reverse=True
+    )
+    max_score = sorted_leaderboard[0][1] if sorted_leaderboard else None
+
     html += f'<h2 id="leaderboard">Leaderboard</h2>'
     html += '<div width=400>' # add div to format the leaderboard table
-    html += '<table style="table-layout: fixed; width: 500px;">'
-    html += '<tr><th>Player</th><th>Total Score</th></tr>'
-    for player, score in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True):
-    # for player in players:
-        score = leaderboard[player]
-        html += f'<tr><td>{player}</td><td>{score}</td></tr>'
+    html += '<table class="leaderboard-table" style="table-layout: fixed; width: 500px;">'
+    html += '<tr><th>Rank</th><th>Player</th><th>Total Score</th></tr>'
+    rank = 1
+    prev_score = None
+    for idx, (player, score) in enumerate(sorted_leaderboard):
+        # Rank numbers and tie handling
+        if prev_score is not None and score < prev_score:
+            rank = idx + 1
+        prev_score = score
+        # Gold background and larger font for leader(s)
+        row_class = "leader-row" if score == max_score and rank == 1 else ""
+        # Add emoji for top 3
+        rank_display = f"{rank}"
+        if rank == 1:
+            rank_display = "1 👑"
+        elif rank == 2:
+            rank_display = "2 🥈"
+        elif rank == 3:
+            rank_display = "3 🥉"
+        html += f'<tr class="{row_class}">'
+        html += f'<td class="rank-cell">{rank_display}</td>'
+        html += f'<td>{player}</td>'
+        html += f'<td>{score}</td>'
+        html += '</tr>'
     html += '</table>'
     html += '</div>'
 
 
     # Generate weekly results
     for week, results in sorted(weekly_results.items()):
+        # Hide divisional round and beyond if matchups aren't determined yet
+        if week >= 2:
+            all_unknown = all(game['away_team'] == '?' and game['home_team'] == '?' 
+                            for game in results['games'])
+            if all_unknown:
+                continue
+        
         if results['scores']:
             winner = max(results['scores'], key=results['scores'].get)
             winner_score = results['scores'][winner]
@@ -160,7 +257,7 @@ def generate_html(weekly_results):
             html += f'<h2 id="week{week}">Super Bowl Prop Bets</h2>'
             html += f'<p>Prop bets <b>cost one point</b> if you take the bet<br>'
             html += f'<p>They pay out X points as listed in the description.<br>'
-        html += '<table>'
+        html += '<table class="week-table">'
         # Table Header
         if week == 5:
             html += '<tr><th>Bet Description</th><th>Points if Correct</th><th>Result</th>'
@@ -243,14 +340,20 @@ def generate_html(weekly_results):
                         html += f"{pick}"
                 html+="</td>"
             html += '</tr>\n'
-        html += '<tr>'
+        # Find the max score(s) for the totals row for this week
+        max_score = max(results['scores'].values()) if results['scores'] else None
+        html += '<tr class="totals-row">'
         html += f'<td>TOTAL</td><td></td>'
         if week == 5:  #extra column in prop bets
             html += f'<td></td>'
-        # for player, score in results['scores'].items():
         for player in players:
             score = results['scores'][player]
-            html += f"<td class='{ 'winner' if score == winner_score else ''}'>{score}</td>"
+            cell_classes = []
+            if score == max_score:
+                cell_classes.append('totals-max')
+            if player == winner:
+                cell_classes.append('winner')
+            html += f"<td class=\"{' '.join(cell_classes)}\">{score}</td>"
         html += '</tr>'
         html += '</table>'
 

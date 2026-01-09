@@ -8,7 +8,8 @@ git pull origin master
 # use virtual env
 source venv/bin/activate
 # regenerate csv & html
-python3 main.py
+
+# python3 main.py           # <-- Regular season
 # python3 generate_html.py  # <-- Regular season
 python3 generate_playoff_html.py  # <-- Playoffs
 

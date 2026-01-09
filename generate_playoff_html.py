@@ -190,6 +190,10 @@ def generate_html(weekly_results):
       font-size: 1.4em;
       animation: pop 0.7s;
     }
+        /* --- Inline pick controls --- */
+        .pick-controls { display: none; margin-top: 4px; }
+        .pick-controls.visible { display: block; }
+        .save-btn { margin-left: 6px; font-size: 12px; }
     @keyframes pop {
       0% { transform: scale(1.1);}
       70% { transform: scale(1.18);}
@@ -356,8 +360,10 @@ def generate_html(weekly_results):
                     classes.append('tie')
                 if bet_status == BetResult.UNDECIDED:
                     classes.append('undecided')
+                # Compute a stable game_id (no CSV change needed)
+                game_id = f"{week}:{game.get('prop_date','')}:{game['away_team']}@{game['home_team']}"
 
-                html += f"<td class='{ ' '.join(classes)}'>"
+                html += f"<td class='{ ' '.join(classes)}' data-player='{player}'>"
                 if week == 5 and pick == 'x':
                     pass
                 else:
@@ -365,6 +371,22 @@ def generate_html(weekly_results):
                         html += f"<img src='{pick_team_img_path}' alt='{pick}' title='{pick}'><br>"
                     else:
                         html += f"{pick}"
+
+                # Inline controls for undecided games; revealed by JS for the active player
+                if not (game['away_score'] and game['home_score']):
+                    # Options depend on week type
+                    if week == 5:
+                        options_html = "<option value='YES'>YES</option><option value='NO'>NO</option><option value='x'>Skip</option>"
+                    else:
+                        options_html = f"<option value='{game['away_team']}'>{game['away_team']}</option>" \
+                                       f"<option value='{game['home_team']}'>{game['home_team']}</option>"
+                    html += (
+                        f"<div class='pick-controls' data-game-id='{game_id}' data-week='{week}' data-player='{player}'>"
+                        f"<select class='pick-select'>{options_html}</select>"
+                        f"<button class='save-btn'>Save</button>"
+                        f"</div>"
+                    )
+
                 html+="</td>"
             html += '</tr>\n'
         # Find the max score(s) for the totals row for this week
@@ -384,7 +406,56 @@ def generate_html(weekly_results):
         html += '</tr>'
         html += '</table>'
 
-    html += '</body></html>'
+        # --- Client-side submission script ---
+        html += """
+        <script>
+        function getParam(name) {
+            const url = new URL(window.location.href);
+            return url.searchParams.get(name);
+        }
+        function showControlsForPlayer(player) {
+            document.querySelectorAll('.pick-controls').forEach(el => {
+                const p = el.getAttribute('data-player');
+                if (p === player) el.classList.add('visible');
+            });
+        }
+        async function submitPick(divEl, token, player) {
+            const gameId = divEl.getAttribute('data-game-id');
+            const week = parseInt(divEl.getAttribute('data-week'));
+            const select = divEl.querySelector('.pick-select');
+            const pick = select.value;
+            const body = { game_id: gameId, week: week, player: player, pick: pick, token: token };
+            const resp = await fetch('/api/picks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!resp.ok) {
+                const txt = await resp.text();
+                alert('Submit failed: ' + txt);
+                return;
+            }
+            // Update cell UI
+            const td = divEl.closest('td');
+            td.innerHTML = `<img src="images2/nfl/${pick}.png" alt="${pick}" title="${pick}"><br>${pick} <sup>(M)</sup>`;
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const player = getParam('player');
+            const token = getParam('token') || localStorage.getItem('pickemToken');
+            if (!player || !token) { return; }
+            localStorage.setItem('pickemToken', token);
+            showControlsForPlayer(player);
+            document.querySelectorAll('.pick-controls.visible .save-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const divEl = e.target.closest('.pick-controls');
+                    submitPick(divEl, token, player);
+                });
+            });
+        });
+        </script>
+        """
+        html += '</body></html>'
     return html
 
 if __name__ == '__main__':

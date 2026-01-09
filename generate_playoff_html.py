@@ -5,6 +5,7 @@ import pytz
 
 from collections import defaultdict
 from datetime import datetime
+from current_season import FOOTBALL_SEASON
 
 # TODO: Move this to the players module.
 players = ['smb', 'max', 'slb', 'sue', 'jean', 'morgan', 'adam']
@@ -257,9 +258,8 @@ def generate_html(weekly_results):
     return html
 
 if __name__ == '__main__':
-    # TODO: Read the right year from current_season.py
-    games = read_csv('2024_2025/playoffs.csv')
+    games = read_csv(FOOTBALL_SEASON + '/playoffs.csv')
     weekly_results = generate_weekly_results(games)
     html = generate_html(weekly_results)
-    with open('html/2024_2025/playoffs.html', 'w') as f:
+    with open(f'html/{FOOTBALL_SEASON}/playoffs.html', 'w') as f:
         f.write(html)

@@ -8,7 +8,7 @@ from datetime import datetime
 from current_season import FOOTBALL_SEASON
 
 # TODO: Move this to the players module.
-players = ['smb', 'max', 'slb', 'sue', 'jean', 'morgan', 'adam']
+players = ['smb', 'constance', 'max', 'slb', 'sue', 'jean', 'morgan', 'adam']
 
 class BetResult(enum.Enum):
     UNDECIDED = enum.auto()

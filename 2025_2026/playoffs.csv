@@ -5,7 +5,7 @@ week,away_team,home_team,game_id,proposition_id,bet_win_key,home_score,away_scor
 1,SF,PHI,SFPHI,,None,19,23,-5.5,"Sunday, 4:30 p.m., FOX",SF,SF,PHI,PHI,PHI,SF,PHI,SF
 1,LAC,NE,LACNE,,None,16,3,-3.5,"Sunday, 8 p.m., NBC Peacock",NE,NE,NE,NE,NE,NE,NE,NE
 1,HOU,PIT,HOUPIT,,None,6,30,3,"Monday, 8:15 p.m., Espn",HOU,HOU,HOU,PIT,HOU,PIT,PIT,PIT
-2,BUF,DEN,BUFDEN,,None,,,-1.5,"Saturday, 4:30 p.m., CBS",BUF,BUF,BUF,DEN,BUF,BUF,BUF,BUF
+2,BUF,DEN,BUFDEN,,None,33,30,-1.5,"Saturday, 4:30 p.m., CBS",BUF,BUF,BUF,DEN,BUF,BUF,BUF,BUF
 2,SF,SEA,SFSEA,,None,,,-7.5,"Saturday, 8:00 p.m., FOX",SEA,SF,SF,SF,SEA,SEA,SEA,SEA
 2,HOU,NE,HOUNE,,None,,,-3,"Sunday, 3:00 p.m., ESPN ABC",NE,NE,NE,HOU,NE,NE,HOU,NE
 2,LAR,CHI,LARCHI,,None,,,3.5,"Sunday, 6:30 p.m., NBC Peacock",CHI,LAR,CHI,LAR,CHI,LAR,CHI,LAR

@@ -260,7 +260,7 @@ def generate_html(weekly_results):
 
 
     # Generate weekly results
-    for week, results in sorted(weekly_results.items()):
+    for week, results in sorted(weekly_results.items(), reverse=True):
         # Hide divisional round and beyond if matchups aren't determined yet
         if week >= 2:
             all_unknown = all(game['away_team'] == '?' and game['home_team'] == '?' 

@@ -11,4 +11,4 @@ week,away_team,home_team,game_id,proposition_id,bet_win_key,home_score,away_scor
 2,LAR,CHI,LARCHI,,None,17,20,3.5,"Sunday, 6:30 p.m., NBC Peacock",CHI,LAR,CHI,LAR,CHI,LAR,CHI,LAR
 3,NE,DEN,NEDEN,,None,7,10,5.5,"Sunday, 3:30 p.m., CBS",NE,DEN,NE,DEN,DEN,DEN,NE,
 3,LAR,SEA,LARSEA,,None,31,27,-2.5,"Sunday, 6:30 p.m., FOX",SEA,SEA,SEA,SEA,SEA,SEA,SEA,
-4,?,?,,,None,,,,,,,,,,,,
+4,SEA,NE,SEANE,,None,,,4.5,"Sunday Feb 8, 3:30 p.m., NBC",SEA,,,,,,,

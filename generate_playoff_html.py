@@ -140,8 +140,14 @@ def generate_html(weekly_results):
       padding: 1px;
       text-align: center;
     }
+        table.week-table tr {
+            height: 54px;
+        }
         table.week-table tr:nth-child(even) {
             background: #f7f9fc;
+        }
+        table.prop-bets-table {
+            font-size: 20px;
         }
         table.week-table th {
             background: #eef5ff;
@@ -260,7 +266,8 @@ def generate_html(weekly_results):
 
 
     # Generate weekly results
-    for week, results in sorted(weekly_results.items(), reverse=True):
+    # Custom sort: week 4 first, then 5, then 3, 2, 1
+    for week, results in sorted(weekly_results.items(), key=lambda x: (0 if x[0] == 4 else 1 if x[0] == 5 else 10 - x[0])):
         # Hide divisional round and beyond if matchups aren't determined yet
         if week >= 2:
             all_unknown = all(game['away_team'] == '?' and game['home_team'] == '?' 
@@ -284,7 +291,8 @@ def generate_html(weekly_results):
             html += f'<h2 id="week{week}">Super Bowl Prop Bets</h2>'
             html += f'<p>Prop bets <b>cost one point</b> if you take the bet<br>'
             html += f'<p>They pay out X points as listed in the description.<br>'
-        html += '<table class="week-table">'
+        table_class = 'week-table prop-bets-table' if week == 5 else 'week-table'
+        html += f'<table class="{table_class}">'
         # Table Header
         if week == 5:
             html += '<tr><th>Bet Description</th><th>Points if Correct</th><th>Result</th>'

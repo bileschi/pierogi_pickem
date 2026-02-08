@@ -11,16 +11,16 @@ week,away_team,home_team,game_id,proposition_id,bet_win_key,home_score,away_scor
 2,LAR,CHI,LARCHI,,None,17,20,3.5,"Sunday, 6:30 p.m., NBC Peacock",CHI,LAR,CHI,LAR,CHI,LAR,CHI,LAR
 3,NE,DEN,NEDEN,,None,7,10,5.5,"Sunday, 3:30 p.m., CBS",NE,DEN,NE,DEN,DEN,DEN,NE,
 3,LAR,SEA,LARSEA,,None,31,27,-2.5,"Sunday, 6:30 p.m., FOX",SEA,SEA,SEA,SEA,SEA,SEA,SEA,
-4,SEA,NE,SEANE,,None,,,4.5,"Sunday Feb 8, 3:30 p.m., NBC",SEA,NE,NE,SEA,SEA,,,
-5,Over 45.5 points scored,,,,None,,,2,,x,x,x,x,x,,,
-5,Under 45.5 points scored,,,,None,,,2,,YES,x,x,x,YES,,,
-5,Seattle scores first,,,,None,,,2,,x,x,x,x,YES,,,
-5,NE scores first,,,,None,,,2,,x,x,YES,x,x,,,
-5,1+ TDs to be Scored in Each Quarter,,,,None,,,3,,x,x,x,x,x,,,
-5,Drake Maye 3+ TDs (Pass + Rush),,,,None,,,4,,x,x,x,x,YES,,,
-5,Sam Darnold 3+ TDs (Pass + Rush) ,,,,None,,,4,,YES,x,x,x,x,,,
-5,Both teams score in Q1,,,,None,,,3,,YES,YES,x,x,x,,,
-5,Stefon Diggs scores a TD in Q3,,,,None,,,13,,x,x,YES,YES,x,,,
-5,NE Winning at halftime,,,,None,,,3,,YES,x,YES,x,x,,,
-5,Any successful 2pt conversion,,,,None,,,4,,x,x,YES,x,,,,
-5,Drake Maye 1+ Int,,,,None,,,2,,YES,x,x,x,,,,
+4,SEA,NE,SEANE,,None,,,4.5,"Sunday Feb 8, 3:30 p.m., NBC",SEA,NE,NE,SEA,SEA,,SEA,SEA
+5,Over 45.5 points scored,,,,None,,,2,,x,x,x,x,x,,x,x
+5,Under 45.5 points scored,,,,None,,,2,,YES,x,x,x,YES,,YES,YES
+5,Seattle scores first,,,,None,,,2,,x,x,x,x,YES,,x,YES
+5,NE scores first,,,,None,,,2,,x,x,YES,x,x,,x,x
+5,1+ TDs to be Scored in Each Quarter,,,,None,,,3,,x,x,x,x,x,,x,x
+5,Drake Maye 3+ TDs (Pass + Rush),,,,None,,,4,,x,x,x,x,YES,,x,x
+5,Sam Darnold 3+ TDs (Pass + Rush) ,,,,None,,,4,,YES,x,x,x,x,,x,x
+5,Both teams score in Q1,,,,None,,,3,,YES,YES,x,x,x,,YES,x
+5,Stefon Diggs scores a TD in Q3,,,,None,,,13,,x,x,YES,YES,x,,x,YES
+5,NE Winning at halftime,,,,None,,,3,,YES,x,YES,x,x,,x,x
+5,Any successful 2pt conversion,,,,None,,,4,,x,x,YES,x,x,,x,YES
+5,Drake Maye 1+ Int,,,,None,,,2,,YES,x,x,x,x,,YES,YES

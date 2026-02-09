@@ -23,4 +23,4 @@ week,away_team,home_team,game_id,proposition_id,bet_win_key,home_score,away_scor
 5,Stefon Diggs scores a TD in Q3,,,,None,,,13,,x,x,YES,YES,x,x,x,YES
 5,NE Winning at halftime,,,,None,,,3,,YES,x,YES,x,x,x,x,x
 5,Any successful 2pt conversion,,,,None,,,4,,x,x,YES,x,x,YES,x,YES
-5,Drake Maye 1+ Int,,,,None,,,2,,YES,x,x,x,x,,YES,YES
+5,Drake Maye 1+ Int,,,,None,,,2,,YES,x,x,x,x,x,YES,YES

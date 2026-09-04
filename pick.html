@@ -65,23 +65,26 @@
     }
 
     .player-pill {
-      font-size: 0.8rem;
-      background: rgba(255, 255, 255, 0.15);
-      padding: 4px 10px;
+      font-size: 0.85rem;
+      background: rgba(255, 255, 255, 0.18);
+      padding: 5px 12px;
       border-radius: 9999px;
       display: flex;
       align-items: center;
-      gap: 5px;
-      font-weight: 600;
+      gap: 6px;
+      font-weight: 700;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
     }
 
     .nav-link {
       color: #94a3b8;
       text-decoration: none;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       display: flex;
       align-items: center;
       gap: 4px;
+      font-weight: 600;
       transition: color 0.15s;
     }
 
@@ -89,10 +92,89 @@
       color: #fff;
     }
 
+    /* Greeting Hero Card */
+    .greeting-hero {
+      max-width: 680px;
+      margin: 14px auto 6px auto;
+      padding: 0 16px;
+    }
+
+    .greeting-box {
+      background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+      color: #ffffff;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: 0 4px 14px rgba(30, 58, 138, 0.2);
+    }
+
+    .greeting-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .greeting-sub {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.45;
+    }
+
+    .greeting-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: #2563eb;
+      color: #ffffff;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .locked-week-alert {
+      background: #fee2e2;
+      border: 1px solid #f87171;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-top: 12px;
+      color: #991b1b;
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-jump-current {
+      align-self: flex-start;
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+      transition: background 0.15s;
+    }
+
+    .btn-jump-current:hover {
+      background: #b91c1c;
+    }
+
     /* Status Bar */
     .status-bar {
       max-width: 680px;
-      margin: 12px auto 0 auto;
+      margin: 10px auto 4px auto;
       padding: 0 16px;
       display: flex;
       align-items: center;
@@ -106,7 +188,7 @@
       align-items: center;
       gap: 6px;
       font-weight: 600;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
     }
 
     .save-indicator.saving {
@@ -124,7 +206,7 @@
     /* Week Selector Tabs */
     .week-nav-container {
       max-width: 680px;
-      margin: 10px auto 14px auto;
+      margin: 8px auto 14px auto;
       padding: 0 16px;
       overflow-x: auto;
       scrollbar-width: none;
@@ -142,10 +224,10 @@
     }
 
     .week-tab {
-      padding: 6px 14px;
+      padding: 7px 16px;
       border-radius: 9999px;
-      font-size: 0.85rem;
-      font-weight: 600;
+      font-size: 0.88rem;
+      font-weight: 700;
       border: 1px solid var(--border);
       background: var(--card-bg);
       color: var(--text-muted);
@@ -154,24 +236,31 @@
       transition: all 0.15s;
     }
 
+    .week-tab.is-current:not(.active) {
+      border-color: #93c5fd;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
     .week-tab.active {
       background: var(--text);
       color: #fff;
       border-color: var(--text);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
     }
 
     /* Progress Banner */
     .progress-banner {
       max-width: 680px;
       margin: 0 auto 16px auto;
-      padding: 10px 16px;
+      padding: 0 16px;
     }
 
     .progress-box {
       background: #ffffff;
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 12px 16px;
+      padding: 12px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -179,14 +268,18 @@
     }
 
     .progress-text {
-      font-size: 0.88rem;
-      font-weight: 600;
+      font-size: 0.92rem;
+      font-weight: 700;
       color: var(--text);
+    }
+
+    .progress-text.complete {
+      color: var(--success);
     }
 
     .progress-bar-wrap {
       width: 120px;
-      height: 8px;
+      height: 9px;
       background: #e2e8f0;
       border-radius: 9999px;
       overflow: hidden;
@@ -206,7 +299,7 @@
       padding: 0 16px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
     .game-card {
@@ -221,23 +314,23 @@
     .game-header {
       background: #f8fafc;
       border-bottom: 1px solid var(--border);
-      padding: 6px 14px;
+      padding: 8px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 0.76rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .lock-tag {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 2px 8px;
+      padding: 3px 10px;
       border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.72rem;
+      font-weight: 700;
+      font-size: 0.76rem;
     }
 
     .lock-tag.open {
@@ -254,8 +347,8 @@
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      padding: 10px;
-      gap: 8px;
+      padding: 12px;
+      gap: 10px;
     }
 
     .team-btn {
@@ -263,14 +356,15 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 12px 8px;
+      padding: 14px 10px;
       background: #f8fafc;
       border: 2px solid #e2e8f0;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       transition: all 0.15s ease;
       position: relative;
       user-select: none;
+      min-height: 96px;
     }
 
     .team-btn:active:not(.locked) {
@@ -280,7 +374,7 @@
     .team-btn.picked {
       background: #eff6ff;
       border-color: #2563eb;
-      box-shadow: 0 0 0 1px #2563eb, 0 4px 8px rgba(37, 99, 235, 0.15);
+      box-shadow: 0 0 0 1px #2563eb, 0 4px 10px rgba(37, 99, 235, 0.18);
     }
 
     .team-btn.picked .team-abbr {
@@ -291,9 +385,9 @@
     .team-btn.picked::after {
       content: "✓ PICKED";
       position: absolute;
-      top: 4px;
-      right: 6px;
-      font-size: 0.62rem;
+      top: 5px;
+      right: 8px;
+      font-size: 0.65rem;
       font-weight: 800;
       letter-spacing: 0.5px;
       color: #2563eb;
@@ -301,32 +395,34 @@
 
     .team-btn.locked {
       cursor: not-allowed;
-      opacity: 0.85;
+      opacity: 0.8;
+      background: #f1f5f9;
     }
 
     .team-logo {
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
       object-fit: contain;
       margin-bottom: 6px;
       filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08));
     }
 
     .team-abbr {
-      font-size: 1.05rem;
-      font-weight: 700;
+      font-size: 1.15rem;
+      font-weight: 800;
       color: var(--text);
       line-height: 1.1;
     }
 
     .team-name {
-      font-size: 0.74rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
       margin-top: 2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       max-width: 100%;
+      font-weight: 500;
     }
 
     .vs-column {
@@ -339,20 +435,20 @@
     }
 
     .at-sign {
-      font-size: 0.75rem;
-      font-weight: 700;
+      font-size: 0.8rem;
+      font-weight: 800;
       color: #94a3b8;
     }
 
     .spread-pill {
-      margin-top: 4px;
-      font-size: 0.72rem;
-      font-weight: 700;
+      margin-top: 5px;
+      font-size: 0.76rem;
+      font-weight: 800;
       background: #f1f5f9;
-      color: #475569;
-      padding: 2px 6px;
+      color: #334155;
+      padding: 3px 8px;
       border-radius: 6px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #cbd5e1;
       white-space: nowrap;
     }
 
@@ -360,7 +456,7 @@
     .auth-banner {
       max-width: 600px;
       margin: 40px auto;
-      padding: 24px;
+      padding: 28px;
       background: #fff;
       border-radius: var(--radius);
       border: 1px solid var(--border);
@@ -369,21 +465,22 @@
     }
 
     .auth-banner h2 {
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .auth-banner p {
       color: var(--text-muted);
-      font-size: 0.9rem;
-      margin-bottom: 20px;
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+      line-height: 1.5;
     }
 
     .spinner {
       border: 3px solid rgba(0, 0, 0, 0.1);
       border-radius: 50%;
       border-top: 3px solid var(--primary);
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       animation: spin 0.8s linear infinite;
       margin: 40px auto;
     }
@@ -402,16 +499,32 @@
       <div class="brand-title">
         <span>🥟</span> Pierogi Pick'em
       </div>
-      <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
         <span class="player-pill" id="playerDisplay">👤 Loading...</span>
         <a href="index.html" class="nav-link">📊 Standings</a>
       </div>
     </div>
   </header>
 
+  <!-- Greeting Hero Card -->
+  <div class="greeting-hero">
+    <div class="greeting-box">
+      <div class="greeting-title" id="greetingTitle">
+        👋 Welcome!
+      </div>
+      <div class="greeting-sub" id="greetingSub">
+        Loading your picks...
+      </div>
+      <div class="locked-week-alert" id="lockedWeekAlert" style="display: none;">
+        <div>🔒 <strong>All games for this week have kicked off!</strong> This week is locked.</div>
+        <button class="btn-jump-current" id="jumpCurrentBtn">👉 Go to Week <span id="jumpCurrentWeekNum">1</span> (Upcoming Games)</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Status & Save Indicator -->
   <div class="status-bar">
-    <span id="seasonLabel">2026–2027 Season</span>
+    <span id="seasonLabel">2026–2027 NFL Season</span>
     <span class="save-indicator saved" id="saveIndicator">
       <span>●</span> All picks saved
     </span>
@@ -441,9 +554,12 @@
     // State
     let currentUser = "";
     let currentToken = "";
+    let playerDisplayName = "";
     let currentSeason = "2026_2027";
+    let currentActiveWeek = 1;
     let selectedWeek = 1;
     let availableWeeks = [];
+    let weekStatuses = {};
     let games = [];
     let picks = {}; // game_id -> team_abbr
 
@@ -470,6 +586,18 @@
       el.innerHTML = `<span>●</span> ${text}`;
     }
 
+    function formatKickoffLocal(propDate) {
+      if (!propDate) return "";
+      try {
+        const d = new Date(parseInt(propDate));
+        return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) + 
+               ' · ' + 
+               d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      } catch (e) {
+        return "";
+      }
+    }
+
     async function loadWeekData(weekToLoad) {
       if (!currentToken) {
         showLoginPrompt();
@@ -488,12 +616,17 @@
         const data = await res.json();
         
         currentUser = data.player.id;
-        document.getElementById("playerDisplay").textContent = `👤 ${data.player.display_name}`;
-        selectedWeek = data.selected_week;
+        playerDisplayName = data.player.display_name;
+        document.getElementById("playerDisplay").textContent = `👤 ${playerDisplayName}`;
+        
+        currentActiveWeek = data.current_week || 1;
+        selectedWeek = data.selected_week || currentActiveWeek;
         availableWeeks = data.available_weeks || [];
+        weekStatuses = data.week_statuses || {};
         games = data.games || [];
         picks = data.picks || {};
 
+        updateGreeting();
         renderWeekTabs();
         renderGames();
         updateProgress();
@@ -504,13 +637,54 @@
       }
     }
 
+    function updateGreeting() {
+      const titleEl = document.getElementById("greetingTitle");
+      const subEl = document.getElementById("greetingSub");
+      const alertEl = document.getElementById("lockedWeekAlert");
+      const jumpBtn = document.getElementById("jumpCurrentBtn");
+      const jumpWeekNum = document.getElementById("jumpCurrentWeekNum");
+
+      const name = playerDisplayName || "Player";
+      jumpWeekNum.textContent = currentActiveWeek;
+
+      const isCurrent = (selectedWeek === currentActiveWeek);
+      const isLocked = weekStatuses[selectedWeek]?.all_locked || false;
+
+      if (isCurrent) {
+        titleEl.innerHTML = `👋 Hello ${name}! — Update your Week ${selectedWeek} picks here`;
+        subEl.innerHTML = `Tap any team below to make your pick. Your selections save automatically!`;
+        alertEl.style.display = "none";
+      } else if (isLocked) {
+        titleEl.innerHTML = `👋 Hello ${name}! — Viewing Week ${selectedWeek} (Locked)`;
+        subEl.innerHTML = `All games for Week ${selectedWeek} have already kicked off.`;
+        alertEl.style.display = "flex";
+        jumpBtn.onclick = () => {
+          selectedWeek = currentActiveWeek;
+          renderWeekTabs();
+          loadWeekData(currentActiveWeek);
+        };
+      } else {
+        titleEl.innerHTML = `👋 Hello ${name}! — Looking ahead to Week ${selectedWeek}`;
+        subEl.innerHTML = `Current upcoming games are in <strong>Week ${currentActiveWeek}</strong>. You can pre-pick Week ${selectedWeek} below.`;
+        alertEl.style.display = "none";
+      }
+    }
+
     function renderWeekTabs() {
       const tabsEl = document.getElementById("weekTabs");
       tabsEl.innerHTML = "";
       availableWeeks.forEach(w => {
         const btn = document.createElement("button");
-        btn.className = `week-tab ${w === selectedWeek ? 'active' : ''}`;
-        btn.textContent = `Week ${w}`;
+        const isSelected = (w === selectedWeek);
+        const isCurrent = (w === currentActiveWeek);
+        const isLocked = weekStatuses[w]?.all_locked;
+
+        let label = `Week ${w}`;
+        if (isCurrent) label += ` ★`;
+        else if (isLocked) label += ` 🔒`;
+
+        btn.className = `week-tab ${isSelected ? 'active' : ''} ${isCurrent ? 'is-current' : ''}`;
+        btn.textContent = label;
         btn.onclick = () => {
           if (w !== selectedWeek) {
             selectedWeek = w;
@@ -525,7 +699,20 @@
     function updateProgress() {
       const total = games.length;
       const picked = games.filter(g => picks[g.game_id]).length;
-      document.getElementById("progressText").textContent = `${picked} of ${total} games picked`;
+      const textEl = document.getElementById("progressText");
+      
+      if (total > 0 && picked === total) {
+        textEl.textContent = `🎉 All ${total} games picked!`;
+        textEl.className = "progress-text complete";
+      } else if (total > 0) {
+        const remaining = total - picked;
+        textEl.textContent = `${picked} of ${total} picked (${remaining} left)`;
+        textEl.className = "progress-text";
+      } else {
+        textEl.textContent = `0 of 0 games picked`;
+        textEl.className = "progress-text";
+      }
+
       const pct = total > 0 ? (picked / total) * 100 : 0;
       document.getElementById("progressBar").style.width = `${pct}%`;
     }
@@ -535,7 +722,7 @@
       container.innerHTML = "";
 
       if (games.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">No games scheduled for Week ${selectedWeek}.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted); font-weight:600;">No games scheduled for Week ${selectedWeek}.</div>`;
         return;
       }
 
@@ -545,11 +732,12 @@
 
         const currentPick = picks[game.game_id] || "";
         const isLocked = game.is_locked;
+        const kickoffFormatted = formatKickoffLocal(game.prop_date) || game.kickoff_str;
 
         // Kickoff text
         const lockTag = isLocked
-          ? `<span class="lock-tag locked">🔒 Locked</span>`
-          : `<span class="lock-tag open">⏱️ ${game.kickoff_str}</span>`;
+          ? `<span class="lock-tag locked">🔒 Locked at Kickoff</span>`
+          : `<span class="lock-tag open">⏱️ ${kickoffFormatted}</span>`;
 
         card.innerHTML = `
           <div class="game-header">
@@ -612,7 +800,7 @@
         }
       });
       updateProgress();
-      setSaveStatus("saving", "Saving pick...");
+      setSaveStatus("saving", `Saving ${team}...`);
 
       // Send to server
       try {
@@ -650,7 +838,7 @@
         <div class="auth-banner">
           <h2>🥟 Welcome to Pierogi Pick'em</h2>
           <p>${msg || "Please open the personal magic link texted to you by Stan to make your picks."}</p>
-          <a href="index.html" class="nav-link" style="display:inline-block; color:var(--primary); font-weight:600;">← View Standings</a>
+          <a href="index.html" class="nav-link" style="display:inline-block; color:var(--primary); font-weight:700; font-size:1rem;">← View Standings</a>
         </div>
       `;
     }

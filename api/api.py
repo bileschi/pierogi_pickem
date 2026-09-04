@@ -150,6 +150,15 @@ def handle_get() -> None:
             "bet_win_key": g.get("bet_win_key", "not_decided"),
         })
 
+    week_statuses = {}
+    for w in available_weeks:
+        wg = [g for g in games if g.get("week") == str(w)]
+        all_locked = bool(wg and all(float(g["prop_date"]) <= now_ms for g in wg if g.get("prop_date")))
+        week_statuses[w] = {
+            "is_current": (w == current_week),
+            "all_locked": all_locked,
+        }
+
     send_response({
         "authenticated": True,
         "player": {
@@ -160,6 +169,7 @@ def handle_get() -> None:
         "current_week": current_week,
         "selected_week": selected_week,
         "available_weeks": available_weeks,
+        "week_statuses": week_statuses,
         "games": formatted_games,
         "picks": player_picks,
     })

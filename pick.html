@@ -898,6 +898,19 @@
     }
 
     function showLoginPrompt(msg) {
+      localStorage.removeItem("pierogi_u");
+      localStorage.removeItem("pierogi_k");
+
+      const playerPill = document.getElementById("playerDisplay");
+      if (playerPill) playerPill.style.display = "none";
+
+      const hero = document.querySelector(".greeting-hero");
+      if (hero) hero.style.display = "none";
+
+      document.querySelectorAll(".status-bar, .week-nav-container, .progress-banner").forEach(el => {
+        el.style.display = "none";
+      });
+
       const container = document.getElementById("gamesContainer");
       container.innerHTML = `
         <div class="auth-banner">

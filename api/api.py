@@ -111,17 +111,30 @@ def handle_get() -> None:
 
     # Authenticate player
     player = None
+    auth_detail = ""
     if token:
         player = db.get_player_by_token(token)
+        if not player:
+            auth_detail = f"Secret token '{token}' was not recognized in database."
+        elif user_id and player["id"] != user_id:
+            auth_detail = f"Token is valid for player '{player['id']}' ({player.get('display_name')}), but requested user is '{user_id}'."
     elif user_id:
-        p = db.get_player(user_id)
-        # If token query was not supplied but user_id was, require token
-        player = None
+        auth_detail = f"Player user '{user_id}' was requested without a secret token (?k=...)."
+    else:
+        auth_detail = "No player user (?u=...) or secret token (?k=...) was provided."
 
     if not player or (user_id and player["id"] != user_id):
         send_response({
             "authenticated": False,
             "error": "Please access using your personal magic link.",
+            "detail": auth_detail,
+            "debug": {
+                "user_id_requested": user_id or "(none)",
+                "token_provided": token or "(none)",
+                "token_length": len(token) if token else 0,
+                "db_match_found": bool(player),
+                "matched_player_id": player["id"] if player else None,
+            }
         }, status=401)
 
     games = load_season_games(season)
@@ -229,11 +242,12 @@ def handle_post() -> None:
 
     # Authenticate player
     if not token:
-        send_response({"success": False, "error": "Missing secret token"}, status=401)
+        send_response({"success": False, "error": "Missing secret token", "detail": "POST body did not include 'k' parameter."}, status=401)
 
     player = db.get_player_by_token(token)
     if not player or (user_id and player["id"] != user_id):
-        send_response({"success": False, "error": "Unauthorized"}, status=401)
+        detail = "Token not recognized in database." if not player else f"Token belongs to '{player['id']}', but requested user is '{user_id}'."
+        send_response({"success": False, "error": "Unauthorized", "detail": detail}, status=401)
 
     # Validate game exists
     games = load_season_games(season)

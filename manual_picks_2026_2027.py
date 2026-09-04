@@ -15,8 +15,6 @@ for player in players.PLAYER_IDS:
 
 # Week 1
 MANUAL_PICKS[games_col_keys.SMB_PICK_KEY][1] = {
-    "NE",
-    "SF",
     "TB",
     "NO",
     "NYJ",

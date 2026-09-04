@@ -440,16 +440,38 @@
       color: #94a3b8;
     }
 
-    .spread-pill {
-      margin-top: 5px;
-      font-size: 0.76rem;
+    .team-spread-pill {
+      margin-top: 8px;
+      font-size: 0.95rem;
       font-weight: 800;
+      padding: 3px 12px;
+      border-radius: 9999px;
+      letter-spacing: 0.3px;
       background: #f1f5f9;
-      color: #334155;
-      padding: 3px 8px;
-      border-radius: 6px;
+      color: #1e293b;
       border: 1px solid #cbd5e1;
-      white-space: nowrap;
+      display: inline-block;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      transition: all 0.15s ease;
+    }
+
+    .team-spread-pill.fav {
+      background: #f8fafc;
+      color: #0f172a;
+      border-color: #94a3b8;
+    }
+
+    .team-spread-pill.dog {
+      background: #f8fafc;
+      color: #334155;
+      border-color: #cbd5e1;
+    }
+
+    .team-btn.picked .team-spread-pill {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #1d4ed8;
+      box-shadow: 0 1px 4px rgba(37, 99, 235, 0.3);
     }
 
     /* Auth Banner / Fallback Modal */
@@ -734,6 +756,26 @@
         const isLocked = game.is_locked;
         const kickoffFormatted = formatKickoffLocal(game.prop_date) || game.kickoff_str;
 
+        // Spread resolution
+        let awaySpread = game.away_spread;
+        let homeSpread = game.home_spread;
+        if (!awaySpread || !homeSpread) {
+          const val = parseFloat(game.home_line);
+          if (isNaN(val) || val === 0) {
+            awaySpread = "EVEN";
+            homeSpread = "EVEN";
+          } else {
+            const fmt = (n) => (n % 1 === 0 ? Math.round(n) : n.toFixed(1));
+            if (val < 0) {
+              homeSpread = `${fmt(val)}`;
+              awaySpread = `+${fmt(-val)}`;
+            } else {
+              homeSpread = `+${fmt(val)}`;
+              awaySpread = `-${fmt(val)}`;
+            }
+          }
+        }
+
         // Kickoff text
         const lockTag = isLocked
           ? `<span class="lock-tag locked">🔒 Locked at Kickoff</span>`
@@ -752,12 +794,12 @@
               <img src="${game.away_logo}" class="team-logo" alt="${game.away_team}" onerror="this.style.display='none'">
               <div class="team-abbr">${game.away_team}</div>
               <div class="team-name">${game.away_team_name}</div>
+              <div class="team-spread-pill ${awaySpread.startsWith('-') ? 'fav' : 'dog'}">${awaySpread}</div>
             </div>
 
-            <!-- Middle VS / Spread -->
+            <!-- Middle VS -->
             <div class="vs-column">
               <span class="at-sign">@</span>
-              <span class="spread-pill">${game.home_line || 'EVEN'}</span>
             </div>
 
             <!-- Home Team -->
@@ -767,6 +809,7 @@
               <img src="${game.home_logo}" class="team-logo" alt="${game.home_team}" onerror="this.style.display='none'">
               <div class="team-abbr">${game.home_team}</div>
               <div class="team-name">${game.home_team_name}</div>
+              <div class="team-spread-pill ${homeSpread.startsWith('-') ? 'fav' : 'dog'}">${homeSpread}</div>
             </div>
           </div>
         `;

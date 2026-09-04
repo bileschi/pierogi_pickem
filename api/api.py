@@ -33,10 +33,37 @@ try:
 except ImportError:
     FOOTBALL_SEASON = "2026_2027"
 
-try:
-    from players import TEAM_CITY_TO_NAME
-except ImportError:
-    TEAM_CITY_TO_NAME = {}
+TEAM_CITY_TO_NAME = {
+    "ARI": "Cardinals", "ATL": "Falcons", "BAL": "Ravens", "BUF": "Bills",
+    "CAR": "Panthers", "CHI": "Bears", "CIN": "Bengals", "CLE": "Browns",
+    "DAL": "Cowboys", "DEN": "Broncos", "DET": "Lions", "GB": "Packers",
+    "HOU": "Texans", "IND": "Colts", "JAX": "Jaguars", "KC": "Chiefs",
+    "LV": "Raiders", "LAR": "Rams", "LAC": "Chargers", "MIA": "Dolphins",
+    "MIN": "Vikings", "NE": "Patriots", "NO": "Saints", "NYG": "Giants",
+    "NYJ": "Jets", "PHI": "Eagles", "PIT": "Steelers", "SF": "49ers",
+    "SEA": "Seahawks", "TB": "Buccaneers", "TEN": "Titans", "WSH": "Commanders",
+}
+
+
+def calculate_spreads(home_line_str: str):
+    """Calculates explicit away and home spread strings, e.g. ('+3.5', '-3.5')."""
+    if not home_line_str:
+        return "EVEN", "EVEN"
+    try:
+        val = float(home_line_str)
+        if val == 0:
+            return "EVEN", "EVEN"
+        def fmt(num: float) -> str:
+            return f"{int(num)}" if num % 1 == 0 else f"{num:.1f}"
+        if val < 0:
+            home_spread = fmt(val)
+            away_spread = f"+{fmt(-val)}"
+        else:
+            home_spread = f"+{fmt(val)}"
+            away_spread = f"-{fmt(val)}"
+        return away_spread, home_spread
+    except Exception:
+        return "", ""
 
 
 def send_response(data: dict, status: int = 200) -> None:
@@ -132,15 +159,19 @@ def handle_get() -> None:
         if line_str and not line_str.startswith("-") and not line_str.startswith("+"):
             line_str = "+" + line_str
 
+        away_spread, home_spread = calculate_spreads(g.get("home_line"))
+
         formatted_games.append({
             "game_id": g.get("game_id"),
             "week": selected_week,
             "away_team": g.get("away_team"),
             "away_team_name": TEAM_CITY_TO_NAME.get(g.get("away_team"), g.get("away_team")),
             "away_logo": f"images2/nfl/{g.get('away_team')}.png",
+            "away_spread": away_spread,
             "home_team": g.get("home_team"),
             "home_team_name": TEAM_CITY_TO_NAME.get(g.get("home_team"), g.get("home_team")),
             "home_logo": f"images2/nfl/{g.get('home_team')}.png",
+            "home_spread": home_spread,
             "home_line": line_str,
             "prop_date": prop_date,
             "kickoff_str": format_kickoff(g.get("prop_date", "0")),

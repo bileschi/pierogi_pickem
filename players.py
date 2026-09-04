@@ -1,5 +1,4 @@
 import games_col_keys
-import propositions
 
 
 # I got these ids from the espn site by poking around at the network tab.

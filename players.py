@@ -44,13 +44,18 @@ PLAYER_IDS = [
 #   JEAN_PICK_KEY: '373e4850-716c-11ef-b954-bb5441c4e093',
 # }
 # 2025_2026
+# ESPN_PLAYER_IDS = {
+#   games_col_keys.SMB_PICK_KEY: '65b79490-7c3b-11f0-8e6b-379d7a2b7cd8',
+#   games_col_keys.SUE_PICK_KEY: '5197fc50-891c-11f0-b1ab-011cec36886d',
+#   games_col_keys.SLB_PICK_KEY: '5831c2c0-89fe-11f0-8797-c790a2901aa2',
+#   games_col_keys.JEAN_PICK_KEY: '15c866c0-8ac9-11f0-add8-416dcf432d0a',
+#   games_col_keys.MORGAN_PICK_KEY: 'c2892ca0-8989-11f0-8ebe-c134be42498f',
+# }
+# 2026_2027
+# Group URL: https://fantasy.espn.com/games/nfl-pickem-2026/group?id=0c59e437-7fef-41f4-ab51-f59630b42f35
 ESPN_PLAYER_IDS = {
-  games_col_keys.SMB_PICK_KEY: '65b79490-7c3b-11f0-8e6b-379d7a2b7cd8',
-  games_col_keys.SUE_PICK_KEY: '5197fc50-891c-11f0-b1ab-011cec36886d',
-  games_col_keys.SLB_PICK_KEY: '5831c2c0-89fe-11f0-8797-c790a2901aa2',
-  games_col_keys.JEAN_PICK_KEY: '15c866c0-8ac9-11f0-add8-416dcf432d0a',
-  games_col_keys.MORGAN_PICK_KEY: 'c2892ca0-8989-11f0-8ebe-c134be42498f',
-  }
+  games_col_keys.SMB_PICK_KEY: '02b3ae80-a80c-11f1-b79b-878cc15323ad',
+}
 
 def home_strategy(game):
     return game.home_team

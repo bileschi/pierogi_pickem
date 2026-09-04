@@ -34,7 +34,7 @@ elif FOOTBALL_SEASON == "2024_2025":
 elif FOOTBALL_SEASON == "2025_2026":
   year_key = 265
 elif FOOTBALL_SEASON == "2026_2027":
-  year_key = "CHALLENGE_ID"
+  year_key = 288
 else:
   raise ValueError(f"Unknown FOOTBALL_SEASON: {FOOTBALL_SEASON}")
 
@@ -75,6 +75,8 @@ def write_picks_csv(picks, filename):
 
 def read_picks_csv(filename):
   picks = []
+  if not os.path.exists(filename):
+    return picks
   with open(filename, 'r', newline='') as csvfile:
     pickreader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
     next(pickreader) #to skip header

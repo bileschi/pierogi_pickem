@@ -115,10 +115,14 @@ if __name__ == "__main__":
     if not SKIP_LOAD_PICKS:
         for (player, espn_pick_id) in players.ESPN_PLAYER_IDS.items():
             dbprint(f"Fetching picks for player {player} from ESPN.")
-            picks[player] = espn_picks.get_picks(espn_pick_id)
-            espn_picks.write_picks_csv(
-                picks[player],
-                player_picks_fns[player])
+            fetched_picks = espn_picks.get_picks(espn_pick_id)
+            if fetched_picks:
+                picks[player] = fetched_picks
+                espn_picks.write_picks_csv(
+                    picks[player],
+                    player_picks_fns[player])
+            elif not os.path.exists(player_picks_fns[player]):
+                espn_picks.write_picks_csv([], player_picks_fns[player])
     # Load the picks from disk (even though we just wrote them to disk).
     # This pattern is useful for testing.
     for (player, espn_pick_id) in players.ESPN_PLAYER_IDS.items():

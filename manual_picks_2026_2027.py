@@ -12,3 +12,23 @@ from collections import defaultdict
 MANUAL_PICKS = {}
 for player in players.PLAYER_IDS:
     MANUAL_PICKS[player] = defaultdict(set)
+
+# Week 1
+MANUAL_PICKS[games_col_keys.SMB_PICK_KEY][1] = {
+    "NE",
+    "SF",
+    "TB",
+    "NO",
+    "NYJ",
+    "BAL",
+    "ATL",
+    "CAR",
+    "CLE",
+    "HOU",
+    "MIA",
+    "MIN",
+    "WSH",
+    "ARI",
+    "NYG",
+    "DEN",
+}

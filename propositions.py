@@ -23,7 +23,7 @@ ESPN_PROPOSITIONS_URL = {
         f"https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=265&platform=chui&view=chui_default"
     ),
     "2026_2027": (
-        f"https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=CHALLENGE_ID&platform=chui&view=chui_default"
+        f"https://gambit-api.fantasy.espn.com/apis/v1/propositions?challengeId=288&platform=chui&view=chui_default"
     ),
 }
 

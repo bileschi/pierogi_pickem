@@ -572,6 +572,19 @@
     <div class="spinner"></div>
   </main>
 
+  <!-- Bottom Progress Box -->
+  <div class="progress-banner" style="margin-top: 18px;">
+    <div class="progress-box">
+      <div class="progress-text" id="progressTextBottom">0 of 0 games picked</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBarBottom"></div>
+      </div>
+    </div>
+    <div style="text-align: center; margin-top: 12px;">
+      <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;" class="nav-link" style="display: inline-flex; justify-content: center; color: var(--text-muted); font-size: 0.85rem;">↑ Back to top</a>
+    </div>
+  </div>
+
   <script>
     // State
     let currentUser = "";
@@ -721,22 +734,31 @@
     function updateProgress() {
       const total = games.length;
       const picked = games.filter(g => picks[g.game_id]).length;
-      const textEl = document.getElementById("progressText");
+      const textEls = [document.getElementById("progressText"), document.getElementById("progressTextBottom")];
+      const barEls = [document.getElementById("progressBar"), document.getElementById("progressBarBottom")];
       
+      let msg = "0 of 0 games picked";
+      let cls = "progress-text";
       if (total > 0 && picked === total) {
-        textEl.textContent = `🎉 All ${total} games picked!`;
-        textEl.className = "progress-text complete";
+        msg = `🎉 All ${total} games picked!`;
+        cls = "progress-text complete";
       } else if (total > 0) {
         const remaining = total - picked;
-        textEl.textContent = `${picked} of ${total} picked (${remaining} left)`;
-        textEl.className = "progress-text";
-      } else {
-        textEl.textContent = `0 of 0 games picked`;
-        textEl.className = "progress-text";
+        msg = `${picked} of ${total} picked (${remaining} left)`;
+        cls = "progress-text";
       }
 
+      textEls.forEach(el => {
+        if (el) {
+          el.textContent = msg;
+          el.className = cls;
+        }
+      });
+
       const pct = total > 0 ? (picked / total) * 100 : 0;
-      document.getElementById("progressBar").style.width = `${pct}%`;
+      barEls.forEach(el => {
+        if (el) el.style.width = `${pct}%`;
+      });
     }
 
     function renderGames() {

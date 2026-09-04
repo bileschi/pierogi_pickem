@@ -33,6 +33,8 @@ elif FOOTBALL_SEASON == "2024_2025":
   year_key = 247
 elif FOOTBALL_SEASON == "2025_2026":
   year_key = 265
+elif FOOTBALL_SEASON == "2026_2027":
+  year_key = "CHALLENGE_ID"
 else:
   raise ValueError(f"Unknown FOOTBALL_SEASON: {FOOTBALL_SEASON}")
 

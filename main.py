@@ -14,7 +14,8 @@ import propositions
 
 from current_season import FOOTBALL_SEASON
 #from manual_picks_2024_2025 import MANUAL_PICKS
-from manual_picks_2025_2026 import MANUAL_PICKS
+#from manual_picks_2025_2026 import MANUAL_PICKS
+from manual_picks_2026_2027 import MANUAL_PICKS
 
 SKIP_LOAD_LINES = False
 SKIP_LOAD_PICKS = False

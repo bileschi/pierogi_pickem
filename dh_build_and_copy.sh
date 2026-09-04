@@ -9,12 +9,15 @@ git pull origin master
 source venv/bin/activate
 # regenerate csv & html
 
-# python3 main.py           # <-- Regular season
-# python3 generate_html.py  # <-- Regular season
-python3 generate_playoff_html.py  # <-- Playoffs
+python3 main.py           # <-- Regular season
+python3 generate_html.py  # <-- Regular season
+# python3 generate_playoff_html.py  # <-- Playoffs
 
 # copy output to web.
 # cp html/2024_2025/nfl_pickem.html /home/bileschi_2016/bileschi.com/nfl/index.html # <-- Regular season
 # cp html/2024_2025/playoffs.html /home/bileschi_2016/bileschi.com/nfl/index.html # <-- Playoffs
 # cp html/2025_2026/nfl_pickem.html /home/bileschi_2016/bileschi.com/nfl/index.html # <-- Regular season
-cp html/2025_2026/playoffs.html /home/bileschi_2016/bileschi.com/nfl/index.html # <-- Playoffs
+# cp html/2025_2026/playoffs.html /home/bileschi_2016/bileschi.com/nfl/index.html # <-- Playoffs
+cp html/2026_2027/nfl_pickem.html /home/bileschi_2016/bileschi.com/nfl/index.html # <-- Regular season
+# cp html/2026_2027/playoffs.html /home/bileschi_2016/bileschi.com/nfl/index.html # <-- Playoffs
+

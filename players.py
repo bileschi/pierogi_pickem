@@ -30,6 +30,15 @@ PLAYER_IDS = [
   games_col_keys.SUE_PICK_KEY,
   games_col_keys.ADAM_PICK_KEY,
 ]
+
+PLAYER_DISPLAY_NAMES = {
+    'smb': 'Stan M',
+    'slb': 'Stan L',
+    'sue': 'Sue',
+    'jean': 'Jean',
+    'morgan': 'Morgan',
+    'adam': 'Adam',
+}
 # You can get the ID here from hovering over the 'group entry' field
 # for each player within the league view.
 # https://fantasy.espn.com/games/nfl-pigskin-pickem-2024/group?id=93fb8547-d412-4290-b470-9261d2415021

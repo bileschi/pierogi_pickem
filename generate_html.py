@@ -8,6 +8,7 @@ import pytz
 from collections import defaultdict
 from datetime import datetime
 from current_season import FOOTBALL_SEASON
+from players import PLAYER_DISPLAY_NAMES
 
 # TODO: Move this to the players module.
 players = ['smb', 'slb', 'sue', 'jean', 'morgan', 'adam']
@@ -418,7 +419,7 @@ def generate_html(weekly_results):
                 rank_display = "3 🥉"
         html += f'<tr class="{row_class}">'
         html += f'<td class="rank-cell">{rank_display}</td>'
-        html += f'<td>{player}</td>'
+        html += f'<td>{PLAYER_DISPLAY_NAMES.get(player, player)}</td>'
         html += f'<td class="score-cell">{score}</td>'
         html += '</tr>'
     html += '</table></div>'
@@ -442,7 +443,7 @@ def generate_html(weekly_results):
         html += '<div class="table-responsive">'
         html += '<table class="week-table">'
         # Table Header
-        player_headers = ''.join(f'<th>{p}</th>' for p in players)
+        player_headers = ''.join(f'<th>{PLAYER_DISPLAY_NAMES.get(p, p)}</th>' for p in players)
         html += f'<thead><tr><th>Game</th><th>Result</th>{player_headers}</tr></thead>\n'
         html += '<tbody>\n'
         for game in results['games']:

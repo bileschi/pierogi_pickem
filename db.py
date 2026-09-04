@@ -11,8 +11,8 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 
 DEFAULT_PLAYERS = [
-    {"id": "smb", "display_name": "Stan"},
-    {"id": "slb", "display_name": "Steve"},
+    {"id": "smb", "display_name": "Stan M"},
+    {"id": "slb", "display_name": "Stan L"},
     {"id": "sue", "display_name": "Sue"},
     {"id": "jean", "display_name": "Jean"},
     {"id": "morgan", "display_name": "Morgan"},
@@ -84,6 +84,11 @@ def init_db(db_path: Optional[str] = None) -> None:
                 conn.execute(
                     "INSERT INTO players (id, display_name, token, created_at) VALUES (?, ?, ?, ?)",
                     (p["id"], p["display_name"], token, now_iso),
+                )
+            else:
+                conn.execute(
+                    "UPDATE players SET display_name = ? WHERE id = ?",
+                    (p["display_name"], p["id"]),
                 )
     conn.close()
 

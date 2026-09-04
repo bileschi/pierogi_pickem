@@ -542,7 +542,21 @@ def generate_html(weekly_results):
         html += '</div>\n'
         html += '</details>'
 
-    html += '</body></html>'
+    html += """
+    <script>
+      (function() {
+        try {
+          var u = localStorage.getItem('pierogi_u');
+          var k = localStorage.getItem('pierogi_k');
+          if (u && k) {
+            document.querySelectorAll('a[href^="pick.html"]').forEach(function(el) {
+              el.href = 'pick.html?u=' + encodeURIComponent(u) + '&k=' + encodeURIComponent(k);
+            });
+          }
+        } catch(e) {}
+      })();
+    </script>
+    </body></html>"""
     return html
 
 if __name__ == '__main__':

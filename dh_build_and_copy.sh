@@ -23,6 +23,7 @@ cp html/2026_2027/nfl_pickem.html /home/bileschi_2016/bileschi.com/nfl/index.htm
 
 # deploy mobile pick page and API
 cp pick.html /home/bileschi_2016/bileschi.com/nfl/pick.html
+cp nfl.htaccess /home/bileschi_2016/bileschi.com/nfl/.htaccess
 mkdir -p /home/bileschi_2016/bileschi.com/nfl/api
 cp api/api.py /home/bileschi_2016/bileschi.com/nfl/api/api.py
 cp api/.htaccess /home/bileschi_2016/bileschi.com/nfl/api/.htaccess

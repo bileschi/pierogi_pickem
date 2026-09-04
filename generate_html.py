@@ -131,6 +131,11 @@ def generate_html(weekly_results):
       line-height: 1.1;
       letter-spacing: 0.3px;
     }
+    .badge-site {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
     .badge-manual {
       background: #e0f2fe;
       color: #0369a1;
@@ -145,6 +150,11 @@ def generate_html(weekly_results):
       background: #f1f5f9;
       color: #94a3b8;
       border: 1px solid #e2e8f0;
+    }
+    .header-card .badge-site {
+      background: rgba(52, 211, 153, 0.2);
+      color: #6ee7b7;
+      border: 1px solid rgba(52, 211, 153, 0.35);
     }
     .header-card .badge-manual {
       background: rgba(56, 189, 248, 0.2);
@@ -362,7 +372,10 @@ def generate_html(weekly_results):
         <span class="last-updated">⏱️ Last updated: """ + timestamp + """ (East Coast)</span>
       </div>
       <div class="legend-bar">
-        User made pick : <span class="badge badge-manual">M</span> Manually, <span class="badge badge-espn">E</span> On ESPN, <span class="badge badge-default">D</span> Via their defaults. <span class="legend-note">Please contact Stan to change how you make default picks (e.g., all home).</span>
+        User made pick : <span class="badge badge-site">S</span> On Site, <span class="badge badge-espn">E</span> On ESPN, <span class="badge badge-manual">M</span> Manually, <span class="badge badge-default">D</span> Via their defaults. <span class="legend-note">Please contact Stan to change how you make default picks (e.g., all home).</span>
+      </div>
+      <div style="margin-top: 14px;">
+        <a href="pick.html" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 0.88rem; padding: 7px 16px; border-radius: 9999px; box-shadow: 0 2px 8px rgba(37,99,235,0.3); transition: background 0.15s;">🏈 Make Your Picks →</a>
       </div>
     </div>
     """
@@ -429,7 +442,8 @@ def generate_html(weekly_results):
         html += '<div class="table-responsive">'
         html += '<table class="week-table">'
         # Table Header
-        html += '<thead><tr><th>Game</th><th>Result</th><th>smb</th><th>slb</th><th>sue</th><th>jean</th><th>morgan</th><th>adam</th></tr></thead>\n'
+        player_headers = ''.join(f'<th>{p}</th>' for p in players)
+        html += f'<thead><tr><th>Game</th><th>Result</th>{player_headers}</tr></thead>\n'
         html += '<tbody>\n'
         for game in results['games']:
             html += '<tr>'
@@ -490,6 +504,9 @@ def generate_html(weekly_results):
                     pick_display = f"{pick}&nbsp;<span class='badge badge-default'>D</span>"
                     if bet_status == BetResult.UNDECIDED:
                         img_classes.append("greyscale-img")
+                if source == "SITE":
+                    classes.append('site_pick')
+                    pick_display = f"{pick}&nbsp;<span class='badge badge-site'>S</span>"
                 if source == "MANUAL":
                     classes.append('manual_pick')
                     pick_display = f"{pick}&nbsp;<span class='badge badge-manual'>M</span>"

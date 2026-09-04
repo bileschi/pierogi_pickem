@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Make Picks — Pierogi Pigskin Pick'em</title>
+  <link rel="icon" href="images2/nfl/BUF.png" type="image/png">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --success: #16a34a;
+      --success-light: #f0fdf4;
+      --locked-bg: #f1f5f9;
+      --locked-border: #cbd5e1;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 80px;
+    }
+
+    /* Top Sticky Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .header-content {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .player-pill {
+      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 600;
+    }
+
+    .nav-link {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.15s;
+    }
+
+    .nav-link:hover {
+      color: #fff;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      max-width: 680px;
+      margin: 12px auto 0 auto;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .save-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .save-indicator.saving {
+      color: #d97706;
+    }
+
+    .save-indicator.saved {
+      color: var(--success);
+    }
+
+    .save-indicator.error {
+      color: #dc2626;
+    }
+
+    /* Week Selector Tabs */
+    .week-nav-container {
+      max-width: 680px;
+      margin: 10px auto 14px auto;
+      padding: 0 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .week-nav-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .week-tabs {
+      display: inline-flex;
+      gap: 6px;
+      padding: 2px 0;
+    }
+
+    .week-tab {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .week-tab.active {
+      background: var(--text);
+      color: #fff;
+      border-color: var(--text);
+    }
+
+    /* Progress Banner */
+    .progress-banner {
+      max-width: 680px;
+      margin: 0 auto 16px auto;
+      padding: 10px 16px;
+    }
+
+    .progress-box {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+    }
+
+    .progress-text {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .progress-bar-wrap {
+      width: 120px;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--success);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Matchup List */
+    .games-container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .game-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+
+    .game-header {
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .lock-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.72rem;
+    }
+
+    .lock-tag.open {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .lock-tag.locked {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .teams-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 10px;
+      gap: 8px;
+    }
+
+    .team-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 8px;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+      user-select: none;
+    }
+
+    .team-btn:active:not(.locked) {
+      transform: scale(0.97);
+    }
+
+    .team-btn.picked {
+      background: #eff6ff;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px #2563eb, 0 4px 8px rgba(37, 99, 235, 0.15);
+    }
+
+    .team-btn.picked .team-abbr {
+      color: #1d4ed8;
+      font-weight: 800;
+    }
+
+    .team-btn.picked::after {
+      content: "✓ PICKED";
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #2563eb;
+    }
+
+    .team-btn.locked {
+      cursor: not-allowed;
+      opacity: 0.85;
+    }
+
+    .team-logo {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08));
+    }
+
+    .team-abbr {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+    }
+
+    .team-name {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .vs-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      text-align: center;
+    }
+
+    .at-sign {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+
+    .spread-pill {
+      margin-top: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: #475569;
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      white-space: nowrap;
+    }
+
+    /* Auth Banner / Fallback Modal */
+    .auth-banner {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 24px;
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .auth-banner h2 {
+      margin-bottom: 8px;
+    }
+
+    .auth-banner p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .spinner {
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 3px solid var(--primary);
+      width: 24px;
+      height: 24px;
+      animation: spin 0.8s linear infinite;
+      margin: 40px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Top Header -->
+  <header>
+    <div class="header-content">
+      <div class="brand-title">
+        <span>🥟</span> Pierogi Pick'em
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span class="player-pill" id="playerDisplay">👤 Loading...</span>
+        <a href="index.html" class="nav-link">📊 Standings</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Status & Save Indicator -->
+  <div class="status-bar">
+    <span id="seasonLabel">2026–2027 Season</span>
+    <span class="save-indicator saved" id="saveIndicator">
+      <span>●</span> All picks saved
+    </span>
+  </div>
+
+  <!-- Horizontal Week Navigation -->
+  <div class="week-nav-container">
+    <div class="week-tabs" id="weekTabs"></div>
+  </div>
+
+  <!-- Progress Box -->
+  <div class="progress-banner">
+    <div class="progress-box">
+      <div class="progress-text" id="progressText">0 of 0 games picked</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Games Container -->
+  <main class="games-container" id="gamesContainer">
+    <div class="spinner"></div>
+  </main>
+
+  <script>
+    // State
+    let currentUser = "";
+    let currentToken = "";
+    let currentSeason = "2026_2027";
+    let selectedWeek = 1;
+    let availableWeeks = [];
+    let games = [];
+    let picks = {}; // game_id -> team_abbr
+
+    // Initialize from URL or LocalStorage
+    function initAuth() {
+      const params = new URLSearchParams(window.location.search);
+      const urlUser = params.get("u");
+      const urlToken = params.get("k");
+
+      if (urlUser && urlToken) {
+        currentUser = urlUser;
+        currentToken = urlToken;
+        localStorage.setItem("pierogi_u", urlUser);
+        localStorage.setItem("pierogi_k", urlToken);
+      } else {
+        currentUser = localStorage.getItem("pierogi_u") || "";
+        currentToken = localStorage.getItem("pierogi_k") || "";
+      }
+    }
+
+    function setSaveStatus(status, text) {
+      const el = document.getElementById("saveIndicator");
+      el.className = `save-indicator ${status}`;
+      el.innerHTML = `<span>●</span> ${text}`;
+    }
+
+    async function loadWeekData(weekToLoad) {
+      if (!currentToken) {
+        showLoginPrompt();
+        return;
+      }
+
+      setSaveStatus("saving", "Loading games...");
+      const url = `api/api.py?u=${encodeURIComponent(currentUser)}&k=${encodeURIComponent(currentToken)}${weekToLoad ? `&week=${weekToLoad}` : ''}`;
+      
+      try {
+        const res = await fetch(url);
+        if (res.status === 401) {
+          showLoginPrompt("Your link has expired or is invalid. Please use the magic link texted by Stan.");
+          return;
+        }
+        const data = await res.json();
+        
+        currentUser = data.player.id;
+        document.getElementById("playerDisplay").textContent = `👤 ${data.player.display_name}`;
+        selectedWeek = data.selected_week;
+        availableWeeks = data.available_weeks || [];
+        games = data.games || [];
+        picks = data.picks || {};
+
+        renderWeekTabs();
+        renderGames();
+        updateProgress();
+        setSaveStatus("saved", "All picks saved");
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setSaveStatus("error", "Connection error");
+      }
+    }
+
+    function renderWeekTabs() {
+      const tabsEl = document.getElementById("weekTabs");
+      tabsEl.innerHTML = "";
+      availableWeeks.forEach(w => {
+        const btn = document.createElement("button");
+        btn.className = `week-tab ${w === selectedWeek ? 'active' : ''}`;
+        btn.textContent = `Week ${w}`;
+        btn.onclick = () => {
+          if (w !== selectedWeek) {
+            selectedWeek = w;
+            renderWeekTabs();
+            loadWeekData(w);
+          }
+        };
+        tabsEl.appendChild(btn);
+      });
+    }
+
+    function updateProgress() {
+      const total = games.length;
+      const picked = games.filter(g => picks[g.game_id]).length;
+      document.getElementById("progressText").textContent = `${picked} of ${total} games picked`;
+      const pct = total > 0 ? (picked / total) * 100 : 0;
+      document.getElementById("progressBar").style.width = `${pct}%`;
+    }
+
+    function renderGames() {
+      const container = document.getElementById("gamesContainer");
+      container.innerHTML = "";
+
+      if (games.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">No games scheduled for Week ${selectedWeek}.</div>`;
+        return;
+      }
+
+      games.forEach(game => {
+        const card = document.createElement("div");
+        card.className = "game-card";
+
+        const currentPick = picks[game.game_id] || "";
+        const isLocked = game.is_locked;
+
+        // Kickoff text
+        const lockTag = isLocked
+          ? `<span class="lock-tag locked">🔒 Locked</span>`
+          : `<span class="lock-tag open">⏱️ ${game.kickoff_str}</span>`;
+
+        card.innerHTML = `
+          <div class="game-header">
+            <span>Matchup</span>
+            ${lockTag}
+          </div>
+          <div class="teams-grid">
+            <!-- Away Team -->
+            <div class="team-btn ${currentPick === game.away_team ? 'picked' : ''} ${isLocked ? 'locked' : ''}" 
+                 data-game-id="${game.game_id}" 
+                 data-team="${game.away_team}">
+              <img src="${game.away_logo}" class="team-logo" alt="${game.away_team}" onerror="this.style.display='none'">
+              <div class="team-abbr">${game.away_team}</div>
+              <div class="team-name">${game.away_team_name}</div>
+            </div>
+
+            <!-- Middle VS / Spread -->
+            <div class="vs-column">
+              <span class="at-sign">@</span>
+              <span class="spread-pill">${game.home_line || 'EVEN'}</span>
+            </div>
+
+            <!-- Home Team -->
+            <div class="team-btn ${currentPick === game.home_team ? 'picked' : ''} ${isLocked ? 'locked' : ''}" 
+                 data-game-id="${game.game_id}" 
+                 data-team="${game.home_team}">
+              <img src="${game.home_logo}" class="team-logo" alt="${game.home_team}" onerror="this.style.display='none'">
+              <div class="team-abbr">${game.home_team}</div>
+              <div class="team-name">${game.home_team_name}</div>
+            </div>
+          </div>
+        `;
+
+        // Add event listeners for picking
+        const teamButtons = card.querySelectorAll(".team-btn");
+        teamButtons.forEach(btn => {
+          btn.onclick = () => {
+            if (isLocked) {
+              alert("This game has already kicked off and is locked.");
+              return;
+            }
+            const gId = btn.dataset.gameId;
+            const team = btn.dataset.team;
+            selectPick(gId, team, teamButtons);
+          };
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    async function selectPick(gameId, team, buttons) {
+      // Optimistic UI update
+      picks[gameId] = team;
+      buttons.forEach(b => {
+        if (b.dataset.team === team) {
+          b.classList.add("picked");
+        } else {
+          b.classList.remove("picked");
+        }
+      });
+      updateProgress();
+      setSaveStatus("saving", "Saving pick...");
+
+      // Send to server
+      try {
+        const res = await fetch("api/api.py", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            u: currentUser,
+            k: currentToken,
+            game_id: gameId,
+            team: team,
+            week: selectedWeek,
+            season: currentSeason
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          setSaveStatus("saved", `Saved ${team} ✓`);
+        } else {
+          setSaveStatus("error", data.error || "Failed to save");
+          alert(data.error || "Failed to record pick.");
+          // Re-load week data to restore accurate state
+          loadWeekData(selectedWeek);
+        }
+      } catch (err) {
+        console.error("Save error:", err);
+        setSaveStatus("error", "Error saving pick");
+      }
+    }
+
+    function showLoginPrompt(msg) {
+      const container = document.getElementById("gamesContainer");
+      container.innerHTML = `
+        <div class="auth-banner">
+          <h2>🥟 Welcome to Pierogi Pick'em</h2>
+          <p>${msg || "Please open the personal magic link texted to you by Stan to make your picks."}</p>
+          <a href="index.html" class="nav-link" style="display:inline-block; color:var(--primary); font-weight:600;">← View Standings</a>
+        </div>
+      `;
+    }
+
+    // Startup
+    initAuth();
+    loadWeekData();
+  </script>
+</body>
+</html>

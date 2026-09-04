@@ -21,3 +21,10 @@ python3 generate_html.py  # <-- Regular season
 cp html/2026_2027/nfl_pickem.html /home/bileschi_2016/bileschi.com/nfl/index.html # <-- Regular season
 # cp html/2026_2027/playoffs.html /home/bileschi_2016/bileschi.com/nfl/index.html # <-- Playoffs
 
+# deploy mobile pick page and API
+cp pick.html /home/bileschi_2016/bileschi.com/nfl/pick.html
+mkdir -p /home/bileschi_2016/bileschi.com/nfl/api
+cp api/api.py /home/bileschi_2016/bileschi.com/nfl/api/api.py
+cp api/.htaccess /home/bileschi_2016/bileschi.com/nfl/api/.htaccess
+chmod +x /home/bileschi_2016/bileschi.com/nfl/api/api.py
+

@@ -184,7 +184,29 @@ if __name__ == "__main__":
                         game.picks[k] = (game.outcome_2_abbr or "") + delim + espn_suffix
     write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
 
-    # Fill manual picks.  Manual picks override default or ESPN picks.
+    # Fill site picks from picks.db. Site picks override ESPN picks.
+    site_suffix = "SITE"
+    dbprint("Incorporating site picks from picks.db.")
+    num_site_picks_matched = 0
+    try:
+        import db
+        db_path = db.get_db_path()
+        if os.path.exists(db_path):
+            active_site_picks = db.get_active_picks(FOOTBALL_SEASON)
+            for game in games:
+                for player in players.PLAYER_IDS:
+                    p_id = player.replace('_pick', '')
+                    if p_id in active_site_picks and game.game_id in active_site_picks[p_id]:
+                        team_pick = active_site_picks[p_id][game.game_id]
+                        if team_pick:
+                            num_site_picks_matched += 1
+                            game.picks[player] = team_pick + delim + site_suffix
+        dbprint(f"Matched {num_site_picks_matched} site picks.")
+    except Exception as e:
+        print(f"Warning: Could not load site picks from db: {e}")
+    write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
+
+    # Fill manual picks.  Manual picks override site, ESPN, or default picks.
     manual_suffix = "MANUAL"
     dbprint("Incorporating manual picks.")
     num_manual_picks_matched = 0

@@ -11,7 +11,7 @@ from current_season import FOOTBALL_SEASON
 from players import PLAYER_DISPLAY_NAMES
 
 # TODO: Move this to the players module.
-players = ['smb', 'slb', 'sue', 'jean', 'morgan', 'adam']
+players = ['smb', 'slb', 'sue', 'jean', 'morgan', 'adam', 'constance', 'max']
 
 # TODO: Make the csv files a command line argument.
 

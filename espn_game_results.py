@@ -26,7 +26,9 @@ GAME_COL_KEYS = (
   games_col_keys.SUE_PICK_KEY,
   games_col_keys.JEAN_PICK_KEY,
   games_col_keys.MORGAN_PICK_KEY,
-  games_col_keys.ADAM_PICK_KEY
+  games_col_keys.ADAM_PICK_KEY,
+  games_col_keys.CONSTANCE_PICK_KEY,
+  games_col_keys.MAX_PICK_KEY,
 )
 
 DEBUG_PRINT = True

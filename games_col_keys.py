@@ -8,6 +8,8 @@ SLB_PICK_KEY = 'slb_pick'
 SMB_PICK_KEY = 'smb_pick'
 SUE_PICK_KEY = 'sue_pick'
 ADAM_PICK_KEY = 'adam_pick'
+CONSTANCE_PICK_KEY = 'constance_pick'
+MAX_PICK_KEY = 'max_pick'
 
 # Game metadata.
 AWAY_KEY = 'away_team'

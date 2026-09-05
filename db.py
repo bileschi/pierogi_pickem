@@ -17,6 +17,8 @@ DEFAULT_PLAYERS = [
     {"id": "jean", "display_name": "Jean"},
     {"id": "morgan", "display_name": "Morgan"},
     {"id": "adam", "display_name": "Adam"},
+    {"id": "constance", "display_name": "Constance"},
+    {"id": "max", "display_name": "Max"},
 ]
 
 

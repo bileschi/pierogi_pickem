@@ -28,6 +28,8 @@ PLAYER_IDS = [
   games_col_keys.SMB_PICK_KEY,
   games_col_keys.SUE_PICK_KEY,
   games_col_keys.ADAM_PICK_KEY,
+  games_col_keys.CONSTANCE_PICK_KEY,
+  games_col_keys.MAX_PICK_KEY,
 ]
 
 PLAYER_DISPLAY_NAMES = {
@@ -37,6 +39,8 @@ PLAYER_DISPLAY_NAMES = {
     'jean': 'Jean',
     'morgan': 'Morgan',
     'adam': 'Adam',
+    'constance': 'Constance',
+    'max': 'Max',
 }
 # You can get the ID here from hovering over the 'group entry' field
 # for each player within the league view.
@@ -141,6 +145,8 @@ DEFAULT_STRATEGY = {
     games_col_keys.SMB_PICK_KEY: favorite_strategy,
     games_col_keys.SUE_PICK_KEY: home_strategy,
     games_col_keys.ADAM_PICK_KEY: home_strategy,
+    games_col_keys.CONSTANCE_PICK_KEY: home_strategy,
+    games_col_keys.MAX_PICK_KEY: home_strategy,
 }
 
 

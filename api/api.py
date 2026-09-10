@@ -137,6 +137,19 @@ def handle_get() -> None:
             }
         }, status=401)
 
+    action = params.get("action", [""])[0].strip()
+    if action in ("events", "history"):
+        events = db.get_player_events(player["id"], season=season, week=int(requested_week) if requested_week.isdigit() else None)
+        send_response({
+            "authenticated": True,
+            "player": {
+                "id": player["id"],
+                "display_name": player["display_name"],
+            },
+            "season": season,
+            "events": events,
+        })
+
     games = load_season_games(season)
     available_weeks = sorted(list(set(int(g["week"]) for g in games if g.get("week"))))
     if not available_weeks:

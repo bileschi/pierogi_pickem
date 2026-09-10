@@ -227,6 +227,33 @@ def get_active_picks(
         conn.close()
 
 
+def get_player_events(
+    player_id: str,
+    season: Optional[str] = None,
+    week: Optional[int] = None,
+    db_path: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """Returns all pick events for a given player ordered by id/timestamp."""
+    conn = get_connection(db_path)
+    try:
+        conditions = ["player_id = ?"]
+        params: List[Any] = [player_id]
+        if season:
+            conditions.append("season = ?")
+            params.append(season)
+        if week is not None:
+            conditions.append("week = ?")
+            params.append(week)
+        where_clause = " AND ".join(conditions)
+        rows = conn.execute(
+            f"SELECT id, timestamp, player_id, season, week, game_id, team_pick, ip_address FROM pick_events WHERE {where_clause} ORDER BY id ASC",
+            params,
+        ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
 def print_magic_links(base_url: str = "https://bileschi.com/nfl/pick.html", db_path: Optional[str] = None) -> None:
     """Utility to print personalized links for all players."""
     players = list_players(db_path)

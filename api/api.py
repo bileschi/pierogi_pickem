@@ -27,6 +27,7 @@ if PROJECT_DIR not in sys.path:
     sys.path.insert(0, PROJECT_DIR)
 
 import db
+import players
 
 try:
     from current_season import FOOTBALL_SEASON
@@ -208,13 +209,50 @@ def handle_get() -> None:
         })
 
     week_statuses = {}
+    week_winners = {}
+    player_keys = [p.replace("_pick", "") for p in players.PLAYER_IDS]
     for w in available_weeks:
         wg = [g for g in games if g.get("week") == str(w)]
         all_locked = bool(wg and all(float(g["prop_date"]) <= now_ms for g in wg if g.get("prop_date")))
+        is_complete = bool(wg and all(bool(g.get("away_score") and g.get("home_score")) for g in wg if g.get("game_id")))
+
         week_statuses[w] = {
             "is_current": (w == current_week),
             "all_locked": all_locked,
+            "is_complete": is_complete,
         }
+
+        if is_complete:
+            scores = {}
+            for p in player_keys:
+                p_score = 0
+                for g in wg:
+                    pick = g.get(f"{p}_pick", "").split(" ")[0]
+                    if pick and pick == g.get("bet_win_key"):
+                        p_score += 1
+                scores[p] = p_score
+            max_score = max(scores.values()) if scores else 0
+            if max_score > 0:
+                w_players = [p for p in player_keys if scores[p] == max_score]
+                w_names = [players.PLAYER_DISPLAY_NAMES.get(p, p) for p in w_players]
+                if len(w_names) == 1:
+                    names_str = w_names[0]
+                    title_str = "Winner"
+                elif len(w_names) == 2:
+                    names_str = f"{w_names[0]} & {w_names[1]}"
+                    title_str = "Co-Winners"
+                else:
+                    names_str = f"{', '.join(w_names[:-1])} & {w_names[-1]}"
+                    title_str = "Co-Winners"
+                pts_str = "pt" if max_score == 1 else "pts"
+                week_winners[w] = {
+                    "winners": w_players,
+                    "winner_names": w_names,
+                    "names_str": names_str,
+                    "title_str": title_str,
+                    "max_score": max_score,
+                    "badge_text": f"👑 {names_str} ({max_score} {pts_str})",
+                }
 
     send_response({
         "authenticated": True,
@@ -227,6 +265,7 @@ def handle_get() -> None:
         "selected_week": selected_week,
         "available_weeks": available_weeks,
         "week_statuses": week_statuses,
+        "week_winners": week_winners,
         "games": formatted_games,
         "picks": player_picks,
     })

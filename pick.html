@@ -759,6 +759,7 @@
     let selectedWeek = 1;
     let availableWeeks = [];
     let weekStatuses = {};
+    let weekWinners = {};
     let games = [];
     let picks = {}; // game_id -> team_abbr
     let authSource = "none";
@@ -853,6 +854,7 @@
         selectedWeek = data.selected_week || currentActiveWeek;
         availableWeeks = data.available_weeks || [];
         weekStatuses = data.week_statuses || {};
+        weekWinners = data.week_winners || {};
         games = data.games || [];
         picks = data.picks || {};
 
@@ -885,11 +887,21 @@
 
       const isCurrent = (selectedWeek === currentActiveWeek);
       const isLocked = weekStatuses[selectedWeek]?.all_locked || false;
+      const winner = weekWinners[selectedWeek];
 
       if (isCurrent) {
         titleEl.innerHTML = `👋 Hello ${name}! — Update your Week ${selectedWeek} picks here`;
         subEl.innerHTML = `Tap any team below to make your pick. Your selections save automatically!`;
         alertEl.style.display = "none";
+      } else if (winner) {
+        titleEl.innerHTML = `👋 Hello ${name}! — Week ${selectedWeek} Complete`;
+        subEl.innerHTML = `🏆 <strong>${winner.winners?.length > 1 ? 'Co-Winners' : 'Winner'}:</strong> ${winner.names_str} with <strong>${winner.max_score} pts</strong>!`;
+        alertEl.style.display = "flex";
+        jumpBtn.onclick = () => {
+          selectedWeek = currentActiveWeek;
+          renderWeekTabs();
+          loadWeekData(currentActiveWeek);
+        };
       } else if (isLocked) {
         titleEl.innerHTML = `👋 Hello ${name}! — Viewing Week ${selectedWeek} (Locked)`;
         subEl.innerHTML = `All games for Week ${selectedWeek} have already kicked off.`;
@@ -914,9 +926,11 @@
         const isSelected = (w === selectedWeek);
         const isCurrent = (w === currentActiveWeek);
         const isLocked = weekStatuses[w]?.all_locked;
+        const winner = weekWinners[w];
 
         let label = `Week ${w}`;
-        if (isCurrent) label += ` ★`;
+        if (winner) label += ` 👑`;
+        else if (isCurrent) label += ` ★`;
         else if (isLocked) label += ` 🔒`;
 
         btn.className = `week-tab ${isSelected ? 'active' : ''} ${isCurrent ? 'is-current' : ''}`;
@@ -970,7 +984,12 @@
         // All games that can possibly be picked by the user have been picked
         cls = "progress-text complete";
         pct = 100;
-        if (allLocked && picked < total) {
+        const winner = weekWinners[selectedWeek];
+        if (winner && allLocked) {
+          msg = `🏆 ${winner.names_str} (${winner.max_score} pts) · ${picked} of ${total} picked`;
+          cls = "progress-text complete";
+          pct = Math.round((picked / total) * 100);
+        } else if (allLocked && picked < total) {
           // Entire week is locked and some were missed
           msg = `🔒 Week locked (${picked} of ${total} picked)`;
           cls = "progress-text";

@@ -345,6 +345,43 @@ def generate_html(weekly_results):
       margin-bottom: 6px;
       letter-spacing: 0.3px;
       user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+    }
+    summary::-webkit-details-marker {
+      margin-right: 6px;
+    }
+    .summary-title {
+      display: inline-block;
+    }
+    .summary-winner {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.78em;
+      font-weight: 700;
+      color: #854d0e;
+      background: #fef9c3;
+      border: 1px solid #fde047;
+      padding: 3px 12px;
+      border-radius: 9999px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      letter-spacing: 0.2px;
+    }
+    .week-winner-banner {
+      background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+      border: 1px solid #facc15;
+      color: #713f12;
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin: 8px 0 12px 0;
+      font-size: 0.95em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 1px 4px rgba(234, 179, 8, 0.15);
     }
     details {
       margin-bottom: 18px;
@@ -429,17 +466,39 @@ def generate_html(weekly_results):
 
     # Generate weekly results, each in a collapsible <details> element
     for week, results in sorted(weekly_results.items()):
-        if results['scores']:
-            winner = max(results['scores'], key=results['scores'].get)
-        else:
-            winner = None
+        # Determine if week is complete (all games have away_score and home_score)
+        games_in_week = results.get('games', [])
+        is_week_complete = bool(games_in_week and all(
+            bool(g.get('away_score') and g.get('home_score')) for g in games_in_week
+        ))
 
-        # Find the max score(s) for the totals row for this week
+        # Find the max score(s) and winner(s) for this week
         max_score = max(results['scores'].values()) if results['scores'] else None
+        winner_badge = ""
+        winner_banner = ""
+
+        if is_week_complete and results['scores'] and max_score and max_score > 0:
+            winners = [p for p in players if results['scores'].get(p, 0) == max_score]
+            winner_display_names = [PLAYER_DISPLAY_NAMES.get(w, w) for w in winners]
+            if len(winner_display_names) == 1:
+                names_str = winner_display_names[0]
+                title_str = "Winner"
+            elif len(winner_display_names) == 2:
+                names_str = f"{winner_display_names[0]} & {winner_display_names[1]}"
+                title_str = "Co-Winners"
+            else:
+                names_str = f"{', '.join(winner_display_names[:-1])} & {winner_display_names[-1]}"
+                title_str = "Co-Winners"
+
+            pts_label = "pt" if max_score == 1 else "pts"
+            winner_badge = f'<span class="summary-winner">👑 {names_str} ({max_score} {pts_label})</span>'
+            winner_banner = f'<div class="week-winner-banner">🏆 <strong>Week {title_str}:</strong> {names_str} with <strong>{max_score} {pts_label}</strong>!</div>'
 
         open_attr = " open" if week == current_week else ""
         html += f'<details id="week{week}"{open_attr}>'
-        html += f'<summary>Week {week}</summary>'
+        html += f'<summary><span class="summary-title">Week {week}</span>{winner_badge}</summary>'
+        if winner_banner:
+            html += winner_banner
         html += '<div class="table-responsive">'
         html += '<table class="week-table">'
         # Table Header

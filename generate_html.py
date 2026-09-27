@@ -3,7 +3,12 @@ import enum
 import os
 import shutil
 from typing import Any, Dict
-import pytz
+try:
+    import pytz
+    nyc_timezone = pytz.timezone('America/New_York')
+except ImportError:
+    from zoneinfo import ZoneInfo
+    nyc_timezone = ZoneInfo('America/New_York')
 
 from collections import defaultdict
 from datetime import datetime
@@ -61,7 +66,6 @@ def find_current_week(weekly_results):
 
 def generate_html(weekly_results):
     """Generates the HTML for the website."""
-    nyc_timezone = pytz.timezone('America/New_York')
     timestamp = datetime.now(nyc_timezone).strftime('%Y-%m-%d %H:%M:%S')
     html = """
     <!DOCTYPE html>
@@ -474,6 +478,7 @@ def generate_html(weekly_results):
 
         # Find the max score(s) and winner(s) for this week
         max_score = max(results['scores'].values()) if results['scores'] else None
+        winners = []
         winner_badge = ""
         winner_banner = ""
 
@@ -536,7 +541,8 @@ def generate_html(weekly_results):
                 img_classes = []
                 bet_status = BetResult.UNDECIDED
                 if game['away_score'] and game['home_score']:
-                    diff_w_line = float(game['home_score']) + float(game['home_line']) - float(game['away_score'])
+                    home_line = float(game['home_line']) if game.get('home_line') else 0.0
+                    diff_w_line = float(game['home_score']) + home_line - float(game['away_score'])
                     if diff_w_line > 0:
                         winner_team = game['home_team']
                     elif diff_w_line == 0:
@@ -590,9 +596,9 @@ def generate_html(weekly_results):
         for player in players:
             score = results['scores'][player]
             cell_classes = []
-            if score == max_score:
+            if max_score and score == max_score and max_score > 0:
                 cell_classes.append('totals-max')
-            if player == winner:
+            if player in winners:
                 cell_classes.append('winner')
             html += f"<td class=\"{' '.join(cell_classes)}\">{score}</td>"
         html += '</tr>\n'

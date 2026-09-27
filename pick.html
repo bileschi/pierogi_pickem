@@ -275,6 +275,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
       box-shadow: var(--shadow);
     }
 
@@ -282,6 +283,7 @@
       font-size: 0.92rem;
       font-weight: 700;
       color: var(--text);
+      line-height: 1.3;
     }
 
     .progress-text.complete {
@@ -294,6 +296,7 @@
       background: #e2e8f0;
       border-radius: 9999px;
       overflow: hidden;
+      flex-shrink: 0;
     }
 
     .progress-bar-fill {
@@ -929,21 +932,63 @@
       });
     }
 
+    function isGameLocked(game) {
+      if (game.is_locked) return true;
+      if (game.prop_date && Date.now() >= Number(game.prop_date)) return true;
+      return false;
+    }
+
     function updateProgress() {
       const total = games.length;
-      const picked = games.filter(g => picks[g.game_id]).length;
       const textEls = [document.getElementById("progressText"), document.getElementById("progressTextBottom")];
       const barEls = [document.getElementById("progressBar"), document.getElementById("progressBarBottom")];
       
-      let msg = "0 of 0 games picked";
+      if (total === 0) {
+        textEls.forEach(el => {
+          if (el) {
+            el.textContent = "0 of 0 games picked";
+            el.className = "progress-text";
+          }
+        });
+        barEls.forEach(el => {
+          if (el) el.style.width = "0%";
+        });
+        return;
+      }
+
+      const picked = games.filter(g => Boolean(picks[g.game_id])).length;
+      const openUnpicked = games.filter(g => !isGameLocked(g) && !picks[g.game_id]).length;
+      const lockedUnpicked = games.filter(g => isGameLocked(g) && !picks[g.game_id]).length;
+      const allLocked = games.every(g => isGameLocked(g));
+      const pickableTotal = total - lockedUnpicked;
+
+      let msg = "";
       let cls = "progress-text";
-      if (total > 0 && picked === total) {
-        msg = `🎉 All ${total} games picked!`;
+      let pct = 0;
+
+      if (openUnpicked === 0) {
+        // All games that can possibly be picked by the user have been picked
         cls = "progress-text complete";
-      } else if (total > 0) {
-        const remaining = total - picked;
-        msg = `${picked} of ${total} picked (${remaining} left)`;
-        cls = "progress-text";
+        pct = 100;
+        if (allLocked && picked < total) {
+          // Entire week is locked and some were missed
+          msg = `🔒 Week locked (${picked} of ${total} picked)`;
+          cls = "progress-text";
+          pct = Math.round((picked / total) * 100);
+        } else if (lockedUnpicked > 0) {
+          msg = `🎉 All available games picked! (${picked} of ${total})`;
+        } else {
+          msg = `🎉 All ${total} games picked!`;
+        }
+      } else {
+        // Still games available to pick
+        const remaining = openUnpicked;
+        if (lockedUnpicked > 0) {
+          msg = `${picked} of ${total} picked (${remaining} left · ${lockedUnpicked} locked)`;
+        } else {
+          msg = `${picked} of ${total} picked (${remaining} left)`;
+        }
+        pct = pickableTotal > 0 ? (picked / pickableTotal) * 100 : 0;
       }
 
       textEls.forEach(el => {
@@ -953,9 +998,8 @@
         }
       });
 
-      const pct = total > 0 ? (picked / total) * 100 : 0;
       barEls.forEach(el => {
-        if (el) el.style.width = `${pct}%`;
+        if (el) el.style.width = `${Math.min(100, Math.max(0, pct))}%`;
       });
     }
 
@@ -973,7 +1017,7 @@
         card.className = "game-card";
 
         const currentPick = picks[game.game_id] || "";
-        const isLocked = game.is_locked;
+        const isLocked = isGameLocked(game);
         const kickoffFormatted = formatKickoffLocal(game.prop_date) || game.kickoff_str;
 
         // Spread resolution
@@ -997,9 +1041,14 @@
         }
 
         // Kickoff text
-        const lockTag = isLocked
-          ? `<span class="lock-tag locked">🔒 Locked at Kickoff</span>`
-          : `<span class="lock-tag open">⏱️ ${kickoffFormatted}</span>`;
+        let lockTag = `<span class="lock-tag open">⏱️ ${kickoffFormatted}</span>`;
+        if (isLocked) {
+          if (game.home_score !== "" && game.away_score !== "" && game.home_score != null && game.away_score != null) {
+            lockTag = `<span class="lock-tag locked">🔒 Final (${game.away_score} - ${game.home_score})</span>`;
+          } else {
+            lockTag = `<span class="lock-tag locked">🔒 Locked at Kickoff</span>`;
+          }
+        }
 
         card.innerHTML = `
           <div class="game-header">

@@ -513,7 +513,7 @@ def generate_html(weekly_results):
         for game in results['games']:
             html += '<tr>'
             line_str = game['home_line']
-            if line_str and line_str[0] != '-':
+            if line_str and not line_str.startswith('-') and not line_str.startswith('+'):
                 line_str = '+' + line_str
             # Game illustration
             away_team_img_path = get_image_path(game['away_team'])

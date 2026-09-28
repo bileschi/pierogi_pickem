@@ -357,6 +357,12 @@
       color: #991b1b;
     }
 
+    .lock-tag.live {
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+    }
+
     .teams-grid {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
@@ -1062,7 +1068,11 @@
         // Kickoff text
         let lockTag = `<span class="lock-tag open">⏱️ ${kickoffFormatted}</span>`;
         if (isLocked) {
-          if (game.home_score !== "" && game.away_score !== "" && game.home_score != null && game.away_score != null) {
+          const isLive = game.game_status === 'in' || (game.game_status !== 'post' && game.home_score !== '' && game.away_score !== '' && game.home_score != null && game.away_score != null);
+          if (isLive) {
+            const detail = game.status_detail ? ` · ${game.status_detail}` : '';
+            lockTag = `<span class="lock-tag live">🔴 Live (${game.away_score} - ${game.home_score}${detail})</span>`;
+          } else if (game.home_score !== "" && game.away_score !== "" && game.home_score != null && game.away_score != null) {
             lockTag = `<span class="lock-tag locked">🔒 Final (${game.away_score} - ${game.home_score})</span>`;
           } else {
             lockTag = `<span class="lock-tag locked">🔒 Locked at Kickoff</span>`;

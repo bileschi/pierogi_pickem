@@ -42,6 +42,16 @@ def read_csv(filename):
         return [row for row in reader]
     return games
 
+def is_game_complete(game):
+    if game.get('game_status'):
+        return game['game_status'] == 'post'
+    return bool(game.get('away_score') and game.get('home_score'))
+
+def is_game_in_progress(game):
+    if game.get('game_status'):
+        return game['game_status'] == 'in'
+    return False
+
 def generate_weekly_results(games):
     """Generates weekly results with winners and scores."""
     weekly_results : Dict[int, Dict[str, Any]] = defaultdict(lambda: {'games': [], 'scores': defaultdict(int)})
@@ -60,7 +70,7 @@ def find_current_week(weekly_results):
     weeks = sorted(weekly_results.keys())
     for week in weeks:
         for game in weekly_results[week]['games']:
-            if not game['away_score'] or not game['home_score']:
+            if not is_game_complete(game):
                 return week
     return weeks[-1] if weeks else None
 
@@ -294,6 +304,49 @@ def generate_html(weekly_results):
       font-size: 1.05em;
       color: #0f172a;
     }
+    .live-score-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .live-score {
+      font-weight: 800;
+      font-size: 1.1em;
+      color: #dc2626;
+      letter-spacing: 0.5px;
+    }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 0.75em;
+      font-weight: 700;
+      white-space: nowrap;
+      border: 1px solid #fca5a5;
+    }
+    .live-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: #ef4444;
+      border-radius: 50%;
+      animation: pulse-dot 1.5s infinite ease-in-out;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.75); }
+    }
+    .live-kickoff {
+      font-size: 0.72em;
+      color: #64748b;
+      font-weight: 500;
+      white-space: nowrap;
+    }
     .correct_pick {
       background-color: #bbf7d0 !important;
     }
@@ -470,10 +523,10 @@ def generate_html(weekly_results):
 
     # Generate weekly results, each in a collapsible <details> element
     for week, results in sorted(weekly_results.items()):
-        # Determine if week is complete (all games have away_score and home_score)
+        # Determine if week is complete (all games are complete)
         games_in_week = results.get('games', [])
         is_week_complete = bool(games_in_week and all(
-            bool(g.get('away_score') and g.get('home_score')) for g in games_in_week
+            is_game_complete(g) for g in games_in_week
         ))
 
         # Find the max score(s) and winner(s) for this week
@@ -526,11 +579,26 @@ def generate_html(weekly_results):
             html += f"<div class='matchup-text'>{game['away_team']} @ {game['home_team']} {line_str}</div>"
             html += "</td>"
 
-            if game['away_score'] and game['home_score']:
+            game_day_datetime = datetime.fromtimestamp(int(game['prop_date'])//1000, tz=nyc_timezone) if game.get('prop_date') else None
+            game_day_string = ""
+            if game_day_datetime:
+                if game_day_datetime.minute != 0:
+                    game_day_string = game_day_datetime.strftime('%a %b %d · %-I:%M%p')
+                else:
+                    game_day_string = game_day_datetime.strftime('%a %b %d · %-I%p')
+
+            if is_game_in_progress(game):
+                status_detail = game.get('status_detail', 'Live')
+                html += "<td>"
+                html += "<div class='live-score-box'>"
+                html += f"<div class='live-score'>{game['away_score']} — {game['home_score']}</div>"
+                html += f"<span class='live-pill'><span class='live-dot'></span>{status_detail}</span>"
+                if game_day_string:
+                    html += f"<span class='live-kickoff'>{game_day_string}</span>"
+                html += "</div></td>"
+            elif is_game_complete(game):
                 html += f"<td><div class='final-score'>{game['away_score']} — {game['home_score']}</div></td>"
             else:
-                game_day_datetime = datetime.fromtimestamp(int(game['prop_date'])//1000, tz=nyc_timezone)
-                game_day_string = game_day_datetime.strftime('%a %b %d · %-I%p')
                 html += f"<td><span class='time-pill'>{game_day_string}</span></td>"
             for player in players:
                 pick, source = game[f'{player}_pick'].split(' ')
@@ -540,7 +608,7 @@ def generate_html(weekly_results):
                 classes = []
                 img_classes = []
                 bet_status = BetResult.UNDECIDED
-                if game['away_score'] and game['home_score']:
+                if is_game_complete(game):
                     home_line = float(game['home_line']) if game.get('home_line') else 0.0
                     diff_w_line = float(game['home_score']) + home_line - float(game['away_score'])
                     if diff_w_line > 0:

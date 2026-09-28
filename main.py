@@ -35,6 +35,8 @@ class Game:
     game_id: Optional[str] = None
     home_score: Optional[str] = None
     away_score: Optional[str] = None
+    game_status: Optional[str] = None
+    status_detail: Optional[str] = None
     home_line: Optional[str] = None
     prop_date: Optional[str] = None
     proposition_id: Optional[str] = None
@@ -50,10 +52,17 @@ class Game:
     def from_dict(cls, d: dict) -> "Game":
         known_fields = {
             'week', 'home_team', 'away_team', 'game_id', 'home_score', 'away_score',
+            'game_status', 'status_detail',
             'home_line', 'prop_date', 'proposition_id', 'outcome_1_id', 'outcome_1_abbr',
             'outcome_2_id', 'outcome_2_abbr', 'bet_win_key'
         }
         picks = {k: v for k, v in d.items() if k not in known_fields}
+        game_status = d.get('game_status')
+        if not game_status:
+            if d.get('home_score') and d.get('away_score'):
+                game_status = 'post'
+            else:
+                game_status = 'pre'
         return cls(
             week=d.get('week'),
             home_team=d.get('home_team'),
@@ -61,6 +70,8 @@ class Game:
             game_id=d.get('game_id'),
             home_score=d.get('home_score'),
             away_score=d.get('away_score'),
+            game_status=game_status,
+            status_detail=d.get('status_detail', ''),
             home_line=d.get('home_line'),
             prop_date=d.get('prop_date'),
             proposition_id=d.get('proposition_id'),
@@ -158,7 +169,8 @@ if __name__ == "__main__":
 
     # Fill the `bet_win_key` with the code of the team that won the bet.
     for game in games:
-        if not game.home_score or not game.away_score:
+        # In-progress ("in") or scheduled ("pre") games must not be decided until final ("post").
+        if game.game_status != "post" or not game.home_score or not game.away_score:
             game.bet_win_key = "not_decided"
             continue
         home_score = float(game.home_score)
@@ -166,6 +178,8 @@ if __name__ == "__main__":
         home_line = float(game.home_line) if game.home_line else 0.0
         if (home_score + home_line) > away_score:
             game.bet_win_key = game.home_team
+        elif (home_score + home_line) == away_score:
+            game.bet_win_key = "TIE"
         else:
             game.bet_win_key = game.away_team
     write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))

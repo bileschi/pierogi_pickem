@@ -1,8 +1,8 @@
 import csv
+import json
 import os
 from typing import Any, Dict
-import requests
-from bs4 import BeautifulSoup
+import urllib.request
 
 import players
 import propositions
@@ -19,6 +19,8 @@ GAME_COL_KEYS = (
   games_col_keys.BET_WIN_KEY,
   games_col_keys.HOME_SCORE_KEY,
   games_col_keys.AWAY_SCORE_KEY,
+  games_col_keys.GAME_STATUS_KEY,
+  games_col_keys.STATUS_DETAIL_KEY,
   propositions.LINE_KEY,
   propositions.PROP_DATE_KEY,
   games_col_keys.SMB_PICK_KEY,
@@ -38,10 +40,6 @@ def dbprint(*args, **kwargs):
     print(*args, **kwargs)
 
 def parse_score_text(score_text, home_team):
-  # expect text like "ATL 25, GB 24" or "BUF 38, LV 10"
-  # scores are listed larger number first - not in home/away order.
-  #
-  # return {"home": home_score, "away": away_score}
   (away, home) = score_text.split(",")
   first_team = away.strip().split(" ")[0].strip()
   first_score = away.strip().split(" ")[1].strip()
@@ -53,90 +51,49 @@ def parse_score_text(score_text, home_team):
 
 
 def get_game_scores():
-  # Get all the games and all the scores.
-  #
-  # Uses ESPN's main schedule pages to scrape basic stats. These values have
-  # nothing to do with our pickem picks, they are common to the NFL.
+  # Get all the games and all the scores using ESPN's scoreboard JSON endpoint.
   games = []
+  year = FOOTBALL_SEASON.split("_")[0]
   for week in range(1, N_WEEKS_IN_SEASON + 1):
-#  for week in [2]:  # DEBUG
-    # site should look like this: https://ibb.co/KxP7Jv4
-    dbprint(f"  {week=}")
-    year = FOOTBALL_SEASON.split("_")[0]
+    dbprint(f"  week={week}")
     espn_week_url = (
-      f'https://www.espn.com/nfl/schedule/_/week/{week}/year/{year}/seasontype/2')
-    dbprint(f"  loading from {espn_week_url=}")
-    response = requests.get(
+      f'https://cdn.espn.com/core/nfl/scoreboard?xhr=1&year={year}&seasontype=2&week={week}'
+    )
+    req = urllib.request.Request(
       espn_week_url,
-      headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    # The page organizes weeks by days, separating, e.g.,
-    # Monday night football from the Sunday games.
-    football_days = soup.find_all(
-      'div',
-      class_='ScheduleTables mb5 ScheduleTables--nfl ScheduleTables--football')
-    for i_f, football_day in enumerate(football_days):
-      day_name = football_day.find('div', class_='Table__Title').get_text()
-      dbprint(f"  football_day {day_name}")
-      # Each of these rows corresponds to one game.
-      rows = football_day.find_all(
-        'tr',
-        class_=['Table__TR','Table__TR--sm','Table__even'])
-      for i_r, row in enumerate(rows[:]):
+      headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+    )
+    try:
+      with urllib.request.urlopen(req, timeout=15) as resp:
+        data = json.loads(resp.read().decode('utf-8'))
+      events = data.get('content', {}).get('sbData', {}).get('events', [])
+      for event in events:
         game : Dict[str, Any] = {k: '' for k in GAME_COL_KEYS}
         game[games_col_keys.WEEK_KEY] = week
-        # Get the teams
-        teams = row.find_all('span', class_='Table__Team')
-        if not teams:
-          continue
-        for i_t, team in enumerate(teams):
-          team_link = team.find_all('a')[0]
-          team_code = team_link['href'].split('/')[5].upper()
-          # Away team is listed first
-          if i_t == 0:
-            game[games_col_keys.AWAY_KEY] = team_code
-            dbprint(f'    Away team: {team_code}')
-          if i_t == 1:
-            game[games_col_keys.HOME_KEY] = team_code
-            dbprint(f'    Home team: {team_code}')
-        # Get the score and ESPN game ID.  This will be none if the game
-        # has not happened or is in progres.
-        #
-        # The 'game_href' link has a format that looks like:
-        #  https://www.espn.com/nfl/game/_/gameId/401671861/texans-colts
-        #
-        # The game id is the number after the "gameId" string.
-        score_col = row.find('td', class_='teams__col Table__TD')
-        date_col = row.find('td', class_='date__col Table__TD')
-        game_href = None
-        col = None
-        if score_col:
-          col = score_col
-        else:
-          col = date_col
-        if col:
-          game_href = col.find_all('a')[0]['href']
-          dbprint('    game href ', game_href)
-          # Split the url by the '/' and get the element after 'gameId'
-          game_href_parts = game_href.split("/")
-          game_id = None
-          for i, part in enumerate(game_href_parts):
-            if part == 'gameId':
-              game_id = game_href_parts[i + 1]
-          if not game_id:
-            print(f"    ERROR: could not find game id in {game_href}")
-            continue
-          game[propositions.GAME_ID_KEY] = game_id
-        if score_col:
-          score_text = score_col.get_text()
-          # Score text should be something like "ATL 25, GB 24".
-          scores = parse_score_text(
-            score_text, home_team=game[games_col_keys.HOME_KEY])
-          game[games_col_keys.HOME_SCORE_KEY] = scores['home']
-          game[games_col_keys.AWAY_SCORE_KEY] = scores['away']
+        game[propositions.GAME_ID_KEY] = str(event.get('id', ''))
+
+        status_info = event.get('status', {}).get('type', {})
+        game_state = status_info.get('state', 'pre')  # 'pre', 'in', 'post'
+        game_detail = status_info.get('shortDetail', '')
+        game[games_col_keys.GAME_STATUS_KEY] = game_state
+        game[games_col_keys.STATUS_DETAIL_KEY] = game_detail
+
+        competitors = event.get('competitions', [{}])[0].get('competitors', [])
+        for comp in competitors:
+          abbr = comp.get('team', {}).get('abbreviation', '').upper()
+          score = str(comp.get('score', ''))
+          if comp.get('homeAway') == 'away':
+            game[games_col_keys.AWAY_KEY] = abbr
+            if game_state in ('in', 'post') and score != '':
+              game[games_col_keys.AWAY_SCORE_KEY] = score
+          elif comp.get('homeAway') == 'home':
+            game[games_col_keys.HOME_KEY] = abbr
+            if game_state in ('in', 'post') and score != '':
+              game[games_col_keys.HOME_SCORE_KEY] = score
         games.append(game)
-  return(games)
+    except Exception as e:
+      print(f"  Error loading scoreboard for week {week}: {e}")
+  return games
 
 
 def write_games_csv(games, filename):

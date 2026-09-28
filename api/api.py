@@ -205,6 +205,8 @@ def handle_get() -> None:
             "is_locked": is_locked,
             "home_score": g.get("home_score", ""),
             "away_score": g.get("away_score", ""),
+            "game_status": g.get("game_status", "post" if g.get("away_score") else "pre"),
+            "status_detail": g.get("status_detail", ""),
             "bet_win_key": g.get("bet_win_key", "not_decided"),
         })
 
@@ -214,7 +216,10 @@ def handle_get() -> None:
     for w in available_weeks:
         wg = [g for g in games if g.get("week") == str(w)]
         all_locked = bool(wg and all(float(g["prop_date"]) <= now_ms for g in wg if g.get("prop_date")))
-        is_complete = bool(wg and all(bool(g.get("away_score") and g.get("home_score")) for g in wg if g.get("game_id")))
+        is_complete = bool(wg and all(
+            (g.get("game_status") == "post" if g.get("game_status") else bool(g.get("away_score") and g.get("home_score")))
+            for g in wg if g.get("game_id")
+        ))
 
         week_statuses[w] = {
             "is_current": (w == current_week),

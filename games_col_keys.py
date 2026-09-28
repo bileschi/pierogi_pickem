@@ -18,3 +18,5 @@ HOME_KEY = 'home_team'
 HOME_SCORE_KEY = 'home_score'
 WEEK_KEY = 'week'
 BET_WIN_KEY = "bet_win_key"
+GAME_STATUS_KEY = "game_status"
+STATUS_DETAIL_KEY = "status_detail"

@@ -236,9 +236,11 @@ def handle_get() -> None:
                     if pick and pick == g.get("bet_win_key"):
                         p_score += 1
                 scores[p] = p_score
-            max_score = max(scores.values()) if scores else 0
+            eligible_players = [p for p in player_keys if p != "max" or players.player_has_manual_pick(games, "max")]
+            eligible_scores = {p: scores[p] for p in eligible_players}
+            max_score = max(eligible_scores.values()) if eligible_scores else 0
             if max_score > 0:
-                w_players = [p for p in player_keys if scores[p] == max_score]
+                w_players = [p for p in eligible_players if eligible_scores[p] == max_score]
                 w_names = [players.PLAYER_DISPLAY_NAMES.get(p, p) for p in w_players]
                 if len(w_names) == 1:
                     names_str = w_names[0]

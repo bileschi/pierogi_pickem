@@ -1,11 +1,17 @@
 import csv
 import enum
 from typing import Any, Dict
-import pytz
+try:
+    import pytz
+    nyc_timezone = pytz.timezone('America/New_York')
+except ImportError:
+    from zoneinfo import ZoneInfo
+    nyc_timezone = ZoneInfo('America/New_York')
 
 from collections import defaultdict
 from datetime import datetime
 from current_season import FOOTBALL_SEASON
+from players import player_has_manual_pick
 
 # TODO: Move this to the players module.
 players = ['smb', 'constance', 'max', 'slb', 'sue', 'jean', 'morgan', 'adam']
@@ -82,8 +88,15 @@ def generate_weekly_results(games):
                     weekly_results[week]['scores'][player] += score_per_week[week]
     return weekly_results
 
-def generate_html(weekly_results):
+def generate_html(weekly_results, games=None):
     """Generates the HTML for the website."""
+    if games is None:
+        games = [g for w in weekly_results.values() for g in w.get('games', [])]
+
+    displayed_players = [
+        p for p in players
+        if p != 'max' or player_has_manual_pick(games, 'max')
+    ]
     html = """
     <!DOCTYPE html>
     <html>
@@ -210,7 +223,6 @@ def generate_html(weekly_results):
     <body>
     <h1>Bileschi Family PLAYOFF!! Pierogi Pigskin Pick'em</h1>"""
     # Add the timestamp
-    nyc_timezone = pytz.timezone('America/New_York')
     timestamp = datetime.now(nyc_timezone).strftime('%Y-%m-%d %H:%M:%S')
     html += f"<p>Last updated: {timestamp} (East Coast)</p>"
     html += """
@@ -224,8 +236,7 @@ def generate_html(weekly_results):
     # Generate overall leaderboard
     leaderboard = defaultdict(int)
     for week, results in weekly_results.items():
-        for player in players:
-        # for player, score in results['scores'].items():
+        for player in displayed_players:
             score = results['scores'][player]
             leaderboard[player] += score
 
@@ -298,7 +309,7 @@ def generate_html(weekly_results):
             html += '<tr><th>Bet Description</th><th>Points if Correct</th><th>Result</th>'
         else:
             html += '<tr><th>Game</th><th>Result</th>'
-        for player in players:
+        for player in displayed_players:
             html += f'<th>{player}</th>'
         html += '</tr>\n'
         for game in results['games']:
@@ -335,7 +346,7 @@ def generate_html(weekly_results):
                 else:
                     game_day_string = game.get('prop_date', '')
                     html += f"<td>{game_day_string} </td>"
-            for player in players:
+            for player in displayed_players:
                 pick = game[f'{player}_pick']
                 pick_team_img_path = get_image_path(pick)
                 if pick == "":
@@ -376,12 +387,12 @@ def generate_html(weekly_results):
                 html+="</td>"
             html += '</tr>\n'
         # Find the max score(s) for the totals row for this week
-        max_score = max(results['scores'].values()) if results['scores'] else None
+        max_score = max(results['scores'][p] for p in displayed_players) if (results['scores'] and displayed_players) else None
         html += '<tr class="totals-row">'
         html += f'<td>TOTAL</td><td></td>'
         if week == 5:  #extra column in prop bets
             html += f'<td></td>'
-        for player in players:
+        for player in displayed_players:
             score = results['scores'][player]
             cell_classes = []
             if score == max_score:
@@ -398,6 +409,6 @@ def generate_html(weekly_results):
 if __name__ == '__main__':
     games = read_csv(FOOTBALL_SEASON + '/playoffs.csv')
     weekly_results = generate_weekly_results(games)
-    html = generate_html(weekly_results)
+    html = generate_html(weekly_results, games)
     with open(f'html/{FOOTBALL_SEASON}/playoffs.html', 'w') as f:
         f.write(html)

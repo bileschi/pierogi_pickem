@@ -13,7 +13,7 @@ except ImportError:
 from collections import defaultdict
 from datetime import datetime
 from current_season import FOOTBALL_SEASON
-from players import PLAYER_DISPLAY_NAMES
+from players import PLAYER_DISPLAY_NAMES, player_has_manual_pick
 
 # TODO: Move this to the players module.
 players = ['smb', 'slb', 'sue', 'jean', 'morgan', 'adam', 'constance', 'max']
@@ -74,7 +74,7 @@ def find_current_week(weekly_results):
                 return week
     return weeks[-1] if weeks else None
 
-def generate_html(weekly_results):
+def generate_html(weekly_results, games=None):
     """Generates the HTML for the website."""
     timestamp = datetime.now(nyc_timezone).strftime('%Y-%m-%d %H:%M:%S')
     html = """
@@ -475,10 +475,20 @@ def generate_html(weekly_results):
     </div>
     """
 
+    if games is None:
+        games = [g for w in weekly_results.values() for g in w.get('games', [])]
+
+    # Max is not currently playing; hide him from the leaderboard and weekly charts
+    # unless he ever makes a manual pick (on the site, manual entry, etc.).
+    displayed_players = [
+        p for p in players
+        if p != 'max' or player_has_manual_pick(games, 'max')
+    ]
+
     # Generate overall leaderboard
     leaderboard = defaultdict(int)
     for week, results in weekly_results.items():
-        for player in players:
+        for player in displayed_players:
             score = results['scores'][player]
             leaderboard[player] += score
 
@@ -529,14 +539,15 @@ def generate_html(weekly_results):
             is_game_complete(g) for g in games_in_week
         ))
 
-        # Find the max score(s) and winner(s) for this week
-        max_score = max(results['scores'].values()) if results['scores'] else None
+        # Find the max score(s) and winner(s) for this week among displayed players
+        displayed_scores = [results['scores'][p] for p in displayed_players if p in results['scores']]
+        max_score = max(displayed_scores) if displayed_scores else None
         winners = []
         winner_badge = ""
         winner_banner = ""
 
-        if is_week_complete and results['scores'] and max_score and max_score > 0:
-            winners = [p for p in players if results['scores'].get(p, 0) == max_score]
+        if is_week_complete and displayed_scores and max_score and max_score > 0:
+            winners = [p for p in displayed_players if results['scores'].get(p, 0) == max_score]
             winner_display_names = [PLAYER_DISPLAY_NAMES.get(w, w) for w in winners]
             if len(winner_display_names) == 1:
                 names_str = winner_display_names[0]
@@ -560,7 +571,7 @@ def generate_html(weekly_results):
         html += '<div class="table-responsive">'
         html += '<table class="week-table">'
         # Table Header
-        player_headers = ''.join(f'<th>{PLAYER_DISPLAY_NAMES.get(p, p)}</th>' for p in players)
+        player_headers = ''.join(f'<th>{PLAYER_DISPLAY_NAMES.get(p, p)}</th>' for p in displayed_players)
         html += f'<thead><tr><th>Game</th><th>Result</th>{player_headers}</tr></thead>\n'
         html += '<tbody>\n'
         for game in results['games']:
@@ -600,7 +611,7 @@ def generate_html(weekly_results):
                 html += f"<td><div class='final-score'>{game['away_score']} — {game['home_score']}</div></td>"
             else:
                 html += f"<td><span class='time-pill'>{game_day_string}</span></td>"
-            for player in players:
+            for player in displayed_players:
                 pick, source = game[f'{player}_pick'].split(' ')
                 pick_team_img_path = get_image_path(pick)
                 if pick == "":
@@ -661,7 +672,7 @@ def generate_html(weekly_results):
         html += '<tfoot>\n'
         html += '<tr class="totals-row">'
         html += f'<td>TOTAL</td><td></td>'
-        for player in players:
+        for player in displayed_players:
             score = results['scores'][player]
             cell_classes = []
             if max_score and score == max_score and max_score > 0:
@@ -695,7 +706,7 @@ def generate_html(weekly_results):
 if __name__ == '__main__':
     games = read_csv(FOOTBALL_SEASON + '/games.csv')
     weekly_results = generate_weekly_results(games)
-    html = generate_html(weekly_results)
+    html = generate_html(weekly_results, games)
     output_dir = f'html/{FOOTBALL_SEASON}'
     os.makedirs(output_dir, exist_ok=True)
     images_dest = os.path.join(output_dir, 'images2')

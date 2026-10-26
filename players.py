@@ -1,3 +1,4 @@
+import os
 import games_col_keys
 
 
@@ -32,6 +33,8 @@ PLAYER_IDS = [
   games_col_keys.MAX_PICK_KEY,
 ]
 
+PLAYERS = ['smb', 'slb', 'sue', 'jean', 'morgan', 'adam', 'constance', 'max']
+
 PLAYER_DISPLAY_NAMES = {
     'smb': 'Stan M',
     'slb': 'Stan L',
@@ -42,6 +45,92 @@ PLAYER_DISPLAY_NAMES = {
     'constance': 'Constance',
     'max': 'Max',
 }
+
+
+def player_has_manual_pick(games=None, player_id='max') -> bool:
+    """Checks whether a player has ever made a manual (non-default) pick.
+
+    A pick is considered manual if it was made directly by the user on the site (SITE),
+    submitted via manual picks (MANUAL), or fetched from ESPN (ESPN) -- anything other
+    than the automated fallback (DEFAULT).
+    """
+    # 1. Check games list if provided
+    if games:
+        pick_col = f"{player_id}_pick"
+        for game in games:
+            val = ""
+            if isinstance(game, dict):
+                val = game.get(pick_col) or game.get(player_id) or ""
+            elif hasattr(game, "picks"):
+                val = game.picks.get(pick_col) or game.picks.get(player_id) or ""
+            elif hasattr(game, pick_col):
+                val = getattr(game, pick_col, "")
+            if not val:
+                continue
+            parts = str(val).strip().split()
+            if not parts:
+                continue
+            team = parts[0]
+            source = parts[1] if len(parts) > 1 else ""
+            if team and team not in ("?", "None", "TIE") and source != "DEFAULT":
+                return True
+
+    # 2. Check games.csv for current season if games not provided or not matched
+    try:
+        import csv
+        from current_season import FOOTBALL_SEASON
+        proj_dir = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(proj_dir, FOOTBALL_SEASON, "games.csv")
+        if os.path.exists(csv_path):
+            with open(csv_path, mode="r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                pick_col = f"{player_id}_pick"
+                for row in reader:
+                    val = row.get(pick_col, "").strip()
+                    if not val:
+                        continue
+                    parts = val.split()
+                    team = parts[0]
+                    source = parts[1] if len(parts) > 1 else ""
+                    if team and team not in ("?", "None", "TIE") and source != "DEFAULT":
+                        return True
+    except Exception:
+        pass
+
+    # 3. Check picks.db event log
+    try:
+        import db
+        db_path = db.get_db_path()
+        if os.path.exists(db_path):
+            conn = db.get_connection(db_path)
+            row = conn.execute(
+                "SELECT 1 FROM pick_events WHERE player_id = ? LIMIT 1",
+                (player_id,)
+            ).fetchone()
+            conn.close()
+            if row:
+                return True
+    except Exception:
+        pass
+
+    # 4. Check current season's manual picks module if available
+    try:
+        import importlib
+        from current_season import FOOTBALL_SEASON
+        mod_name = f"manual_picks_{FOOTBALL_SEASON}"
+        manual_mod = importlib.import_module(mod_name)
+        manual_picks = getattr(manual_mod, "MANUAL_PICKS", {})
+        pick_key = f"{player_id}_pick"
+        player_picks = manual_picks.get(pick_key) or manual_picks.get(player_id)
+        if player_picks:
+            for week_picks in player_picks.values():
+                if week_picks:
+                    return True
+    except Exception:
+        pass
+
+    return False
+
 # You can get the ID here from hovering over the 'group entry' field
 # for each player within the league view.
 # https://fantasy.espn.com/games/nfl-pigskin-pickem-2024/group?id=93fb8547-d412-4290-b470-9261d2415021

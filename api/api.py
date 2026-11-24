@@ -80,59 +80,30 @@ def _is_final(g: dict) -> bool:
 def compute_team_records(games: list, through_week: int) -> dict:
     """Builds per-team records from final games in weeks <= through_week.
 
-    Returns {team: {"record": "7-3", "ats": "6-4", "last5": "WWLWL"}}, where
-    "ats" is the record against the spread and "last5" is the straight-up
-    result of the team's most recent five final games (oldest first).
+    Returns {team: {"record": "7-3"}}; ties are shown only when a team has one ("7-3-1").
     """
     stats = {}
-    finals = []
     for g in games:
         try:
-            week = int(g.get("week") or 0)
-            if week > through_week or not _is_final(g):
+            if int(g.get("week") or 0) > through_week or not _is_final(g):
                 continue
             home_score = float(g["home_score"])
             away_score = float(g["away_score"])
         except (KeyError, ValueError):
             continue
-        finals.append((week, float(g.get("prop_date") or 0), g, home_score, away_score))
-    finals.sort(key=lambda t: (t[0], t[1]))
-
-    for _, _, g, home_score, away_score in finals:
-        try:
-            home_line = float(g.get("home_line") or 0)
-        except ValueError:
-            home_line = 0.0
-        for team, mine, theirs, is_home in (
-            (g.get("home_team"), home_score, away_score, True),
-            (g.get("away_team"), away_score, home_score, False),
+        for team, mine, theirs in (
+            (g.get("home_team"), home_score, away_score),
+            (g.get("away_team"), away_score, home_score),
         ):
             if not team:
                 continue
-            s = stats.setdefault(team, {"w": 0, "l": 0, "t": 0, "aw": 0, "al": 0, "ap": 0, "form": []})
-            if mine > theirs:
-                s["w"] += 1
-                s["form"].append("W")
-            elif mine < theirs:
-                s["l"] += 1
-                s["form"].append("L")
-            else:
-                s["t"] += 1
-                s["form"].append("T")
-            margin = (mine - theirs) + (home_line if is_home else -home_line)
-            if margin > 0:
-                s["aw"] += 1
-            elif margin < 0:
-                s["al"] += 1
-            else:
-                s["ap"] += 1
+            s = stats.setdefault(team, {"w": 0, "l": 0, "t": 0})
+            s["w" if mine > theirs else "l" if mine < theirs else "t"] += 1
 
-    out = {}
-    for team, s in stats.items():
-        record = f"{s['w']}-{s['l']}" + (f"-{s['t']}" if s["t"] else "")
-        ats = f"{s['aw']}-{s['al']}" + (f"-{s['ap']}" if s["ap"] else "")
-        out[team] = {"record": record, "ats": ats, "last5": "".join(s["form"][-5:])}
-    return out
+    return {
+        team: {"record": f"{s['w']}-{s['l']}" + (f"-{s['t']}" if s["t"] else "")}
+        for team, s in stats.items()
+    }
 
 
 def send_response(data: dict, status: int = 200) -> None:
@@ -246,7 +217,7 @@ def handle_get() -> None:
     player_picks = active_picks_by_player.get(player["id"], {})
 
     team_records = compute_team_records(games, selected_week)
-    empty_record = {"record": "0-0", "ats": "0-0", "last5": ""}
+    empty_record = {"record": "0-0"}
 
     formatted_games = []
     for g in week_games_raw:

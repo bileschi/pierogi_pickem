@@ -47,6 +47,7 @@ ESPN Scoreboard API / Props API
 |---|---|
 | `current_season.py` | Defines `FOOTBALL_SEASON` (e.g. `"2026_2027"`) and `N_WEEKS_IN_SEASON = 18`. |
 | `players.py` | Player IDs, display names, ESPN UUIDs, default pick strategies, and `player_has_manual_pick()`. |
+| `line_tracking.py` | Keeps lines stable across runs (never blanks a known line, freezes at kickoff) and appends changes to `<season>/line_history.csv`. |
 | `games_col_keys.py` | String constants for game dict / CSV column headers (`smb_pick`, `max_pick`, etc.). |
 | `main.py` | Main orchestrator pipeline; resolves against spreads and writes `<season>/games.csv`. |
 | `generate_html.py` | Regular season HTML generator (Leaderboard, weekly collapsible tables, badges, live score pills). |
@@ -140,5 +141,6 @@ sqlite3 picks.db "SELECT * FROM pick_events ORDER BY id DESC LIMIT 10;"
       nyc_timezone = ZoneInfo('America/New_York')
   ```
 - **Spreads / Point Lines**: A negative line (e.g. `home_line = -3.5`) means the home team is favored by 3.5 points. If `(home_score + home_line) > away_score`, home covers. If equal, it's a push (`bet_win_key = 'TIE'`).
+- **Missing lines**: A blank `home_line` means ESPN hasn't posted a spread yet; the pick page shows "Line pending". A `home_line` of `0` is a true pick'em and shows "EVEN". See `<season>/line_history.csv` for when each line appeared or changed.
 - **Kickoff Locks**: `prop_date` in `games.csv` is epoch time in milliseconds. When `now_ms >= prop_date`, picks lock for that game.
 - **DreamHost Paths**: DreamHost production root is `/home/bileschi_2016/proj/pierogi_pickem` with web root `/home/bileschi_2016/bileschi.com/nfl/`. Database path is `/home/bileschi_2016/proj/pierogi_pickem/picks.db`.

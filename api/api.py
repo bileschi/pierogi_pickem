@@ -47,9 +47,12 @@ TEAM_CITY_TO_NAME = {
 
 
 def calculate_spreads(home_line_str: str):
-    """Calculates explicit away and home spread strings, e.g. ('+3.5', '-3.5')."""
-    if not home_line_str:
-        return "EVEN", "EVEN"
+    """Calculates explicit away and home spread strings, e.g. ('+3.5', '-3.5').
+
+    A missing line returns ('PENDING', 'PENDING'); a real line of 0 is 'EVEN'.
+    """
+    if not home_line_str or not str(home_line_str).strip():
+        return "PENDING", "PENDING"
     try:
         val = float(home_line_str)
         if val == 0:

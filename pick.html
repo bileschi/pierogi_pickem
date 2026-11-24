@@ -487,6 +487,15 @@
       border-color: #cbd5e1;
     }
 
+    .team-spread-pill.pending {
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-style: italic;
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px dashed #f59e0b;
+    }
+
     .team-btn.picked .team-spread-pill {
       background: #2563eb;
       color: #ffffff;
@@ -1028,6 +1037,15 @@
       });
     }
 
+    function spreadPillClass(spread) {
+      if (spread === "PENDING") return "pending";
+      return spread.startsWith('-') ? 'fav' : 'dog';
+    }
+
+    function spreadPillLabel(spread) {
+      return spread === "PENDING" ? "Line pending" : spread;
+    }
+
     function renderGames() {
       const container = document.getElementById("gamesContainer");
       container.innerHTML = "";
@@ -1050,7 +1068,10 @@
         let homeSpread = game.home_spread;
         if (!awaySpread || !homeSpread) {
           const val = parseFloat(game.home_line);
-          if (isNaN(val) || val === 0) {
+          if (isNaN(val)) {
+            awaySpread = "PENDING";
+            homeSpread = "PENDING";
+          } else if (val === 0) {
             awaySpread = "EVEN";
             homeSpread = "EVEN";
           } else {
@@ -1092,7 +1113,7 @@
               <img src="${game.away_logo}" class="team-logo" alt="${game.away_team}" onerror="this.style.display='none'">
               <div class="team-abbr">${game.away_team}</div>
               <div class="team-name">${game.away_team_name}</div>
-              <div class="team-spread-pill ${awaySpread.startsWith('-') ? 'fav' : 'dog'}">${awaySpread}</div>
+              <div class="team-spread-pill ${spreadPillClass(awaySpread)}">${spreadPillLabel(awaySpread)}</div>
             </div>
 
             <!-- Middle VS -->
@@ -1107,7 +1128,7 @@
               <img src="${game.home_logo}" class="team-logo" alt="${game.home_team}" onerror="this.style.display='none'">
               <div class="team-abbr">${game.home_team}</div>
               <div class="team-name">${game.home_team_name}</div>
-              <div class="team-spread-pill ${homeSpread.startsWith('-') ? 'fav' : 'dog'}">${homeSpread}</div>
+              <div class="team-spread-pill ${spreadPillClass(homeSpread)}">${spreadPillLabel(homeSpread)}</div>
             </div>
           </div>
         `;

@@ -445,6 +445,43 @@
       font-weight: 500;
     }
 
+    .team-record {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #475569;
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .team-record-ats {
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .team-record-inline {
+      font-weight: 700;
+      color: #475569;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .form-dots {
+      display: inline-flex;
+      gap: 2px;
+    }
+
+    .form-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #cbd5e1;
+    }
+
+    .form-dot.w { background: #16a34a; }
+    .form-dot.l { background: #dc2626; }
+
     .vs-column {
       display: flex;
       flex-direction: column;
@@ -1037,6 +1074,29 @@
       });
     }
 
+    // MOCKUP: ?recstyle=A|B|C|D picks a record display variant.
+    const RECORD_STYLE = (new URLSearchParams(location.search).get("recstyle") || "A").toUpperCase();
+
+    function formDotsHtml(last5) {
+      return `<span class="form-dots">${(last5 || "").split("").map(r =>
+        `<span class="form-dot ${r === "W" ? "w" : r === "L" ? "l" : "t"}" title="${r}"></span>`).join("")}</span>`;
+    }
+
+    function teamMetaHtml(name, rec) {
+      const nameDiv = (extra = "") => `<div class="team-name">${name}${extra}</div>`;
+      if (!rec) return nameDiv();
+      switch (RECORD_STYLE) {
+        case "B":
+          return nameDiv(` <span class="team-record-inline">· ${rec.record}</span>`);
+        case "C":
+          return nameDiv() + `<div class="team-record">${rec.record} <span class="team-record-ats">· ${rec.ats} ATS</span></div>`;
+        case "D":
+          return nameDiv() + `<div class="team-record">${rec.record} ${formDotsHtml(rec.last5)}</div>`;
+        default:
+          return nameDiv() + `<div class="team-record">${rec.record}</div>`;
+      }
+    }
+
     function spreadPillClass(spread) {
       if (spread === "PENDING") return "pending";
       return spread.startsWith('-') ? 'fav' : 'dog';
@@ -1112,7 +1172,7 @@
                  data-team="${game.away_team}">
               <img src="${game.away_logo}" class="team-logo" alt="${game.away_team}" onerror="this.style.display='none'">
               <div class="team-abbr">${game.away_team}</div>
-              <div class="team-name">${game.away_team_name}</div>
+              ${teamMetaHtml(game.away_team_name, game.away_record)}
               <div class="team-spread-pill ${spreadPillClass(awaySpread)}">${spreadPillLabel(awaySpread)}</div>
             </div>
 
@@ -1127,7 +1187,7 @@
                  data-team="${game.home_team}">
               <img src="${game.home_logo}" class="team-logo" alt="${game.home_team}" onerror="this.style.display='none'">
               <div class="team-abbr">${game.home_team}</div>
-              <div class="team-name">${game.home_team_name}</div>
+              ${teamMetaHtml(game.home_team_name, game.home_record)}
               <div class="team-spread-pill ${spreadPillClass(homeSpread)}">${spreadPillLabel(homeSpread)}</div>
             </div>
           </div>

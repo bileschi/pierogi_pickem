@@ -70,6 +70,71 @@ def calculate_spreads(home_line_str: str):
         return "", ""
 
 
+def _is_final(g: dict) -> bool:
+    status = g.get("game_status")
+    if status:
+        return status == "post"
+    return bool(g.get("home_score") and g.get("away_score"))
+
+
+def compute_team_records(games: list, through_week: int) -> dict:
+    """Builds per-team records from final games in weeks <= through_week.
+
+    Returns {team: {"record": "7-3", "ats": "6-4", "last5": "WWLWL"}}, where
+    "ats" is the record against the spread and "last5" is the straight-up
+    result of the team's most recent five final games (oldest first).
+    """
+    stats = {}
+    finals = []
+    for g in games:
+        try:
+            week = int(g.get("week") or 0)
+            if week > through_week or not _is_final(g):
+                continue
+            home_score = float(g["home_score"])
+            away_score = float(g["away_score"])
+        except (KeyError, ValueError):
+            continue
+        finals.append((week, float(g.get("prop_date") or 0), g, home_score, away_score))
+    finals.sort(key=lambda t: (t[0], t[1]))
+
+    for _, _, g, home_score, away_score in finals:
+        try:
+            home_line = float(g.get("home_line") or 0)
+        except ValueError:
+            home_line = 0.0
+        for team, mine, theirs, is_home in (
+            (g.get("home_team"), home_score, away_score, True),
+            (g.get("away_team"), away_score, home_score, False),
+        ):
+            if not team:
+                continue
+            s = stats.setdefault(team, {"w": 0, "l": 0, "t": 0, "aw": 0, "al": 0, "ap": 0, "form": []})
+            if mine > theirs:
+                s["w"] += 1
+                s["form"].append("W")
+            elif mine < theirs:
+                s["l"] += 1
+                s["form"].append("L")
+            else:
+                s["t"] += 1
+                s["form"].append("T")
+            margin = (mine - theirs) + (home_line if is_home else -home_line)
+            if margin > 0:
+                s["aw"] += 1
+            elif margin < 0:
+                s["al"] += 1
+            else:
+                s["ap"] += 1
+
+    out = {}
+    for team, s in stats.items():
+        record = f"{s['w']}-{s['l']}" + (f"-{s['t']}" if s["t"] else "")
+        ats = f"{s['aw']}-{s['al']}" + (f"-{s['ap']}" if s["ap"] else "")
+        out[team] = {"record": record, "ats": ats, "last5": "".join(s["form"][-5:])}
+    return out
+
+
 def send_response(data: dict, status: int = 200) -> None:
     """Outputs HTTP response headers and JSON body for CGI."""
     status_msg = "200 OK" if status == 200 else ("400 Bad Request" if status == 400 else ("401 Unauthorized" if status == 401 else f"{status} Error"))
@@ -180,6 +245,9 @@ def handle_get() -> None:
     active_picks_by_player = db.get_active_picks(season, week=selected_week, player_id=player["id"])
     player_picks = active_picks_by_player.get(player["id"], {})
 
+    team_records = compute_team_records(games, selected_week)
+    empty_record = {"record": "0-0", "ats": "0-0", "last5": ""}
+
     formatted_games = []
     for g in week_games_raw:
         prop_date = int(g["prop_date"]) if g.get("prop_date") else 0
@@ -211,6 +279,8 @@ def handle_get() -> None:
             "game_status": g.get("game_status", "post" if g.get("away_score") else "pre"),
             "status_detail": g.get("status_detail", ""),
             "bet_win_key": g.get("bet_win_key", "not_decided"),
+            "away_record": team_records.get(g.get("away_team"), empty_record),
+            "home_record": team_records.get(g.get("home_team"), empty_record),
         })
 
     week_statuses = {}

@@ -138,21 +138,22 @@ def list_players(db_path: Optional[str] = None) -> List[Dict[str, Any]]:
 def add_player(player_id: str, display_name: str, db_path: Optional[str] = None) -> Dict[str, Any]:
     """Adds a new player or returns existing player."""
     conn = get_connection(db_path)
-    with conn:
-        existing = conn.execute(
-            "SELECT id, display_name, token, created_at FROM players WHERE id = ?",
-            (player_id,),
-        ).fetchone()
-        if existing:
-            conn.close()
-            return dict(existing)
-        token = secrets.token_urlsafe(16)
-        now_iso = datetime.now(timezone.utc).isoformat()
-        conn.execute(
-            "INSERT INTO players (id, display_name, token, created_at) VALUES (?, ?, ?, ?)",
-            (player_id, display_name, token, now_iso),
-        )
-    conn.close()
+    try:
+        with conn:
+            existing = conn.execute(
+                "SELECT id, display_name, token, created_at FROM players WHERE id = ?",
+                (player_id,),
+            ).fetchone()
+            if existing:
+                return dict(existing)
+            token = secrets.token_urlsafe(16)
+            now_iso = datetime.now(timezone.utc).isoformat()
+            conn.execute(
+                "INSERT INTO players (id, display_name, token, created_at) VALUES (?, ?, ?, ?)",
+                (player_id, display_name, token, now_iso),
+            )
+    finally:
+        conn.close()
     return {"id": player_id, "display_name": display_name, "token": token, "created_at": now_iso}
 
 

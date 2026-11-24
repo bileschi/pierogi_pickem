@@ -7,6 +7,7 @@ import os
 import espn_picks
 import espn_game_results
 import games_col_keys
+import line_tracking
 import players
 import propositions
 # TODO: Get morgan & adams picks in.
@@ -165,7 +166,19 @@ if __name__ == "__main__":
                 game.outcome_2_id = prop.outcome_2_id
                 game.outcome_2_abbr = prop.outcome_2_abbr
     dbprint(f"Found {num_alignments_found} alignments between games and propositions.")
-    write_games_csv(games, os.path.join(FOOTBALL_SEASON, "games.csv"))
+
+    # Never let a blank line from ESPN wipe out a line we already had, and
+    # freeze lines once a game kicks off. Then log any line changes.
+    games_csv_path = os.path.join(FOOTBALL_SEASON, "games.csv")
+    line_report = line_tracking.stabilize_lines(
+        games, line_tracking.load_previous_games(games_csv_path))
+    for gid, info in line_report.items():
+        if info['note'] in ('frozen_at_kickoff', 'espn_blank_kept_previous'):
+            dbprint(f"Line for game {gid}: {info['note']} (ESPN reported '{info['espn_line']}').")
+    n_hist = line_tracking.append_line_history(
+        games, line_report, os.path.join(FOOTBALL_SEASON, "line_history.csv"))
+    dbprint(f"Recorded {n_hist} line changes in line_history.csv.")
+    write_games_csv(games, games_csv_path)
 
     # Fill the `bet_win_key` with the code of the team that won the bet.
     for game in games:

@@ -445,6 +445,12 @@
       font-weight: 500;
     }
 
+    .team-record-inline {
+      font-weight: 700;
+      color: #475569;
+      font-variant-numeric: tabular-nums;
+    }
+
     .vs-column {
       display: flex;
       flex-direction: column;
@@ -1037,6 +1043,11 @@
       });
     }
 
+    function teamMetaHtml(name, rec) {
+      const record = rec && rec.record ? ` <span class="team-record-inline">· ${rec.record}</span>` : "";
+      return `<div class="team-name">${name}${record}</div>`;
+    }
+
     function spreadPillClass(spread) {
       if (spread === "PENDING") return "pending";
       return spread.startsWith('-') ? 'fav' : 'dog';
@@ -1112,7 +1123,7 @@
                  data-team="${game.away_team}">
               <img src="${game.away_logo}" class="team-logo" alt="${game.away_team}" onerror="this.style.display='none'">
               <div class="team-abbr">${game.away_team}</div>
-              <div class="team-name">${game.away_team_name}</div>
+              ${teamMetaHtml(game.away_team_name, game.away_record)}
               <div class="team-spread-pill ${spreadPillClass(awaySpread)}">${spreadPillLabel(awaySpread)}</div>
             </div>
 
@@ -1127,7 +1138,7 @@
                  data-team="${game.home_team}">
               <img src="${game.home_logo}" class="team-logo" alt="${game.home_team}" onerror="this.style.display='none'">
               <div class="team-abbr">${game.home_team}</div>
-              <div class="team-name">${game.home_team_name}</div>
+              ${teamMetaHtml(game.home_team_name, game.home_record)}
               <div class="team-spread-pill ${spreadPillClass(homeSpread)}">${spreadPillLabel(homeSpread)}</div>
             </div>
           </div>

@@ -70,6 +70,42 @@ def calculate_spreads(home_line_str: str):
         return "", ""
 
 
+def _is_final(g: dict) -> bool:
+    status = g.get("game_status")
+    if status:
+        return status == "post"
+    return bool(g.get("home_score") and g.get("away_score"))
+
+
+def compute_team_records(games: list, through_week: int) -> dict:
+    """Builds per-team records from final games in weeks <= through_week.
+
+    Returns {team: {"record": "7-3"}}; ties are shown only when a team has one ("7-3-1").
+    """
+    stats = {}
+    for g in games:
+        try:
+            if int(g.get("week") or 0) > through_week or not _is_final(g):
+                continue
+            home_score = float(g["home_score"])
+            away_score = float(g["away_score"])
+        except (KeyError, ValueError):
+            continue
+        for team, mine, theirs in (
+            (g.get("home_team"), home_score, away_score),
+            (g.get("away_team"), away_score, home_score),
+        ):
+            if not team:
+                continue
+            s = stats.setdefault(team, {"w": 0, "l": 0, "t": 0})
+            s["w" if mine > theirs else "l" if mine < theirs else "t"] += 1
+
+    return {
+        team: {"record": f"{s['w']}-{s['l']}" + (f"-{s['t']}" if s["t"] else "")}
+        for team, s in stats.items()
+    }
+
+
 def send_response(data: dict, status: int = 200) -> None:
     """Outputs HTTP response headers and JSON body for CGI."""
     status_msg = "200 OK" if status == 200 else ("400 Bad Request" if status == 400 else ("401 Unauthorized" if status == 401 else f"{status} Error"))
@@ -180,6 +216,9 @@ def handle_get() -> None:
     active_picks_by_player = db.get_active_picks(season, week=selected_week, player_id=player["id"])
     player_picks = active_picks_by_player.get(player["id"], {})
 
+    team_records = compute_team_records(games, selected_week)
+    empty_record = {"record": "0-0"}
+
     formatted_games = []
     for g in week_games_raw:
         prop_date = int(g["prop_date"]) if g.get("prop_date") else 0
@@ -211,6 +250,8 @@ def handle_get() -> None:
             "game_status": g.get("game_status", "post" if g.get("away_score") else "pre"),
             "status_detail": g.get("status_detail", ""),
             "bet_win_key": g.get("bet_win_key", "not_decided"),
+            "away_record": team_records.get(g.get("away_team"), empty_record),
+            "home_record": team_records.get(g.get("home_team"), empty_record),
         })
 
     week_statuses = {}
